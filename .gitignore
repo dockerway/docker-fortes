@@ -1,0 +1,7 @@
+node_modules/
+.env
+
+# Editor directories and files
+.idea
+.vscode
+/apps/backend/.jest/env-vars.js
