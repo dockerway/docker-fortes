@@ -39,6 +39,14 @@ class DockerProvider {
         })
     }
 
+    fetchTask(service = null) {
+        return this.gqlc.query({
+            query: require('./gql/fetchTask.graphql'),
+            variables: {service},
+            fetchPolicy: "network-only"
+        })
+    }
+
     fetchNode(service = null) {
         return this.gqlc.query({
             query: require('./gql/fetchNode.graphql'),

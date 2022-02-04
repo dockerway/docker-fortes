@@ -4,7 +4,7 @@ import {
     fetchContainer,
     fetchNode,
     fetchService,
-    fetchStack, findNode,
+    fetchStack, fetchTask, findNode,
     serviceLogs
 } from "../../service/DockerService";
 
@@ -27,6 +27,10 @@ export default {
         fetchContainer: (_,{service},{user}) => {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             return fetchContainer(service)
+        },
+        fetchTask: (_,{service},{user}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            return fetchTask(service)
         },
         fetchNode: (_,{role},{user}) => {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")

@@ -1,0 +1,21 @@
+query fetchTask($service: String){
+    fetchTask(service: $service){
+        id
+        nodeId
+        serviceId
+        containerId
+        nodeId
+        image {
+            name
+            namespace
+            domain
+            fullname
+            tag
+        }
+        createdAt
+        updatedAt
+        state
+        message
+
+    }
+}

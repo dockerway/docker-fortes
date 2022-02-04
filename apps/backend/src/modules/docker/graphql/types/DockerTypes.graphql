@@ -45,6 +45,18 @@ type DockerContainer {
     labels: [DockerLabel]
 }
 
+type DockerTask {
+    id: String
+    nodeId: String
+    serviceId: String
+    containerId: String
+    image: DockerImage
+    createdAt: String
+    updatedAt: String
+    state: String,
+    message: String
+}
+
 type DockerLabel{
     key: String
     value: String
@@ -72,6 +84,7 @@ type Query {
     fetchStack: [DockerStack]
     fetchService(stack:String): [DockerService]
     fetchContainer(service:String): [DockerContainer]
+    fetchTask(service:String): [DockerTask]
     fetchNode(role: String): [DockerNode]
     findNode(id: String): DockerNode
     serviceLogs(service: String!): [DockerLog]

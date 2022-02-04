@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-task>
 
 
     <v-card class="my-3">
@@ -27,7 +27,7 @@
             :footer-props="{ itemsPerPageOptions: [5, 10, 25, 50, 100] }"
             :single-expand="singleExpand"
             :expanded.sync="expanded"
-            @item-expanded="fetchContainer"
+            @item-expanded="fetchTask"
             show-expand
         >
 
@@ -75,57 +75,31 @@
 
           <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length">
-              {{ item.id }}
-              <v-card v-if="item.containers && item.containers.length > 0" class="ma-3">
+              <v-card v-if="item.tasks && item.tasks.length > 0" class="ma-3">
                 <v-card-text>
                   <v-simple-table dense>
                     <thead>
                     <tr>
                       <th>state</th>
                       <th>created</th>
+                      <th>updated</th>
                       <th>Node</th>
                       <th>task</th>
-                      <th>labels</th>
                     </tr>
                     </thead>
 
                     <tbody>
-                    <tr v-for="container in item.containers" :key="container.id">
+                    <tr v-for="task in item.tasks" :key="task.id">
                       <td>
-                        <v-chip small class="font-weight-bold" dark :color="getStateColor(container.state)">
-                          {{ container.state }}
+                        <v-chip small class="font-weight-bold" dark :color="getStateColor(task.state)">
+                          {{ task.state }}
                         </v-chip>
                       </td>
-                      <td>{{ formatDateUnix(container.createdAt) }}</td>
-                      <td>{{ container.node ? container.node.hostname : container.nodeId }}</td>
-                      <td>{{ container.task }}</td>
-                      <td>
-                        <v-menu
-                            top
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                                color="primary"
-                                dark
-                                v-bind="attrs"
-                                v-on="on"
-                                x-small
-                            >
-                              labels
-                            </v-btn>
-                          </template>
+                      <td>{{ formatDate(task.createdAt) }}</td>
+                      <td>{{ formatDate(task.updatedAt) }}</td>
+                      <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
+                      <td>{{ task.id }}</td>
 
-                          <v-list>
-                            <v-list-item
-                                v-for="(label, index) in container.labels"
-                                :key="index"
-                            >
-                              <v-list-item-title>{{ label.key }}</v-list-item-title>
-                              <v-list-item-subtitle>{{ label.value }}</v-list-item-subtitle>
-                            </v-list-item>
-                          </v-list>
-                        </v-menu>
-                      </td>
                     </tr>
                     </tbody>
                   </v-simple-table>
@@ -187,7 +161,7 @@
 
     </simple-dialog>
 
-  </v-container>
+  </v-task>
 </template>
 
 <script>
@@ -217,7 +191,7 @@ export default {
       expanded: [],
       singleExpand: false,
 
-      nodes: []
+      tasks: []
 
     }
   },
@@ -290,29 +264,28 @@ export default {
         this.services = r.data.fetchService
       })
     },
-    fetchContainer(input) {
-      DockerProvider.fetchContainer(input.item.id).then(r => {
-        let containers = r.data.fetchContainer
-        //console.log("containers", containers)
-        this.$set(input.item, 'containers', containers)
+    fetchTask(input) {
+      DockerProvider.fetchTask(input.item.name).then(r => {
+        let tasks = r.data.fetchTask
+        this.$set(input.item, 'tasks', tasks)
 
-        for (let container of containers) {
-          this.findNode(container, container.nodeId)
+        for (let task of tasks) {
+          this.findNode(task, task.nodeId)
         }
 
       })
     },
-    findNode(container, nodeId) {
+    findNode(task, nodeId) {
       console.log("NodeId", nodeId)
       let node = this.nodes.find(n => n.id === nodeId)
       if (node) {
-        this.$set(container, 'node', node)
+        this.$set(task, 'node', node)
       }
 
       DockerProvider.findNode(nodeId).then(r => {
         let node = r.data.findNode
         this.nodes.push(node)
-        this.$set(container, 'node', node)
+        this.$set(task, 'node', node)
       })
     },
     fetchLogs(serviceId) {
