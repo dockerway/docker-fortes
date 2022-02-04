@@ -8,6 +8,29 @@ export default [
     },
 
     {
+        icon: 'takeout_dining',
+        text: 'menu.docker',
+        panel: false,
+        permission: 'DOCKER_VIEW',
+        children: [
+            {
+                icon: 'view_agenda',
+                text: 'menu.stacks',
+                link: {name: "StacksPage"},
+                panel: false,
+                permission: 'DOCKER_VIEW'
+            },
+            {
+                icon: 'settings_suggest',
+                text: 'menu.services',
+                link: {name: "ServicesPage"},
+                panel: false,
+                permission: 'DOCKER_VIEW'
+            },
+        ]
+    },
+
+    {
         icon: 'person',
         text: 'menu.administration',
         panel: false,

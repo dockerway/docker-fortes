@@ -1,0 +1,6 @@
+query fetchService($stack: String){
+    fetchService(stack: $stack){
+        name
+        stack
+    }
+}

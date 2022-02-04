@@ -1,0 +1,20 @@
+type DockerVersion {
+    Version: String,
+    ApiVersion: String,
+}
+
+type DockerStack {
+    name: String
+    services: Int
+}
+
+type DockerService {
+    name: String
+    stack: String
+}
+
+type Query {
+    dockerVersion: DockerVersion
+    fetchStack: [DockerStack]
+    fetchService(stack:String): [DockerService]
+}

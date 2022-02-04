@@ -8,8 +8,10 @@ import {types as settingsTypes,resolvers as settingsResolvers} from '@dracul/set
 
 //BASE RESOLVERS
 import {resolvers as baseResolvers } from './modules/base/graphql'
+import {resolvers as dockerResolvers } from './modules/docker/graphql'
 //BASE TYPEDEFS
 import {types as baseTypes} from './modules/base/graphql'
+import {types as dockerTypes} from './modules/docker/graphql'
 
 
 export const resolvers = mergeResolvers([
@@ -17,7 +19,8 @@ export const resolvers = mergeResolvers([
     securityResolvers,
     notificationResolvers,
     customResolvers,
-    settingsResolvers
+    settingsResolvers,
+    dockerResolvers
 ])
 
 export const typeDefs = mergeTypes([
@@ -26,5 +29,6 @@ export const typeDefs = mergeTypes([
     securityTypes,
     notificationTypes,
     customTypes,
-    settingsTypes
+    settingsTypes,
+    dockerTypes
 ])

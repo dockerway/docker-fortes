@@ -1,0 +1,6 @@
+query fetchStack{
+    fetchStack{
+        name
+        services
+    }
+}
