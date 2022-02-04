@@ -29,6 +29,7 @@
             :expanded.sync="expanded"
             @item-expanded="fetchTask"
             show-expand
+            :loading="loading"
         >
 
 
@@ -75,7 +76,12 @@
 
           <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length">
-              <v-card v-if="item.tasks && item.tasks.length > 0" class="ma-3">
+
+              <v-card v-if="loadingTask">
+                <loading></loading>
+              </v-card>
+
+              <v-card v-else-if="item.tasks && item.tasks.length > 0" class="ma-3">
                 <v-card-text>
                   <v-simple-table dense>
                     <thead>
@@ -168,17 +174,18 @@
 import DockerProvider from "@/modules/docker/providers/DockerProvider";
 import StackCombobox from "@/modules/docker/compontents/StackCombobox/StackCombobox";
 import {Dayjs} from "@dracul/dayjs-frontend"
-import {SimpleDialog} from "@dracul/common-frontend"
+import {SimpleDialog, Loading} from "@dracul/common-frontend"
 
 export default {
   name: "ServicesPage",
-  components: {StackCombobox, SimpleDialog},
+  components: {StackCombobox, SimpleDialog,Loading},
   data() {
     return {
       services: [],
       itemsPerPage: 25,
       stack: null,
-
+      loading: false,
+      loadingTask: false,
       logs: {
         show: false,
         refresh: false,
@@ -260,20 +267,26 @@ export default {
   },
   methods: {
     fetchService() {
-      DockerProvider.fetchService(this.stack).then(r => {
-        this.services = r.data.fetchService
-      })
+      this.loading = true
+      DockerProvider.fetchService(this.stack)
+          .then(r => {
+            this.services = r.data.fetchService
+          })
+          .finally(() => this.loading = false)
     },
     fetchTask(input) {
-      DockerProvider.fetchTask(input.item.name).then(r => {
-        let tasks = r.data.fetchTask
-        this.$set(input.item, 'tasks', tasks)
+      this.loadingTask = true
+      DockerProvider.fetchTask(input.item.name)
+          .then(r => {
+            let tasks = r.data.fetchTask
+            this.$set(input.item, 'tasks', tasks)
 
-        for (let task of tasks) {
-          this.findNode(task, task.nodeId)
-        }
+            for (let task of tasks) {
+              this.findNode(task, task.nodeId)
+            }
 
-      })
+          })
+          .finally(() => this.loadingTask = false)
     },
     findNode(task, nodeId) {
       console.log("NodeId", nodeId)
