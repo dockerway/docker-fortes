@@ -191,7 +191,7 @@ export default {
       expanded: [],
       singleExpand: false,
 
-      tasks: []
+      nodes: []
 
     }
   },
