@@ -3,7 +3,8 @@ const messages = {
    en: {
       docker: {
          stack: {
-            name: "StackName"
+            name: "StackName",
+            services: "Services"
          },
          service: {
             name: "ServiceName",
@@ -30,7 +31,8 @@ const messages = {
    es: {
       docker: {
          stack: {
-            name: "StackName"
+            name: "StackName",
+            services: "Services"
          },
          service: {
             name: "ServiceName",
@@ -58,7 +60,8 @@ const messages = {
    pt: {
       docker: {
          stack: {
-            name: "StackName"
+            name: "StackName",
+            services: "Services"
          },
          service: {
             name: "ServiceName",

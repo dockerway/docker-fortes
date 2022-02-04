@@ -50,8 +50,8 @@ export default {
     headers() {
       return [
         //Entity Headers
-        {text: this.$t('docker.name'), value: 'name'},
-        {text: this.$t('docker.services'), value: 'services'},
+        {text: this.$t('docker.stack.name'), value: 'name'},
+        {text: this.$t('docker.stack.services'), value: 'services'},
         //Actions
         {text: this.$t('common.actions'), value: 'action', sortable: false},
       ]
