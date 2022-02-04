@@ -18,10 +18,18 @@ type DockerService {
     id: String
     name: String
     stack: String
-    image: String
+    image: DockerImage
     createdAt: String
     updatedAt: String
     ports: [Port]
+}
+
+type DockerImage{
+    name: String
+    namespace: String
+    domain: String
+    fullname: String
+    tag: String
 }
 
 type DockerContainer {
@@ -29,7 +37,7 @@ type DockerContainer {
     name: String
     task: String
     nodeId: String
-    image: String
+    image: DockerImage
     createdAt: String
     state: String,
     status: String
@@ -41,10 +49,24 @@ type DockerLog{
     text: String
 }
 
+type DockerNode{
+    id: String
+    hostname: String
+    ip: String
+    role: String
+    leader: Boolean
+    reachability: String
+    state: String
+    engine: String
+    availability: String
+}
+
 type Query {
     dockerVersion: DockerVersion
     fetchStack: [DockerStack]
     fetchService(stack:String): [DockerService]
     fetchContainer(service:String): [DockerContainer]
+    fetchNode(role: String): [DockerNode]
+    findNode(id: String): DockerNode
     serviceLogs(service: String!): [DockerLog]
 }

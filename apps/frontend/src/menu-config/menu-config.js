@@ -27,6 +27,13 @@ export default [
                 panel: false,
                 permission: 'DOCKER_VIEW'
             },
+            {
+                icon: 'scatter_plot',
+                text: 'menu.nodes',
+                link: {name: "NodesPage"},
+                panel: false,
+                permission: 'DOCKER_VIEW'
+            },
         ]
     },
 

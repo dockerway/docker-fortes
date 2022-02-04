@@ -4,7 +4,13 @@ query fetchContainer($service: String){
         name
         task
         nodeId
-        image
+        image {
+            name
+            namespace
+            domain
+            fullname
+            tag
+        }
         createdAt
         state
         status

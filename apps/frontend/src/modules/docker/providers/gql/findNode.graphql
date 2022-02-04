@@ -1,0 +1,13 @@
+query findNode($id: String){
+    findNode(id: $id){
+        id
+        hostname
+        ip
+        role
+        leader
+        reachability
+        availability
+        engine
+        state
+    }
+}

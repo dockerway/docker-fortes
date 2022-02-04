@@ -8,7 +8,7 @@ const messages = {
             docker: "Docker",
             stacks:"Stacks",
             services: "Services",
-
+            nodes: "Nodes",
         }
     },
     es: {
@@ -19,6 +19,7 @@ const messages = {
             docker: "Docker",
             stacks:"Stacks",
             services: "Services",
+            nodes: "Nodes",
         }
     },
     pt: {
@@ -29,6 +30,7 @@ const messages = {
             docker: "Docker",
             stacks:"Stacks",
             services: "Services",
+            nodes: "Nodes",
         }
     }
 }

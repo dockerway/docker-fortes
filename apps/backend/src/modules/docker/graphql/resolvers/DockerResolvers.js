@@ -1,5 +1,12 @@
 import {AuthenticationError} from "apollo-server-errors";
-import {dockerVersion, fetchContainer, fetchService, fetchStack, serviceLogs} from "../../service/DockerService";
+import {
+    dockerVersion,
+    fetchContainer,
+    fetchNode,
+    fetchService,
+    fetchStack, findNode,
+    serviceLogs
+} from "../../service/DockerService";
 
 
 export default {
@@ -20,6 +27,14 @@ export default {
         fetchContainer: (_,{service},{user}) => {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             return fetchContainer(service)
+        },
+        fetchNode: (_,{role},{user}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            return fetchNode(role)
+        },
+        findNode: (_,{id},{user}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            return findNode(id)
         },
         serviceLogs: (_,{service},{user}) => {
              if(!user)  throw new AuthenticationError("Usted no esta autenticado")

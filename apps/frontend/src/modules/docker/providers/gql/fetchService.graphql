@@ -3,7 +3,13 @@ query fetchService($stack: String){
         id
         name
         stack
-        image
+        image {
+            name
+            namespace
+            domain
+            fullname
+            tag
+        }
         createdAt
         updatedAt
         ports{

@@ -1,0 +1,13 @@
+query fetchNode($role: String){
+    fetchNode(role: $role){
+        id
+        hostname
+        ip
+        role
+        leader
+        reachability
+        availability
+        engine
+        state
+    }
+}

@@ -10,9 +10,20 @@ const messages = {
             image: "Image",
             ports: "Ports"
          },
+         node: {
+            id: "ID",
+            hostname: "Hostname",
+            ip: "IP",
+            role: "Role",
+            leader: "Leader",
+            reachability: "Reachability",
+            state: "State",
+            engine: "Engine"
+         },
          common: {
             createdAt: "CreatedAt",
-            updatedAt: "UpdatedAt"
+            updatedAt: "UpdatedAt",
+            logs: "Logs"
          }
       }
    },
@@ -26,10 +37,22 @@ const messages = {
             image: "Image",
             ports: "Ports"
          },
+         node: {
+            id: "ID",
+            hostname: "Hostname",
+            ip: "IP",
+            role: "Role",
+            leader: "Leader",
+            reachability: "Reachability",
+            state: "State",
+            engine: "Engine"
+         },
          common: {
             createdAt: "CreatedAt",
-            updatedAt: "UpdatedAt"
-         }
+            updatedAt: "UpdatedAt",
+            logs: "Logs"
+         },
+
       }
    },
    pt: {
@@ -42,9 +65,20 @@ const messages = {
             image: "Image",
             ports: "Ports"
          },
+         node: {
+            id: "ID",
+            hostname: "Hostname",
+            ip: "IP",
+            role: "Role",
+            leader: "Leader",
+            reachability: "Reachability",
+            state: "State",
+            engine: "Engine"
+         },
          common: {
             createdAt: "CreatedAt",
-            updatedAt: "UpdatedAt"
+            updatedAt: "UpdatedAt",
+            logs: "Logs"
          }
       }
    }

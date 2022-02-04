@@ -38,23 +38,35 @@
 
 
           <template v-slot:item.ports="{ item }">
-            <v-chip v-for="(port,index) in item.ports" :key="index">{{ port.publishedPort }}/{{ port.targetPort }}
+            <v-chip small v-for="(port,index) in item.ports" :key="index">{{ port.publishedPort }}:{{ port.targetPort }}
             </v-chip>
           </template>
 
           <template v-slot:item.image="{ item }">
-            {{ item.image.split("@")[0] }}
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-chip
+                    v-bind="attrs"
+                    v-on="on"
+                    small
+                >
+                  {{ item.image.name }}
+                </v-chip>
+              </template>
+              <span> {{ item.image.fullname }} </span>
+            </v-tooltip>
+
           </template>
 
           <template v-slot:item.createdAt="{ item }">
-            <v-chip color="blue lighten-4">{{ formatDate(item.createdAt) }}</v-chip>
+            <v-chip small color="blue lighten-4">{{ formatDate(item.createdAt) }}</v-chip>
           </template>
 
           <template v-slot:item.updatedAt="{ item }">
-            <v-chip color="purple lighten-4">{{ formatDate(item.updatedAt) }}</v-chip>
+            <v-chip small color="purple lighten-4">{{ formatDate(item.updatedAt) }}</v-chip>
           </template>
 
-          <template v-slot:item.action="{ item }">
+          <template v-slot:item.logs="{ item }">
             <v-btn icon @click="showLogs(item)">
               <v-icon>description</v-icon>
             </v-btn>
@@ -71,8 +83,8 @@
                     <tr>
                       <th>state</th>
                       <th>created</th>
+                      <th>Node</th>
                       <th>task</th>
-                      <th>NodeId</th>
                     </tr>
                     </thead>
 
@@ -84,8 +96,8 @@
                         </v-chip>
                       </td>
                       <td>{{ formatDateUnix(container.createdAt) }}</td>
+                      <td>{{ container.node ? container.node.hostname : container.nodeId }}</td>
                       <td>{{ container.task }}</td>
-                      <td>{{ container.nodeId }}</td>
                     </tr>
                     </tbody>
                   </v-simple-table>
@@ -98,8 +110,6 @@
                 </v-card-text>
               </v-card>
 
-
-
             </td>
           </template>
 
@@ -108,25 +118,44 @@
     </v-card>
 
 
-    <simple-dialog v-if="logs.service"
-                   v-model="logs.service"
-                   @close="logs.service = null"
+    <simple-dialog v-if="logs.show"
+                   v-model="logs.show"
+                   @close="closeLogs"
                    :title="'Logs '+ logs.service.name"
+
                    fullscreen
     >
-      <v-row dense>
-        <v-col cols="12" v-for="log in logs.data" :key="log.timestamp">
-          <v-card rounded>
-            <v-card-text>
-              <v-row dense align="center">
-                <v-col cols="2"> {{ formatDateUnix(log.timestamp) }}</v-col>
-                <v-col cols="10"> {{ log.text }}</v-col>
-              </v-row>
-
-            </v-card-text>
-          </v-card>
+      <v-row align="center">
+        <v-col cols="12" sm="3">
+          <v-switch
+              label="AutoRefresh"
+              v-model="logs.refresh"
+              @change="showLogs(logs.service)"
+          ></v-switch>
+        </v-col>
+        <v-col cols="12" sm="6">
+          <v-slider
+              v-model="logs.rate"
+              :min="5" :max="60"
+              label="Regresh Rate"
+              thumb-color="green"
+              thumb-label="always"
+          ></v-slider>
         </v-col>
       </v-row>
+
+
+      <v-data-table
+          :items="logs.data"
+          :headers="[{text:'timestamp',value:'timestamp'},{text:'text',value:'text'} ]"
+          :items-per-page="100"
+          hide-default-footer
+          :loading="logs.loading"
+      >
+        <template v-slot:item.timestamp="{item}">
+          {{ formatDate(item.timestamp) }}
+        </template>
+      </v-data-table>
 
     </simple-dialog>
 
@@ -149,12 +178,18 @@ export default {
       stack: null,
 
       logs: {
+        show: false,
+        refresh: false,
+        rate: 10,
+        loading: false,
         service: null,
-        data: null
+        data: []
       },
 
       expanded: [],
       singleExpand: false,
+
+      nodes: []
 
     }
   },
@@ -166,6 +201,7 @@ export default {
     },
     formatDateUnix() {
       return date => {
+        console.log(date)
         return Dayjs.unix(date).format("YYYY-MM-DD HH:mm:ss")
       }
     },
@@ -212,7 +248,7 @@ export default {
         {text: this.$t('docker.common.updatedAt'), value: 'updatedAt'},
         {text: this.$t('docker.service.ports'), value: 'ports'},
         //Actions
-        {text: this.$t('common.actions'), value: 'action', sortable: false},
+        {text: this.$t('docker.common.logs'), value: 'logs', sortable: false},
       ]
     },
   },
@@ -227,24 +263,51 @@ export default {
       })
     },
     fetchContainer(input) {
-      console.log("fetchContainer service", input.item)
-      let name = input.item.name.replace(input.item.stack + "_", "")
-      console.log("fetchContainer name", name)
-      DockerProvider.fetchContainer(name).then(r => {
+      DockerProvider.fetchContainer(input.item.name).then(r => {
         let containers = r.data.fetchContainer
-        console.log("containers", containers)
+        //console.log("containers", containers)
         this.$set(input.item, 'containers', containers)
-        //input.item.containers = containers
+
+        for (let container of containers) {
+          this.findNode(container, container.nodeId)
+        }
+
       })
     },
-    fetchLogs(service) {
-      DockerProvider.serviceLogs(service).then(r => {
-        this.logs.data = r.data.serviceLogs
+    findNode(container, nodeId) {
+      console.log("NodeId", nodeId)
+      let node = this.nodes.find(n => n.id === nodeId)
+      if (node) {
+        this.$set(container, 'node', node)
+      }
+
+      DockerProvider.findNode(nodeId).then(r => {
+        let node = r.data.findNode
+        this.nodes.push(node)
+        this.$set(container, 'node', node)
       })
+    },
+    fetchLogs(serviceId) {
+      this.logs.loading = true
+      DockerProvider.serviceLogs(serviceId)
+          .then(r => {
+            this.logs.data = r.data.serviceLogs
+            this.refreshLogs(serviceId)
+          }).finally(() => this.logs.loading = false)
+    },
+    refreshLogs(serviceId) {
+      if (this.logs.show && this.logs.refresh) {
+        setTimeout(() => this.fetchLogs(serviceId), (this.logs.rate * 1000))
+      }
     },
     showLogs(service) {
+      this.logs.show = true
       this.logs.service = service
       this.fetchLogs(this.logs.service.id)
+    },
+    closeLogs(){
+      this.logs.show = false
+      this.logs.service = null
     }
   }
 }
