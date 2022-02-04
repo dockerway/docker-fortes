@@ -8,13 +8,43 @@ type DockerStack {
     services: Int
 }
 
+type Port{
+    protocol: String
+    targetPort: Int
+    publishedPort: Int
+}
+
 type DockerService {
+    id: String
     name: String
     stack: String
+    image: String
+    createdAt: String
+    updatedAt: String
+    ports: [Port]
+}
+
+type DockerContainer {
+    id: String
+    name: String
+    task: String
+    nodeId: String
+    image: String
+    createdAt: String
+    state: String,
+    status: String
+    command: String
+}
+
+type DockerLog{
+    timestamp: String,
+    text: String
 }
 
 type Query {
     dockerVersion: DockerVersion
     fetchStack: [DockerStack]
     fetchService(stack:String): [DockerService]
+    fetchContainer(service:String): [DockerContainer]
+    serviceLogs(service: String!): [DockerLog]
 }

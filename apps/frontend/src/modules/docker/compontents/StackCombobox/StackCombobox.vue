@@ -8,6 +8,7 @@
       v-model="stack"
       hide-details
       outlined dense
+      :clearable="clearable"
   />
 
 </template>
@@ -18,7 +19,8 @@ import DockerProvider from "@/modules/docker/providers/DockerProvider";
 export default {
   name: "StackCombobox",
   props: {
-    value: String
+    value: String,
+    clearable: {type: Boolean, default: false}
   },
   computed: {
     stack: {

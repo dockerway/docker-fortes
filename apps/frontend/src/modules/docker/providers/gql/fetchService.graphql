@@ -1,6 +1,15 @@
 query fetchService($stack: String){
     fetchService(stack: $stack){
+        id
         name
         stack
+        image
+        createdAt
+        updatedAt
+        ports{
+            publishedPort
+            targetPort
+            protocol
+        }
     }
 }

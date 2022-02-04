@@ -1,0 +1,13 @@
+query fetchContainer($service: String){
+    fetchContainer(service: $service){
+        id
+        name
+        task
+        nodeId
+        image
+        createdAt
+        state
+        status
+        command
+    }
+}

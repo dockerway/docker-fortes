@@ -1,0 +1,6 @@
+query serviceLogs($service: String!){
+    serviceLogs(service: $service){
+        timestamp
+        text
+    }
+}
