@@ -75,7 +75,7 @@
 
           <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length">
-
+              {{ item.id }}
               <v-card v-if="item.containers && item.containers.length > 0" class="ma-3">
                 <v-card-text>
                   <v-simple-table dense>
@@ -85,6 +85,7 @@
                       <th>created</th>
                       <th>Node</th>
                       <th>task</th>
+                      <th>labels</th>
                     </tr>
                     </thead>
 
@@ -98,6 +99,33 @@
                       <td>{{ formatDateUnix(container.createdAt) }}</td>
                       <td>{{ container.node ? container.node.hostname : container.nodeId }}</td>
                       <td>{{ container.task }}</td>
+                      <td>
+                        <v-menu
+                            top
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                                color="primary"
+                                dark
+                                v-bind="attrs"
+                                v-on="on"
+                                x-small
+                            >
+                              labels
+                            </v-btn>
+                          </template>
+
+                          <v-list>
+                            <v-list-item
+                                v-for="(label, index) in container.labels"
+                                :key="index"
+                            >
+                              <v-list-item-title>{{ label.key }}</v-list-item-title>
+                              <v-list-item-subtitle>{{ label.value }}</v-list-item-subtitle>
+                            </v-list-item>
+                          </v-list>
+                        </v-menu>
+                      </td>
                     </tr>
                     </tbody>
                   </v-simple-table>
@@ -263,7 +291,7 @@ export default {
       })
     },
     fetchContainer(input) {
-      DockerProvider.fetchContainer(input.item.name).then(r => {
+      DockerProvider.fetchContainer(input.item.id).then(r => {
         let containers = r.data.fetchContainer
         //console.log("containers", containers)
         this.$set(input.item, 'containers', containers)
@@ -305,7 +333,7 @@ export default {
       this.logs.service = service
       this.fetchLogs(this.logs.service.id)
     },
-    closeLogs(){
+    closeLogs() {
       this.logs.show = false
       this.logs.service = null
     }

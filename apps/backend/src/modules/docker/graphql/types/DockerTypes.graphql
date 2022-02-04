@@ -42,6 +42,12 @@ type DockerContainer {
     state: String,
     status: String
     command: String
+    labels: [DockerLabel]
+}
+
+type DockerLabel{
+    key: String
+    value: String
 }
 
 type DockerLog{

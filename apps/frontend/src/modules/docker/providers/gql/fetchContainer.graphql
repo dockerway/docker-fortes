@@ -15,5 +15,9 @@ query fetchContainer($service: String){
         state
         status
         command
+        labels{
+            key
+            value
+        }
     }
 }
