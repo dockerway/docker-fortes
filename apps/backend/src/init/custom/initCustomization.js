@@ -8,14 +8,14 @@ export const initCustomization = async function () {
     if (!customDoc) {
         let customDoc = await createCustomization({
             colors: {
-                primary: '#3F51B5',
+                primary: '#000000',
                 onPrimary: '#FFFFFF',
                 secondary: '#1565C0',
                 onSecondary: '#FFFFFF'
             },
             logo: {
-                mode: 'Round',
-                title: 'APP',
+                mode: 'OnlyTitle',
+                title: 'INCATAINER',
                 filename: 'logo.png',
                 url: process.env.APP_API_URL + '/media/logo/logo.png'
             },

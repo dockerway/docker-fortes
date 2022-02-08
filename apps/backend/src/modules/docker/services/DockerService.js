@@ -1,6 +1,8 @@
+import {createAudit} from "./AuditService";
+
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
-
+import dayjs from 'dayjs'
 
 export const dockerVersion = function (id) {
     return new Promise(async (resolve, reject) => {
@@ -136,10 +138,10 @@ export const fetchContainer = function (service) {
                     filters: JSON.stringify({"label": ["com.docker.swarm.service.id=" + service]})
                 };
             }
-            console.log("opts",opts)
+            console.log("opts", opts)
             let data = await docker.listContainers(opts)
 
-            console.log("Containers Data", JSON.stringify(data, null,4))
+            console.log("Containers Data", JSON.stringify(data, null, 4))
 
             let containers = data.map(
                 item => ({
@@ -155,7 +157,7 @@ export const fetchContainer = function (service) {
                     labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
                 })
             )
-            console.log("containers",containers)
+            console.log("containers", containers)
             resolve(containers)
         } catch (e) {
             reject(e)
@@ -164,7 +166,7 @@ export const fetchContainer = function (service) {
     })
 }
 
-export const fetchTask= function (service) {
+export const fetchTask = function (service) {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -174,7 +176,7 @@ export const fetchTask= function (service) {
                     filters: JSON.stringify({"service": [service]})
                 };
             }
-            console.log("opts",opts)
+            console.log("opts", opts)
             let data = await docker.listTasks(opts)
 
             //console.log("Task Data", JSON.stringify(data, null,4))
@@ -185,15 +187,15 @@ export const fetchTask= function (service) {
                     nodeId: item.NodeID,
                     createdAt: item?.CreatedAt,
                     updatedAt: item?.UpdatedAt,
-                    state:  item?.Status?.State,
-                    message:  item?.Status?.Message,
+                    state: item?.Status?.State,
+                    message: item?.Status?.Message,
                     image: getImageObject(item?.Spec?.ContainerSpec?.Image),
                     serviceId: item?.ServiceID,
                     containerId: item?.Status?.ContainerStatus?.ContainerID,
                     //labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
                 })
             )
-            console.log("tasks",containers)
+            //console.log("tasks", containers)
             resolve(containers)
         } catch (e) {
             reject(e)
@@ -231,7 +233,7 @@ export const fetchNode = function (role = '') {
 
                 })
             )
-           // console.log("nodes", nodes)
+            // console.log("nodes", nodes)
             resolve(nodes)
         } catch (e) {
             reject(e)
@@ -248,21 +250,21 @@ export const findNode = function (id = '') {
 
             let item = await data.inspect()
 
-            console.log("Nodes Data", JSON.stringify(item, null, 4))
+           // console.log("Nodes Data", JSON.stringify(item, null, 4))
 
             let node = {
-                    id: item.ID,
-                    hostname: item?.Description?.Hostname,
-                    ip: item?.Status?.Addr,
-                    role: item?.Spec?.Role,
-                    availability: item?.Spec?.Availability,
-                    state: item?.Status?.State,
-                    engine: item?.Description?.Engine?.EngineVersion,
-                    leader: item?.ManagerStatus?.Leader,
-                    reachability: item?.ManagerStatus?.Reachability
-                }
+                id: item.ID,
+                hostname: item?.Description?.Hostname,
+                ip: item?.Status?.Addr,
+                role: item?.Spec?.Role,
+                availability: item?.Spec?.Availability,
+                state: item?.Status?.State,
+                engine: item?.Description?.Engine?.EngineVersion,
+                leader: item?.ManagerStatus?.Leader,
+                reachability: item?.ManagerStatus?.Reachability
+            }
 
-            console.log("node", node)
+            //console.log("node", node)
             resolve(node)
         } catch (e) {
             reject(e)
@@ -290,10 +292,11 @@ export const serviceLogs = function (service, tail = 100) {
             logs = logs.toString('utf8').replace(/\u0000|\u0002/g, "").replace(/�/g, "").split('\n')
 
             logs = logs.map(log => ({
-                timestamp: log.substring(0, 30),
+                timestamp: log.substring(0, 30).trim(),
                 text: log.substring(31)
             })).filter(log => log.text)
 
+            //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
             resolve(logs)
         } catch (e) {
             reject(e)
@@ -303,3 +306,87 @@ export const serviceLogs = function (service, tail = 100) {
 }
 
 
+export const dockerRestartMany = function (user, serviceIds) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let result = []
+            for (let serviceId of serviceIds) {
+                result.push(await dockerRestart(user, serviceId))
+            }
+
+            resolve(result)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
+
+export const dockerRestart = function (user, serviceId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let service = await docker.getService(serviceId)
+            //console.log("dockerRestart service", service)
+            let serviceInspected = await service.inspect()
+            await createAudit(user,{user: user.id, action: 'RESTART', target: serviceInspected.Spec.Name})
+
+            //console.log("Spec", JSON.stringify(serviceInspected, null, 4))
+
+            let opts = serviceInspected.Spec
+            opts.version = parseInt(serviceInspected.Version.Index)
+            opts.TaskTemplate.ForceUpdate = 1
+
+            //Force update?
+            if(opts.TaskTemplate.ContainerSpec.Env){
+                opts.TaskTemplate.ContainerSpec.Env.push("SERVICE_VERSION="+opts.version)
+            }else{
+                opts.TaskTemplate.ContainerSpec.Env = ["SERVICE_VERSION="+opts.version]
+            }
+
+            opts.Labels["LastUpdate"] = dayjs().toString()
+            console.log("opts", opts)
+
+            let result = await service.update(opts)
+            console.log("Restart result", result)
+            resolve(result)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
+
+
+//REMOVE
+export const dockerRemoveMany = function (user, serviceIds) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let result = []
+            for (let serviceId of serviceIds) {
+                result.push(await dockerRemove(user,serviceId))
+            }
+
+            resolve(result)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
+
+export const dockerRemove = function (user, serviceId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let service = await docker.getService(serviceId)
+            let serviceInspected = await service.inspect()
+            await createAudit(user,{user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name})
+            let result = await service.remove()
+
+            resolve(result)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}

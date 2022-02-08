@@ -9,6 +9,7 @@ const messages = {
             stacks:"Stacks",
             services: "Services",
             nodes: "Nodes",
+            audit:"Audit"
         }
     },
     es: {
@@ -20,6 +21,7 @@ const messages = {
             stacks:"Stacks",
             services: "Services",
             nodes: "Nodes",
+            audit:"Auditoria"
         }
     },
     pt: {
@@ -31,6 +33,7 @@ const messages = {
             stacks:"Stacks",
             services: "Services",
             nodes: "Nodes",
+            audit:"Audit"
         }
     }
 }

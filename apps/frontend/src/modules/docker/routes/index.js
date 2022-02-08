@@ -1,14 +1,9 @@
-import DockerVersionPage from '../pages/DockerVersionPage'
-import StacksPage from '../pages/StacksPage'
-import ServicesPage from '../pages/ServicesPage'
-import NodesPage from '../pages/NodesPage'
+import merge from 'deepmerge'
+import DockerManagementRoutes from './DockerCrudRoutes'
+import ExtraRoutes from './DockerRoutes'
 
-const routes = [
-    {name: "DockerVersionPage", path: '/docker/version', component: DockerVersionPage},
-    {name: "StacksPage", path: '/docker/stacks', component: StacksPage},
-    {name: "ServicesPage", path: '/docker/services/:stack?', component: ServicesPage},
-    {name: "NodesPage", path: '/docker/nodes', component: NodesPage},
+const routes = merge.all([DockerManagementRoutes,ExtraRoutes])
 
-]
 
-export default routes
+export default routes;
+

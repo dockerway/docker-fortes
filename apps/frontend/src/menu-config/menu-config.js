@@ -4,35 +4,37 @@ export default [
         icon: 'home',
         text:'base.home',
         link: { name: "home" },
-        panel: false
+        galleryHide: true
     },
 
     {
         icon: 'takeout_dining',
         text: 'menu.docker',
-        panel: false,
         permission: 'DOCKER_VIEW',
         children: [
             {
                 icon: 'view_agenda',
                 text: 'menu.stacks',
                 link: {name: "StacksPage"},
-                panel: false,
                 permission: 'DOCKER_VIEW'
             },
             {
                 icon: 'settings_suggest',
                 text: 'menu.services',
                 link: {name: "ServicesPage"},
-                panel: false,
                 permission: 'DOCKER_VIEW'
             },
             {
                 icon: 'scatter_plot',
                 text: 'menu.nodes',
                 link: {name: "NodesPage"},
-                panel: false,
                 permission: 'DOCKER_VIEW'
+            },
+            {
+                icon: 'local_police',
+                text: 'menu.audit',
+                link: {name: "AuditPage"},
+                permission: 'AUDIT_MENU'
             },
         ]
     },
@@ -80,12 +82,6 @@ export default [
             },
 
         ]
-    },
-    {
-        icon: 'perm_phone_msg',
-        text: 'base.about',
-        link: { name: "about" },
-        panel: false,
     },
 
 

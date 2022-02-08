@@ -1,0 +1,5 @@
+mutation dockerRemoveMany($serviceIds: [String!]){
+    dockerRemoveMany(serviceIds: $serviceIds){
+    message
+    }
+}

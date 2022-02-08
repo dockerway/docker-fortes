@@ -70,6 +70,35 @@ class DockerProvider {
             fetchPolicy: "network-only"
         })
     }
+
+
+    dockerRestart(serviceId = null) {
+        return this.gqlc.mutate({
+            mutation: require('./gql/dockerRestart.graphql'),
+            variables: {serviceId},
+        })
+    }
+
+    dockerRestartMany(serviceIds = null) {
+        return this.gqlc.mutate({
+            mutation: require('./gql/dockerRestartMany.graphql'),
+            variables: {serviceIds},
+        })
+    }
+
+    dockerRemove(serviceId = null) {
+        return this.gqlc.mutate({
+            mutation: require('./gql/dockerRemove.graphql'),
+            variables: {serviceId},
+        })
+    }
+
+    dockerRemoveMany(serviceIds = null) {
+        return this.gqlc.mutate({
+            mutation: require('./gql/dockerRemoveMany.graphql'),
+            variables: {serviceIds},
+        })
+    }
 }
 
 const dockerProvider = new DockerProvider()

@@ -89,3 +89,20 @@ type Query {
     findNode(id: String): DockerNode
     serviceLogs(service: String!): [DockerLog]
 }
+
+type DockerRestart{
+    Warnings: String
+}
+
+type DockerRemove{
+    message: String
+}
+
+
+type Mutation {
+    dockerRestart(serviceId: String!): DockerRestart
+    dockerRestartMany(serviceIds: [String!]): [DockerRestart]
+
+    dockerRemove(serviceId: String!): DockerRemove
+    dockerRemoveMany(serviceIds: [String!]): [DockerRemove]
+}

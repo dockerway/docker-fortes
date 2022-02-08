@@ -1,1 +1,4 @@
 export const DOCKER_VIEW = "DOCKER_VIEW"
+export const DOCKER_RESTART = "DOCKER_RESTART"
+export const DOCKER_UPDATE = "DOCKER_UPDATE"
+export const DOCKER_REMOVE = "DOCKER_REMOVE"

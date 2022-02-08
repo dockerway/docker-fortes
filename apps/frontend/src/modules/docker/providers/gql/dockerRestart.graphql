@@ -1,0 +1,5 @@
+mutation dockerRestart($serviceId: String!){
+    dockerRestart(serviceId: $serviceId){
+        Warnings
+    }
+}
