@@ -2,7 +2,7 @@
 const messages = {
     en: {
        docker: {
-          audit: { 
+          audit: {
             name: 'Audit',
             title: 'Audit management',
             subtitle: 'View, search, create, edit and delete Audit',
@@ -14,15 +14,16 @@ const messages = {
             labels: {
                 user: 'User',
                 action: 'Action',
-                target: 'Target'
+                target: 'Target',
+                createdAt: 'Date'
             },
-          
+
           }
        }
     },
     es: {
        docker: {
-          audit: { 
+          audit: {
             name: 'Audit',
             title: 'Administración de Audit',
             subtitle: 'Ver, buscar, crear, editar, y borrar Audit',
@@ -34,15 +35,16 @@ const messages = {
             labels: {
                 user: 'Usuario',
                 action: 'Acción',
-                target: 'Objetivo'
+                target: 'Objetivo',
+                createdAt: 'Fecha'
             },
-          
+
           }
        }
     },
     pt: {
        docker: {
-          audit: { 
+          audit: {
             name: 'Audit',
             title: 'Administração de Audit',
             subtitle: 'Ver, buscar, criar, editar e usar Audit',
@@ -54,13 +56,13 @@ const messages = {
             labels: {
                 user: 'Nome do usuário',
                 action: 'Açao',
-                target: 'Alvo'
+                target: 'Alvo',
+                createdAt: 'Data'
             },
-          
+
           }
        }
     }
 }
 
 export default messages
-    

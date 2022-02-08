@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container fluid>
 
 
     <v-card class="my-3">
@@ -9,7 +9,7 @@
             <h4 class="text-h4 mb-4">Services</h4>
           </v-col>
           <v-col cols="12" sm="4" md="3" class="text-right">
-            <v-btn icon class="mr-2" @click="fetchService"><v-icon>refresh</v-icon></v-btn>
+            <v-btn  class="purple mr-2" dark @click="fetchService"><v-icon>refresh</v-icon></v-btn>
 
             <v-btn class="blue mr-2" dark
                    @click="confirmRestartMany"
@@ -48,7 +48,7 @@
             show-select show-expand
             :loading="loading"
             v-model="selected"
-
+            dense
         >
 
 
@@ -79,12 +79,12 @@
           </template>
 
           <template v-slot:item.createdAt="{ item }">
-            <v-chip small color="blue lighten-4">{{ formatDate(item.createdAt) }}</v-chip>
-          </template>
-
-          <template v-slot:item.updatedAt="{ item }">
+            <v-chip small color="blue lighten-4">{{ formatDate(item.createdAt) }}</v-chip><br>
             <v-chip small color="purple lighten-4">{{ formatDate(item.updatedAt) }}</v-chip>
           </template>
+
+
+
 
           <template v-slot:item.logs="{ item }">
             <v-btn icon @click="showLogs(item)" color="blue">
@@ -219,10 +219,10 @@ export default {
         //Entity Headers
         {text: this.$t('docker.service.name'), value: 'name'},
         {text: this.$t('docker.stack.name'), value: 'stack'},
-        {text: this.$t('docker.service.image'), value: 'image'},
-        {text: this.$t('docker.service.ports'), value: 'ports'},
-        {text: this.$t('docker.common.createdAt'), value: 'createdAt'},
-        {text: this.$t('docker.common.updatedAt'), value: 'updatedAt'},
+        {text: this.$t('docker.service.image'), value: 'image', align: 'center'},
+        {text: this.$t('docker.service.ports'), value: 'ports', align: 'center'},
+        {text: this.$t('docker.common.createdAt')+"-"+this.$t('docker.common.updatedAt'), value: 'createdAt', align: 'center'},
+       // {text: this.$t('docker.common.updatedAt'), value: 'updatedAt'},
         //Actions
         {text: this.$t('docker.common.logs'), value: 'logs', sortable: false},
       //  {text: this.$t('common.actions'), value: 'actions', sortable: false},
@@ -338,6 +338,11 @@ export default {
 </script>
 
 <style scoped>
+
+.text-start{
+  padding-left: 5px !important;
+}
+
 pre {
   white-space: pre-wrap; /* Since CSS 2.1 */
   white-space: -moz-pre-wrap; /* Mozilla, since 1999 */

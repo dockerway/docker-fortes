@@ -22,8 +22,8 @@ const messages = {
             engine: "Engine"
          },
          common: {
-            createdAt: "CreatedAt",
-            updatedAt: "UpdatedAt",
+            createdAt: "Created",
+            updatedAt: "Updated",
             logs: "Logs"
          }
       }
@@ -50,8 +50,8 @@ const messages = {
             engine: "Engine"
          },
          common: {
-            createdAt: "CreatedAt",
-            updatedAt: "UpdatedAt",
+            createdAt: "Created",
+            updatedAt: "Updated",
             logs: "Logs"
          },
 
@@ -79,8 +79,8 @@ const messages = {
             engine: "Engine"
          },
          common: {
-            createdAt: "CreatedAt",
-            updatedAt: "UpdatedAt",
+            createdAt: "Created",
+            updatedAt: "Updated",
             logs: "Logs"
          }
       }
