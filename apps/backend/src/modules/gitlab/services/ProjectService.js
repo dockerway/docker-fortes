@@ -39,7 +39,7 @@ export const fetchProject = function (page = 1, per_page= 10) {
 export const projectTags = function (id) {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log(process.env.GITLAB_URL, process.env.GITLAB_TOKEN)
+            console.log(process.env.GITLAB_URL, process.env.GITLAB_TOKEN, id)
             let path = '/projects/'+id+'/repository/tags'
             const URL = process.env.GITLAB_URL + path
             const config = {

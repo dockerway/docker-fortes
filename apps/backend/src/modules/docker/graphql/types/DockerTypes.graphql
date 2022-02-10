@@ -83,6 +83,7 @@ type Query {
     dockerVersion: DockerVersion
     fetchStack: [DockerStack]
     findService(name:String!):DockerService
+    findServiceTag(name:String!):String
     fetchService(stack:String): [DockerService]
     fetchContainer(service:String): [DockerContainer]
     fetchTask(service:String): [DockerTask]

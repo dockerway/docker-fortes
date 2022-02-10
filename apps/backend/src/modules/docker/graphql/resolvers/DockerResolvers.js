@@ -5,7 +5,7 @@ import {
     fetchContainer,
     fetchNode,
     fetchService,
-    fetchStack, fetchTask, findNode, findService,
+    fetchStack, fetchTask, findNode, findService, findServiceTag,
     serviceLogs
 } from "../../services/DockerService";
 import {AuthenticationError, ForbiddenError} from "apollo-server-express";
@@ -23,6 +23,11 @@ export default {
              if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return fetchStack()
+        },
+        findServiceTag: (_,{name},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            return findServiceTag(name)
         },
         findService: (_,{name},{user,rbac}) => {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")

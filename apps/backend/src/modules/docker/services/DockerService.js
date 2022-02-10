@@ -90,6 +90,23 @@ export const fetchStack = function () {
     })
 }
 
+
+export const findServiceTag = function (name) {
+
+    return new Promise(async (resolve, reject) => {
+
+        try{
+            let service = await findService(name)
+            resolve(service.image.tag)
+
+        }catch (e) {
+            reject(e)
+        }
+
+    })
+
+}
+
 export const findService = function (name) {
     return new Promise(async (resolve, reject) => {
         try {
