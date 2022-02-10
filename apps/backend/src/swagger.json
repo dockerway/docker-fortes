@@ -1,0 +1,188 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Incatainer",
+    "description": "Incatainer Magic API"
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Docker",
+      "description": "API for docker"
+    },
+    {
+      "name": "Gitlab",
+      "description": "API for gitlab"
+    },
+    {
+      "name": "Registry",
+      "description": "API for registry"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/docker/service": {
+      "get": {
+        "tags": [
+          "Docker"
+        ],
+        "summary": "Get all service in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          }
+        }
+      }
+    },
+    "/api/docker/service/{name}/tag": {
+      "get": {
+        "tags": [
+          "Docker"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path"
+          }
+        ],
+        "summary": "Get all service in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+
+    "/api/gitlab/project": {
+      "get": {
+        "tags": [
+          "Gitlab"
+        ],
+        "summary": "Get all gitlab project in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
+          }
+        }
+      }
+    },
+
+    "/api/gitlab/project/{id}/tags": {
+      "get": {
+        "tags": [
+          "Gitlab"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "summary": "Get all gitlab project in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
+          }
+        }
+      }
+    },
+
+    "/api/registry/image": {
+      "get": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "Get all registry image in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
+          }
+        }
+      }
+    },
+
+    "/api/registry/image/tags": {
+      "get": {
+        "tags": [
+          "Registry"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query"
+          }
+        ],
+        "summary": "Get all registry image in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Image"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Service": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Project": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Image": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
