@@ -82,6 +82,7 @@ type DockerNode{
 type Query {
     dockerVersion: DockerVersion
     fetchStack: [DockerStack]
+    findService(name:String!):DockerService
     fetchService(stack:String): [DockerService]
     fetchContainer(service:String): [DockerContainer]
     fetchTask(service:String): [DockerTask]

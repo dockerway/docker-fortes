@@ -21,6 +21,44 @@ committed_date:String
 web_url: String
 }
 
+type ProjectNamespace{
+    id: Int
+    name: String
+    path: String
+    kind: String
+    full_path:String
+    parent_id: Int,
+    avatar_url: String
+    web_url: String
+}
+
+type Project{
+    id: ID
+    name: String
+    description: String
+    name_with_namespace: String
+    path: String
+    path_with_namespace: String
+    created_at: String
+    default_branch: String
+    ssh_url_to_repo: String
+    http_url_to_repo: String
+    web_url: String
+    readme_url: String
+    avatar_url:String
+    star_count: Int
+    forks_count:Int
+    last_activity_at: String
+    creator_id: Int
+    namespace: ProjectNamespace
+}
+
+type ProjectPaginated{
+    totalItems: Int,
+    items: [Project]
+}
+
 type Query {
+    fetchProject(page: Int, per_page: Int): ProjectPaginated
     projectTags(id: ID!): [ProjectTag]
 }

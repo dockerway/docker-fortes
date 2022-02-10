@@ -1,0 +1,30 @@
+query fetchProject($page: Int, $per_page:Int){
+    fetchProject(page: $page, per_page: $per_page){
+        totalItems
+        items{
+            id
+            name
+            description
+            name_with_namespace
+            path
+            path_with_namespace
+            created_at
+            default_branch
+            ssh_url_to_repo
+            http_url_to_repo
+            web_url
+            readme_url
+            avatar_url
+            star_count
+            forks_count
+            last_activity_at
+            creator_id
+            namespace{
+                id
+                name
+            }
+        }
+
+
+    }
+}

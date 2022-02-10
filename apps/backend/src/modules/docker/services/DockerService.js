@@ -90,6 +90,55 @@ export const fetchStack = function () {
     })
 }
 
+export const findService = function (name) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let opts = {}
+            if (name) {
+                opts = {
+                    filters: JSON.stringify({"name": [name]})
+                };
+            }
+            //console.log("opts",opts)
+            let data = await docker.listServices(opts)
+
+            let service
+            if (data) {
+
+                if( data.length === 1){
+                    let item = data[0]
+                    service = {
+                        id: item?.ID,
+                        name: item?.Spec?.Name,
+                        stack: getStackNameFromService(item),
+                        image: getImageObject(item.Spec.TaskTemplate.ContainerSpec.Image),
+                        createdAt: item?.CreatedAt,
+                        updatedAt: item?.UpdatedAt,
+                        ports: item?.Endpoint?.Ports?.map(p => ({
+                            targetPort: p?.TargetPort,
+                            publishedPort: p?.PublishedPort,
+                            protocol: p?.Protocol
+                        }))
+                    }
+                    resolve(service)
+                }else if( data.length === 0){
+                    reject("Service not found")
+                }else if( data.length > 1){
+                    reject("Multiple match. Refine filter name")
+                }else{
+                    reject("Service not found")
+                }
+
+            }else{
+                reject("Service not found")
+            }
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
 
 export const fetchService = function (stack) {
     return new Promise(async (resolve, reject) => {
@@ -250,7 +299,7 @@ export const findNode = function (id = '') {
 
             let item = await data.inspect()
 
-           // console.log("Nodes Data", JSON.stringify(item, null, 4))
+            // console.log("Nodes Data", JSON.stringify(item, null, 4))
 
             let node = {
                 id: item.ID,
@@ -328,7 +377,7 @@ export const dockerRestart = function (user, serviceId) {
             let service = await docker.getService(serviceId)
             //console.log("dockerRestart service", service)
             let serviceInspected = await service.inspect()
-            await createAudit(user,{user: user.id, action: 'RESTART', target: serviceInspected.Spec.Name})
+            await createAudit(user, {user: user.id, action: 'RESTART', target: serviceInspected.Spec.Name})
 
             //console.log("Spec", JSON.stringify(serviceInspected, null, 4))
 
@@ -337,10 +386,10 @@ export const dockerRestart = function (user, serviceId) {
             opts.TaskTemplate.ForceUpdate = 1
 
             //Force update?
-            if(opts.TaskTemplate.ContainerSpec.Env){
-                opts.TaskTemplate.ContainerSpec.Env.push("SERVICE_VERSION="+opts.version)
-            }else{
-                opts.TaskTemplate.ContainerSpec.Env = ["SERVICE_VERSION="+opts.version]
+            if (opts.TaskTemplate.ContainerSpec.Env) {
+                opts.TaskTemplate.ContainerSpec.Env.push("SERVICE_VERSION=" + opts.version)
+            } else {
+                opts.TaskTemplate.ContainerSpec.Env = ["SERVICE_VERSION=" + opts.version]
             }
 
             opts.Labels["LastUpdate"] = dayjs().toString()
@@ -363,7 +412,7 @@ export const dockerRemoveMany = function (user, serviceIds) {
         try {
             let result = []
             for (let serviceId of serviceIds) {
-                result.push(await dockerRemove(user,serviceId))
+                result.push(await dockerRemove(user, serviceId))
             }
 
             resolve(result)
@@ -380,7 +429,7 @@ export const dockerRemove = function (user, serviceId) {
 
             let service = await docker.getService(serviceId)
             let serviceInspected = await service.inspect()
-            await createAudit(user,{user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name})
+            await createAudit(user, {user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name})
             let result = await service.remove()
 
             resolve(result)

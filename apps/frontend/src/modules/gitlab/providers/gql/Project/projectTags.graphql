@@ -1,0 +1,13 @@
+query projectTags($id: ID!){
+    projectTags(id: $id){
+        name
+        message
+        commit{
+            id
+            author_name
+            message
+            title
+            created_at
+        }
+    }
+}

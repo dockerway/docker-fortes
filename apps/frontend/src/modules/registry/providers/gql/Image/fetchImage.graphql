@@ -1,0 +1,6 @@
+query fetchImage($rows: Int){
+    fetchImage(rows: $rows){
+        name
+        tags
+    }
+}

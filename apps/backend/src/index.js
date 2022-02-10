@@ -14,7 +14,7 @@ import {resolvers, typeDefs} from './modules-merge'
 import path from 'path'
 import {jwtMiddleware, corsMiddleware, rbacMiddleware, sessionMiddleware} from '@dracul/user-backend'
 import {ResponseTimeMiddleware,RequestMiddleware, GqlErrorLog, GqlResponseLog} from '@dracul/logger-backend'
-import {TimeoutMiddleware} from "./middlewares/TimeoutMiddleware";
+import apiRoutes from './routes-merge'
 
 const app = express();
 
@@ -72,6 +72,9 @@ const apolloServer = new ApolloServer({
 
 
 apolloServer.applyMiddleware({app})
+
+//API REST
+app.use('/api',apiRoutes)
 
 //STATIC FILES
 app.use('/media/avatar', express.static('media/avatar'));

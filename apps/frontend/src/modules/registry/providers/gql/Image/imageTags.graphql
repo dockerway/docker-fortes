@@ -1,0 +1,6 @@
+query imageTags($name: String!){
+    imageTags(name: $name){
+        name
+        tags
+    }
+}

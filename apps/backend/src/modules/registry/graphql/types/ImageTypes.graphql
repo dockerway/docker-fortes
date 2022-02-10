@@ -6,5 +6,6 @@ type RegistryImage{
 
 
 type Query {
+    fetchImage(rows: Int): [RegistryImage]
     imageTags(name: String!): RegistryImage
 }
