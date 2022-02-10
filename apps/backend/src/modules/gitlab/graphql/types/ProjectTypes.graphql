@@ -1,0 +1,26 @@
+type ProjectTag{
+    name: String
+    message:String
+    target: String
+    release: String
+    commit: ProjectCommit
+}
+
+type ProjectCommit{
+id: String
+short_id: String
+created_at:String
+title: String
+message: String
+author_name: String
+author_email:String
+authored_date: String
+committer_name:String
+committer_email:String
+committed_date:String
+web_url: String
+}
+
+type Query {
+    projectTags(id: ID!): [ProjectTag]
+}

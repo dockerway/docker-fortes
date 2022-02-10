@@ -1,0 +1,10 @@
+
+type RegistryImage{
+    name: String
+    tags: [String]
+}
+
+
+type Query {
+    imageTags(name: String!): RegistryImage
+}
