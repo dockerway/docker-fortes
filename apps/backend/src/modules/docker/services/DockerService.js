@@ -163,7 +163,7 @@ export const dockerServiceCreate = function (user, {name, image, replicas = 1, v
                             {
                                 Source:v.hostVolume,
                                 Target: v.containerVolume,
-                                Type: "volume"
+                                Type: "bind"
                             })),
                         Env: envs.map(e => e.name+"="+e.value)
                        /* "Hosts": [
@@ -237,8 +237,8 @@ export const dockerServiceCreate = function (user, {name, image, replicas = 1, v
                 EndpointSpec: {
                     Ports: ports.map(p => ({
                         Protocol: "tcp",
-                        PublishedPort: p.hostPort,
-                        TargetPort: p.containerPort
+                        PublishedPort: parseInt(p.hostPort),
+                        TargetPort: parseInt(p.containerPort)
                     }))
                 },
                 Labels: labels.reduce((obj, item) => {return {...obj, [item.name]: item.value,}}, {})
