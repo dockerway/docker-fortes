@@ -47,9 +47,9 @@ export const dockerRestart = function (user, serviceId) {
 
             //Force update?
             if (opts.TaskTemplate.ContainerSpec.Env) {
-                opts.TaskTemplate.ContainerSpec.Env.push("SERVICE_VERSION=" + opts.version)
+                opts.TaskTemplate.ContainerSpec.Env.push("CONTROL_VERSION=" + opts.version)
             } else {
-                opts.TaskTemplate.ContainerSpec.Env = ["SERVICE_VERSION=" + opts.version]
+                opts.TaskTemplate.ContainerSpec.Env = ["CONTROL_VERSION=" + opts.version]
             }
 
             opts.Labels["LastUpdate"] = dayjs().toString()

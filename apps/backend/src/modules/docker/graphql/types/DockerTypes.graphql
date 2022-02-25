@@ -146,6 +146,7 @@ input LabelInput{
 
 input DockerServiceInput {
     name: String!
+    stack: String
     image: String!
     ports: [PortInput]
     volumes: [VolumeInput]

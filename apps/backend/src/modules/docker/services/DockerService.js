@@ -2,18 +2,7 @@ import {createAudit} from "./AuditService";
 
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
-import dayjs from 'dayjs'
-import getImageObject from "./helpers/getImageObject";
-
-
-
-function getStackNameFromService(service) {
-    return service?.Spec?.Labels["com.docker.stack.namespace"]
-}
-
-
-
-
+import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel";
 
 
 export const findServiceTag = function (name) {
@@ -50,32 +39,7 @@ export const findService = function (name) {
                 console.log("Service Data", JSON.stringify(data, null, 4))
                 if( data.length === 1){
                     let item = data[0]
-                    service = {
-                        id: item?.ID,
-                        name: item?.Spec?.Name,
-                        stack: getStackNameFromService(item),
-                        image: getImageObject(item.Spec.TaskTemplate.ContainerSpec.Image),
-                        createdAt: item?.CreatedAt,
-                        updatedAt: item?.UpdatedAt,
-                        ports: item?.Spec?.EndpointSpec?.Ports?.map(p => ({
-                            containerPort: p?.TargetPort,
-                            hostPort: p?.PublishedPort,
-                            protocol: p?.Protocol
-                        })),
-                        volumes: item?.Spec?.TaskTemplate?.ContainerSpec?.Mounts?.map(m => ({
-                            containerVolume: m?.Target,
-                            hostVolume: m?.Source,
-                            type: m?.Type
-                        })),
-                        labels: (item?.Spec?.TaskTemplate?.ContainerSpec?.Labels) ? Object.entries(item?.Spec?.TaskTemplate?.ContainerSpec?.Labels).map(l => ({
-                            name: l[0],
-                            value: l[1],
-                        })) : [],
-                        envs: item?.Spec?.TaskTemplate?.ContainerSpec?.Env?.map(e => ({
-                            name: e.split("=")[0],
-                            value: e.split("=")[1],
-                        })),
-                    }
+                    service = mapInspectToServiceModel(item)
                     resolve(service)
                 }else if( data.length === 0){
                     reject("Service not found")
@@ -108,33 +72,7 @@ export const fetchService = function (stack) {
             //console.log("opts",opts)
             let data = await docker.listServices(opts)
             //console.log("service data", JSON.stringify(data, null, 4))
-            let services = data.map(
-                item => ({
-                    id: item?.ID,
-                    name: item?.Spec?.Name,
-                    stack: getStackNameFromService(item),
-                    image: getImageObject(item.Spec.TaskTemplate.ContainerSpec.Image),
-                    createdAt: item?.CreatedAt,
-                    updatedAt: item?.UpdatedAt,
-                    ports: item?.Spec?.EndpointSpec?.Ports?.map(p => ({
-                        containerPort: p?.TargetPort,
-                        hostPort: p?.PublishedPort,
-                        protocol: p?.Protocol
-                    })),
-                    volumes: item?.Spec?.TaskTemplate?.ContainerSpec?.Mounts?.map(m => ({
-                        containerVolume: m?.Target,
-                        hostVolume: m?.Source,
-                        type: m?.Type
-                    })),
-                    labels: (item?.Spec?.TaskTemplate?.ContainerSpec?.Labels) ? Object.entries(item?.Spec?.TaskTemplate?.ContainerSpec?.Labels).map(l => ({
-                        name: l[0],
-                        value: l[1],
-                    })) : [],
-                    envs: item?.Spec?.TaskTemplate?.ContainerSpec?.Env?.map(e => ({
-                        name: e.split("=")[0],
-                        value: e.split("=")[1],
-                    })),
-                }))
+            let services = data.map(item => (mapInspectToServiceModel(item)))
             //console.log("services",services)
             resolve(services)
         } catch (e) {
@@ -145,8 +83,108 @@ export const fetchService = function (stack) {
 }
 
 
+const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []})=> {
 
-export const dockerServiceCreate = function (user, {name, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []}) {
+    envs.push({name: "CONTROL_VERSION", value: version})
+    labels.push({name: "com.docker.stack.namespace", value: stack})
+
+    let dockerService = {
+        Name: name,
+        version: version,
+        TaskTemplate: {
+            ContainerSpec: {
+                Image: image,
+                Mounts: volumes.map(v => (
+                    {
+                        Source:v.hostVolume,
+                        Target: v.containerVolume,
+                        Type: "bind"
+                    })),
+                Env: envs.map(e => e.name+"="+e.value)
+                /* "Hosts": [
+                     "10.10.10.10 host1",
+                     "ABCD:EF01:2345:6789:ABCD:EF01:2345:6789 host2"
+                 ],*/
+                /*"User": "33",*/
+                /*  "DNSConfig": {
+                      "Nameservers": [
+                          "8.8.8.8"
+                      ],
+                      "Search": [
+                          "example.org"
+                      ],
+                      "Options": [
+                          "timeout:3"
+                      ]
+                  },*/
+                /*"Secrets": [
+                    {
+                        "File": {
+                            "Name": "www.example.org.key",
+                            "UID": "33",
+                            "GID": "33",
+                            "Mode": 384
+                        },
+                        "SecretID": "fpjqlhnwb19zds35k8wn80lq9",
+                        "SecretName": "example_org_domain_key"
+                    }
+                ]*/
+            },
+            /*"LogDriver": {
+                "Name": "json-file",
+                "Options": {
+                    "max-file": "3",
+                    "max-size": "10M"
+                }
+            },
+            "Placement": {},*/
+            /* "Resources": {
+                 "Limits": {
+                     "MemoryBytes": 104857600
+                 },
+                 "Reservations": {}
+             },*/
+            RestartPolicy: {
+                Condition: "on-failure",
+                Delay: 10000000000,
+                MaxAttempts: 10
+            }
+        },
+        Mode: {
+            Replicated: {
+                Replicas: replicas
+            }
+        },
+        UpdateConfig: {
+            Parallelism: 2,
+            Delay: 1000000000,
+            FailureAction: "pause",
+            Monitor: 15000000000,
+            MaxFailureRatio: 0.15
+        },
+        RollbackConfig: {
+            Parallelism: 1,
+            Delay: 1000000000,
+            FailureAction: "pause",
+            Monitor: 15000000000,
+            MaxFailureRatio: 0.15
+        },
+        EndpointSpec: {
+            Ports: ports.map(p => ({
+                Protocol: "tcp",
+                PublishedPort: parseInt(p.hostPort),
+                TargetPort: parseInt(p.containerPort)
+            }))
+        },
+        Labels: labels.reduce((obj, item) => {return {...obj, [item.name]: item.value,}}, {})
+
+    }
+
+    return dockerService
+}
+
+
+export const dockerServiceCreate = function (user, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []}) {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -154,106 +192,47 @@ export const dockerServiceCreate = function (user, {name, image, replicas = 1, v
                 await createAudit(user, {user: user.id, action: 'CREATE', target: name})
             }
 
-            let dockerService = {
-                Name: name,
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Image: image,
-                        Mounts: volumes.map(v => (
-                            {
-                                Source:v.hostVolume,
-                                Target: v.containerVolume,
-                                Type: "bind"
-                            })),
-                        Env: envs.map(e => e.name+"="+e.value)
-                       /* "Hosts": [
-                            "10.10.10.10 host1",
-                            "ABCD:EF01:2345:6789:ABCD:EF01:2345:6789 host2"
-                        ],*/
-                        /*"User": "33",*/
-                      /*  "DNSConfig": {
-                            "Nameservers": [
-                                "8.8.8.8"
-                            ],
-                            "Search": [
-                                "example.org"
-                            ],
-                            "Options": [
-                                "timeout:3"
-                            ]
-                        },*/
-                        /*"Secrets": [
-                            {
-                                "File": {
-                                    "Name": "www.example.org.key",
-                                    "UID": "33",
-                                    "GID": "33",
-                                    "Mode": 384
-                                },
-                                "SecretID": "fpjqlhnwb19zds35k8wn80lq9",
-                                "SecretName": "example_org_domain_key"
-                            }
-                        ]*/
-                    },
-                    /*"LogDriver": {
-                        "Name": "json-file",
-                        "Options": {
-                            "max-file": "3",
-                            "max-size": "10M"
-                        }
-                    },
-                    "Placement": {},*/
-                   /* "Resources": {
-                        "Limits": {
-                            "MemoryBytes": 104857600
-                        },
-                        "Reservations": {}
-                    },*/
-                    RestartPolicy: {
-                        Condition: "on-failure",
-                        Delay: 10000000000,
-                        MaxAttempts: 10
-                    }
-                },
-                Mode: {
-                    Replicated: {
-                        Replicas: replicas
-                    }
-                },
-                UpdateConfig: {
-                    Parallelism: 2,
-                    Delay: 1000000000,
-                    FailureAction: "pause",
-                    Monitor: 15000000000,
-                    MaxFailureRatio: 0.15
-                },
-                RollbackConfig: {
-                    Parallelism: 1,
-                    Delay: 1000000000,
-                    FailureAction: "pause",
-                    Monitor: 15000000000,
-                    MaxFailureRatio: 0.15
-                },
-                EndpointSpec: {
-                    Ports: ports.map(p => ({
-                        Protocol: "tcp",
-                        PublishedPort: parseInt(p.hostPort),
-                        TargetPort: parseInt(p.containerPort)
-                    }))
-                },
-                Labels: labels.reduce((obj, item) => {return {...obj, [item.name]: item.value,}}, {})
+            const version = 1
+            const dockerServiceConfig = prepareServiceConfig(version,{name, stack, image, replicas, volumes, ports, envs, labels})
 
+            let result = await docker.createService(dockerServiceConfig)
+
+            let inspect = await docker.getService(result.id).inspect()
+            console.log(inspect)
+            let service = mapInspectToServiceModel(inspect)
+            console.log(service)
+
+            resolve(service)
+
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
+
+
+export const dockerServiceUpdate = function (user, serviceId, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []}) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            if(user){
+                await createAudit(user, {user: user.id, action: 'CREATE', target: name})
             }
 
-            let opts = JSON.stringify(dockerService)
+            let service = await docker.getService(serviceId)
+            let serviceInspected = await service.inspect()
+            let version = parseInt(serviceInspected.Version.Index)
 
-            console.log("OPTS",opts)
+            const dockerServiceConfig = prepareServiceConfig(version ,{name, stack, image, replicas, volumes, ports, envs, labels})
 
-            let data = await docker.createService(dockerService)
+            let result = await docker.getService(serviceId).update(dockerServiceConfig)
 
-            console.log(data)
+            let inspect = await docker.getService(serviceId).inspect()
 
-            let service = await findService(name)
+            service = mapInspectToServiceModel(inspect)
+            console.log(service)
+
             resolve(service)
 
         } catch (e) {

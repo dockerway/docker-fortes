@@ -236,6 +236,7 @@ export default {
   methods: {
     fetchService() {
       this.loading = true
+      this.selected = []
       DockerProvider.fetchService(this.stack)
           .then(r => {
             this.services = r.data.fetchService
