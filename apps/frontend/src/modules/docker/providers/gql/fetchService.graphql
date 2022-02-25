@@ -13,8 +13,8 @@ query fetchService($stack: String){
         createdAt
         updatedAt
         ports{
-            publishedPort
-            targetPort
+            hostPort
+            containerPort
             protocol
         }
     }

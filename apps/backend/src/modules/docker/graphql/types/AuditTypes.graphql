@@ -1,7 +1,8 @@
 enum actionEnum{
     RESTART,
     UPDATE,
-    REMOVE
+    REMOVE,
+    CREATE
 }
 
 type Audit{

@@ -58,7 +58,7 @@
 
 
           <template v-slot:item.ports="{ item }">
-            <v-chip small v-for="(port,index) in item.ports" :key="index">{{ port.publishedPort }}:{{ port.targetPort }}
+            <v-chip small v-for="(port,index) in item.ports" :key="index">{{ port.hostPort }}:{{ port.containerPort }}
             </v-chip>
           </template>
 

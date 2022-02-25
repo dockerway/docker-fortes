@@ -1,5 +1,5 @@
 import express from 'express'
-import {fetchService, findService, findServiceTag} from "../services/DockerService";
+import {dockerServiceCreate, fetchService, findService, findServiceTag} from "../services/DockerService";
 
 
 var router = express.Router();
@@ -7,6 +7,15 @@ var router = express.Router();
 
 router.get('/docker/service', async function (req, res) {
     let r = await fetchService()
+    res.json(r)
+})
+
+
+router.post('/docker/service', async function (req, res) {
+    let user = null
+    let body = req.body
+
+    let r = await dockerServiceCreate(null,body)
     res.json(r)
 })
 
