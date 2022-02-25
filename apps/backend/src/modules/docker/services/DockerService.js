@@ -122,7 +122,7 @@ export const findService = function (name) {
 
             let service
             if (data) {
-
+                console.log("Service Data", JSON.stringify(data, null, 4))
                 if( data.length === 1){
                     let item = data[0]
                     service = {
@@ -132,11 +132,24 @@ export const findService = function (name) {
                         image: getImageObject(item.Spec.TaskTemplate.ContainerSpec.Image),
                         createdAt: item?.CreatedAt,
                         updatedAt: item?.UpdatedAt,
-                        ports: item?.Endpoint?.Ports?.map(p => ({
-                            targetPort: p?.TargetPort,
-                            publishedPort: p?.PublishedPort,
+                        ports: item?.Spec?.EndpointSpec?.Ports?.map(p => ({
+                            containerPort: p?.TargetPort,
+                            hostPort: p?.PublishedPort,
                             protocol: p?.Protocol
-                        }))
+                        })),
+                        volumes: item?.Spec?.TaskTemplate?.ContainerSpec?.Mounts?.map(m => ({
+                            containerVolume: m?.Target,
+                            hostVolume: m?.Source,
+                            type: m?.Type
+                        })),
+                        labels: (item?.Spec?.TaskTemplate?.ContainerSpec?.Labels) ? Object.entries(item?.Spec?.TaskTemplate?.ContainerSpec?.Labels).map(l => ({
+                            name: l[0],
+                            value: l[1],
+                        })) : [],
+                        envs: item?.Spec?.TaskTemplate?.ContainerSpec?.Env?.map(e => ({
+                            name: e.split("=")[0],
+                            value: e.split("=")[1],
+                        })),
                     }
                     resolve(service)
                 }else if( data.length === 0){
@@ -178,11 +191,24 @@ export const fetchService = function (stack) {
                     image: getImageObject(item.Spec.TaskTemplate.ContainerSpec.Image),
                     createdAt: item?.CreatedAt,
                     updatedAt: item?.UpdatedAt,
-                    ports: item?.Endpoint?.Ports?.map(p => ({
-                        targetPort: p?.TargetPort,
-                        publishedPort: p?.PublishedPort,
+                    ports: item?.Spec?.EndpointSpec?.Ports?.map(p => ({
+                        containerPort: p?.TargetPort,
+                        hostPort: p?.PublishedPort,
                         protocol: p?.Protocol
-                    }))
+                    })),
+                    volumes: item?.Spec?.TaskTemplate?.ContainerSpec?.Mounts?.map(m => ({
+                        containerVolume: m?.Target,
+                        hostVolume: m?.Source,
+                        type: m?.Type
+                    })),
+                    labels: (item?.Spec?.TaskTemplate?.ContainerSpec?.Labels) ? Object.entries(item?.Spec?.TaskTemplate?.ContainerSpec?.Labels).map(l => ({
+                        name: l[0],
+                        value: l[1],
+                    })) : [],
+                    envs: item?.Spec?.TaskTemplate?.ContainerSpec?.Env?.map(e => ({
+                        name: e.split("=")[0],
+                        value: e.split("=")[1],
+                    })),
                 }))
             //console.log("services",services)
             resolve(services)

@@ -8,10 +8,34 @@ type DockerStack {
     services: Int
 }
 
+type DockerImage{
+    name: String
+    namespace: String
+    domain: String
+    fullname: String
+    tag: String
+}
+
 type Port{
     protocol: String
-    targetPort: Int
-    publishedPort: Int
+    containerPort: Int
+    hostPort: Int
+}
+
+type Volume{
+    type: String
+    containerVolume: String
+    hostVolume: String
+}
+
+type Env{
+    name: String
+    value: String
+}
+
+type Label{
+    name: String
+    value: String
 }
 
 type DockerService {
@@ -22,15 +46,12 @@ type DockerService {
     createdAt: String
     updatedAt: String
     ports: [Port]
+    volumes: [Volume]
+    envs: [Env]
+    labels: [Label]
 }
 
-type DockerImage{
-    name: String
-    namespace: String
-    domain: String
-    fullname: String
-    tag: String
-}
+
 
 type DockerContainer {
     id: String
@@ -100,6 +121,39 @@ type DockerRemove{
     message: String
 }
 
+input PortInput{
+    protocol: String
+    containerPort: Int
+    hostPort: Int
+}
+
+input VolumeInput{
+    type: String
+    containerVolume: String
+    hostVolume: String
+}
+
+input EnvInput{
+    name: String
+    value: String
+}
+
+input LabelInput{
+    name: String
+    value: String
+}
+
+
+input DockerServiceInput {
+    name: String!
+    stack: String!
+    image: String!
+    ports: [PortInput]
+    volumes: [VolumeInput]
+    envs: [EnvInput]
+    labels: [LabelInput]
+}
+
 
 type Mutation {
     dockerRestart(serviceId: String!): DockerRestart
@@ -107,4 +161,6 @@ type Mutation {
 
     dockerRemove(serviceId: String!): DockerRemove
     dockerRemoveMany(serviceIds: [String!]): [DockerRemove]
+
+    dockerServiceCreate(input: DockerServiceInput): DockerService
 }

@@ -67,6 +67,13 @@ export default {
 
     },
     Mutation:{
+
+        dockerServiceCreate: (_,{input},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_CREATE)) throw new ForbiddenError("Not Authorized")
+            return dockerRestart(user, input)
+        },
+
         dockerRestart: (_,{serviceId},{user,rbac}) => {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             if(!rbac.isAllowed(user.id, DOCKER_RESTART)) throw new ForbiddenError("Not Authorized")
