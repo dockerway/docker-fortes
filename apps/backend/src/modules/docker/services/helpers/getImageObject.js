@@ -6,36 +6,44 @@ export const getImageObject = (inputImage = '') => {
 
     let id = /@/.test(inputImage) ? inputImage.split("@")[1].split(":")[1] : ''
     let name = ''
+    let nameWithTag = ''
     let namespace = ''
     let domain = ''
     let tag = ''
 
     switch (imageSplited.length) {
         case 1:
-            name = imageSplited[0].split(":")[0]
+            nameWithTag = imageSplited[0]
+            name = nameWithTag.split(":")[0]
+            tag = nameWithTag.split(":")[1]
             break;
         case 2:
-            name = imageSplited[1].split(":")[0]
+            nameWithTag = imageSplited[1]
+            name = nameWithTag.split(":")[0]
+            tag = nameWithTag.split(":")[1]
             domain = imageSplited[0]
             break;
         case 3:
-            name = imageSplited[2].split(":")[0]
+            nameWithTag = imageSplited[2]
+            name = nameWithTag.split(":")[0]
+            tag = nameWithTag.split(":")[1]
             namespace = imageSplited[1]
             domain = imageSplited[0]
             break;
 
     }
 
-    tag = /:/.test(name) ? name.split(":")[1] : ""
+    //tag = /:/.test(name) ? name.split(":")[1] : ""
 
 
     let obj = {
         id: id,
         fullname: fullname,
-        name: name,
-        namespace: namespace,
         domain: domain,
-        tag: tag
+        namespace: namespace,
+        name: name,
+        tag: tag,
+        nameWithTag: nameWithTag
     }
 
     return obj

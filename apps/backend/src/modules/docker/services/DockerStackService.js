@@ -1,3 +1,5 @@
+import getStackNameFromService from "./helpers/getStackNameFromService";
+
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
 

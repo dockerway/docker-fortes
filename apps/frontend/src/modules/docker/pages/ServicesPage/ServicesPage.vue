@@ -70,7 +70,7 @@
                     v-on="on"
                     small
                 >
-                  {{ item.image.name }}
+                  {{ item.image.nameWithTag }}
                 </v-chip>
               </template>
               <span> {{ item.image.fullname }} </span>

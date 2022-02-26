@@ -5,6 +5,7 @@ query fetchService($stack: String){
         stack
         image {
             name
+            nameWithTag
             namespace
             domain
             fullname

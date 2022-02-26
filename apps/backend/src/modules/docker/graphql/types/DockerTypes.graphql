@@ -10,6 +10,7 @@ type DockerStack {
 
 type DockerImage{
     name: String
+    nameWithTag: String
     namespace: String
     domain: String
     fullname: String

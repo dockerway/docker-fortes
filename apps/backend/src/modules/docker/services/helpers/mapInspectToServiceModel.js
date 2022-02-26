@@ -1,8 +1,5 @@
 import getImageObject from "./getImageObject";
-
-function getStackNameFromService(service) {
-    return service?.Spec?.Labels["com.docker.stack.namespace"]
-}
+import getStackNameFromService from "./getStackNameFromService";
 
 
 export const mapInspectToServiceModel = (item) => {
