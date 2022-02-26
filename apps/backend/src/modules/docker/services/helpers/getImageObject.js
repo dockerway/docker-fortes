@@ -12,14 +12,14 @@ export const getImageObject = (inputImage = '') => {
 
     switch (imageSplited.length) {
         case 1:
-            name = imageSplited[0]
+            name = imageSplited[0].split(":")[0]
             break;
         case 2:
-            name = imageSplited[1]
+            name = imageSplited[1].split(":")[0]
             domain = imageSplited[0]
             break;
         case 3:
-            name = imageSplited[2]
+            name = imageSplited[2].split(":")[0]
             namespace = imageSplited[1]
             domain = imageSplited[0]
             break;
@@ -33,7 +33,7 @@ export const getImageObject = (inputImage = '') => {
         id: id,
         fullname: fullname,
         name: name,
-        namespace: '',
+        namespace: namespace,
         domain: domain,
         tag: tag
     }
