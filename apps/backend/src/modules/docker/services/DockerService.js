@@ -32,18 +32,26 @@ export const findService = function (name) {
                 };
             }
             //console.log("opts",opts)
-            let data = await docker.listServices(opts)
+            let services = await docker.listServices(opts)
 
             let service
-            if (data) {
-                console.log("findService Data", JSON.stringify(data, null, 4))
-                if( data.length === 1){
-                    let item = data[0]
+            if (services) {
+                console.log("findService Data", JSON.stringify(services, null, 4))
+                if( services.length === 1){
+                    let item = services[0]
                     service = mapInspectToServiceModel(item)
-                    resolve(service)
-                }else if( data.length === 0){
+                    return resolve(service)
+                }else if( services.length === 0){
                     reject(new Error("Service not found"))
-                }else if( data.length > 1){
+                }else if( services.length > 1){
+
+                    for(let item of services){
+                        if(name === item?.Spec?.Name){
+                            service = mapInspectToServiceModel(item)
+                            return resolve(service)
+                        }
+                    }
+
                     reject(new Error("Multiple match. Refine filter name"))
                 }else{
                     reject(new Error("Service not found"))
