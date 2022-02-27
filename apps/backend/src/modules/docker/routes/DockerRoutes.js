@@ -6,10 +6,14 @@ import {
     findService,
     findServiceTag
 } from "../services/DockerService";
+import http from "http";
 
 
 var router = express.Router();
 
+function validateStatusCode(statusCode){
+    return http.STATUS_CODES.hasOwnProperty(statusCode)
+}
 
 router.get('/docker/service', async function (req, res) {
     try {
@@ -17,7 +21,8 @@ router.get('/docker/service', async function (req, res) {
         res.json(r)
 
     } catch (e) {
-        res.status(e.code)
+        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
+        res.status(statusCode)
         res.send(e.message)
     }
 })
@@ -31,8 +36,8 @@ router.post('/docker/service', async function (req, res) {
         let r = await dockerServiceCreate(null, body)
         res.json(r)
     } catch (e) {
-        console.log(e)
-        res.status(e.statusCode ? e.statusCode : 500)
+        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
+        res.status(statusCode)
         res.send(e.message)
     }
 
@@ -47,8 +52,8 @@ router.put('/docker/service/:service', async function (req, res) {
         let r = await dockerServiceUpdate(null, serviceId, body)
         res.json(r)
     } catch (e) {
-        console.log(e)
-        res.status(e.statusCode ? e.statusCode : 500)
+        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
+        res.status(statusCode)
         res.send(e.message)
     }
 
@@ -60,7 +65,8 @@ router.get('/docker/service/:name', async function (req, res) {
         res.json(r)
 
     } catch (e) {
-        res.status(e.code)
+        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
+        res.status(statusCode)
         res.send(e.message)
     }
 })
@@ -71,9 +77,12 @@ router.get('/docker/service/:name/tag', async function (req, res) {
         res.json(r)
 
     } catch (e) {
-        res.status(e.code)
+        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
+        res.status(statusCode)
         res.send(e.message)
     }
 })
+
+
 
 module.exports = router;

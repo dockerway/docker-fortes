@@ -1,3 +1,5 @@
+import ErrorHandlerMiddleware from "./middlewares/ErrorHandlerMiddleware";
+
 require('dotenv').config();
 import {DefaultLogger} from "@dracul/logger-backend";
 DefaultLogger.info("Starting APP")
@@ -93,7 +95,7 @@ app.use('*',function (request, response) {
     response.sendFile(path.resolve(__dirname, 'web/index.html'));
 });
 
-
+app.use(ErrorHandlerMiddleware);
 
 //initialize permissions, roles, users, customs, seeds
 initService().then(() => {

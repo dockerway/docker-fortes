@@ -36,21 +36,21 @@ export const findService = function (name) {
 
             let service
             if (data) {
-                console.log("Service Data", JSON.stringify(data, null, 4))
+                console.log("findService Data", JSON.stringify(data, null, 4))
                 if( data.length === 1){
                     let item = data[0]
                     service = mapInspectToServiceModel(item)
                     resolve(service)
                 }else if( data.length === 0){
-                    reject("Service not found")
+                    reject(new Error("Service not found"))
                 }else if( data.length > 1){
-                    reject("Multiple match. Refine filter name")
+                    reject(new Error("Multiple match. Refine filter name"))
                 }else{
-                    reject("Service not found")
+                    reject(new Error("Service not found"))
                 }
 
             }else{
-                reject("Service not found")
+                reject(new Error("Service not found"))
             }
         } catch (e) {
             reject(e)
