@@ -3,10 +3,11 @@ import {
     dockerServiceCreate,
     dockerServiceUpdate,
     fetchService,
-    findService,
+    findServiceByName,
     findServiceTag
 } from "../services/DockerService";
 import http from "http";
+import {serviceStats, serviceStatsByName, taskStats} from "../services/DockerStatsService";
 
 
 var router = express.Router();
@@ -61,7 +62,7 @@ router.put('/docker/service/:service', async function (req, res) {
 
 router.get('/docker/service/:name', async function (req, res) {
     try {
-        let r = await findService(req.params.name)
+        let r = await findServiceByName(req.params.name)
         res.json(r)
 
     } catch (e) {
@@ -84,5 +85,28 @@ router.get('/docker/service/:name/tag', async function (req, res) {
 })
 
 
+router.get('/docker/service/:serviceName/stats', async function (req, res) {
+    try {
+        let r = await serviceStatsByName(req.params.serviceName)
+        res.json(r)
+
+    } catch (e) {
+        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
+        res.status(statusCode)
+        res.send(e.message)
+    }
+})
+
+router.get('/docker/service/id/:serviceId/stats', async function (req, res) {
+    try {
+        let r = await serviceStats(req.params.serviceId)
+        res.json(r)
+
+    } catch (e) {
+        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
+        res.status(statusCode)
+        res.send(e.message)
+    }
+})
 
 module.exports = router;

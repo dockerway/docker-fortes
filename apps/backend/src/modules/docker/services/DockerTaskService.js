@@ -41,3 +41,31 @@ export const fetchTask = function (service) {
     })
 }
 
+
+export const findTask = function (taskId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let dockerTask = await docker.getTask(taskId)
+            let item = await dockerTask.inspect()
+
+            let task = {
+                id: item?.ID,
+                nodeId: item.NodeID,
+                createdAt: item?.CreatedAt,
+                updatedAt: item?.UpdatedAt,
+                state: item?.Status?.State,
+                message: item?.Status?.Message,
+                image: getImageObject(item?.Spec?.ContainerSpec?.Image),
+                serviceId: item?.ServiceID,
+                containerId: item?.Status?.ContainerStatus?.ContainerID,
+                //labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
+            }
+
+            resolve(task)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}

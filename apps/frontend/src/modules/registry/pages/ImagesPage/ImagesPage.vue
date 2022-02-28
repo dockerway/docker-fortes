@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import RegistryProvider from "../../providers/RegistryProvider";
+import RegistryProvider from "../../providers/ImageProvider";
 import ImageTagChips from "@/modules/registry/components/ImageTagChips/ImageTagChips";
 import ImageTagCombobox from "@/modules/registry/components/ImageTagCombobox/ImageTagCombobox";
 

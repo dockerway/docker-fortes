@@ -67,6 +67,17 @@ type DockerContainer {
     labels: [DockerLabel]
 }
 
+type DockerStats{
+    cpu: String
+    memoryLimit: String
+    memoryUsage: String
+}
+
+type DockerTaskStats{
+    task: DockerTask
+    stats: DockerStats
+}
+
 type DockerTask {
     id: String
     nodeId: String
@@ -112,6 +123,11 @@ type Query {
     fetchNode(role: String): [DockerNode]
     findNode(id: String): DockerNode
     serviceLogs(service: String!): [DockerLog]
+
+    serviceStats(serviceId: ID!): [DockerTaskStats]
+    serviceStatsByName(serviceName: String!): [DockerTaskStats]
+    taskStats(taskId: ID!): DockerTaskStats
+    containerStats(containerId: ID!): DockerStats
 }
 
 type DockerRestart{

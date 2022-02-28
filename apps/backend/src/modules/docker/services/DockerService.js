@@ -10,7 +10,7 @@ export const findServiceTag = function (name) {
     return new Promise(async (resolve, reject) => {
 
         try{
-            let service = await findService(name)
+            let service = await findServiceByName(name)
             resolve(service.image.tag)
 
         }catch (e) {
@@ -21,7 +21,7 @@ export const findServiceTag = function (name) {
 
 }
 
-export const findService = function (name) {
+export const findServiceByName = function (name) {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -60,6 +60,24 @@ export const findService = function (name) {
             }else{
                 reject(new Error("Service not found"))
             }
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
+
+export const findService = function (serviceId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let item = await docker.getService(serviceId)
+            if(!item){
+                return reject(new Error("Service not found"))
+            }
+            let service = mapInspectToServiceModel(item)
+            return resolve(service)
+
         } catch (e) {
             reject(e)
         }

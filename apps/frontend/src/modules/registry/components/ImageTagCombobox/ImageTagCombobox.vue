@@ -25,7 +25,7 @@
 import {InputErrorsByProps, RequiredRule} from '@dracul/common-frontend'
 
 
-import RegistryProvider from "../../providers/RegistryProvider"
+import RegistryProvider from "../../providers/ImageProvider"
 
 export default {
   name: "ImageTagCombobox",

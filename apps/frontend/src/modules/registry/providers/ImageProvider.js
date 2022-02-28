@@ -1,6 +1,6 @@
 import apolloClient from '../../../apollo'
 
-class RegistryProvider {
+class ImageProvider {
 
     constructor() {
         this.gqlc = null
@@ -28,6 +28,6 @@ class RegistryProvider {
 
 }
 
-const registryProvider = new RegistryProvider()
-registryProvider.setGqlc(apolloClient)
-export default registryProvider
+const imageProvider = new ImageProvider()
+imageProvider.setGqlc(apolloClient)
+export default imageProvider
