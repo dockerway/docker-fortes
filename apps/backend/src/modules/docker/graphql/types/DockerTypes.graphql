@@ -86,7 +86,7 @@ type DockerTask {
     image: DockerImage
     createdAt: String
     updatedAt: String
-    state: String,
+    state: String
     message: String
 }
 

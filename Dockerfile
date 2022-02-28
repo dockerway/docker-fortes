@@ -39,4 +39,4 @@ COPY --from=builder /workspace/frontend/dist /app/web
 WORKDIR /app
 RUN npm install --only=production
 
-ENTRYPOINT ["pm2-runtime", "start", "index.js", "--name", "dracul-scaffold"]
+ENTRYPOINT ["pm2-runtime", "start", "index.js", "--name", "docker-fortes"]
