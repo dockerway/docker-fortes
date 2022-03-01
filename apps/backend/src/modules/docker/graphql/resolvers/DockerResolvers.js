@@ -17,7 +17,11 @@ import {
     findServiceTag,
 
 } from "../../services/DockerService";
-import {fetchTask} from "../../services/DockerTaskService";
+import {
+    dnsTaskRunningByServiceAndNode,
+    fetchTask,
+    findTaskRunningByServiceAndNode
+} from "../../services/DockerTaskService";
 import {
     dockerRemove,
     dockerRemoveMany,
@@ -63,6 +67,16 @@ export default {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return fetchTask(service)
+        },
+        findTaskRunningByServiceAndNode: (_,{serviceName, nodeId},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            return findTaskRunningByServiceAndNode(serviceName, nodeId)
+        },
+        dnsTaskRunningByServiceAndNode: (_,{serviceName, nodeId},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            return dnsTaskRunningByServiceAndNode(serviceName, nodeId)
         },
         fetchNode: (_,{role},{user,rbac}) => {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")

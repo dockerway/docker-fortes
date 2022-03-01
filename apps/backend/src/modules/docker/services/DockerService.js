@@ -9,11 +9,11 @@ export const findServiceTag = function (name) {
 
     return new Promise(async (resolve, reject) => {
 
-        try{
+        try {
             let service = await findServiceByName(name)
             resolve(service.image.tag)
 
-        }catch (e) {
+        } catch (e) {
             reject(e)
         }
 
@@ -23,48 +23,43 @@ export const findServiceTag = function (name) {
 
 export const findServiceByName = function (name) {
     return new Promise(async (resolve, reject) => {
-        try {
+            try {
 
-            let opts = {}
-            if (name) {
-                opts = {
-                    filters: JSON.stringify({"name": [name]})
-                };
-            }
-            //console.log("opts",opts)
-            let services = await docker.listServices(opts)
+                let opts = {}
+                if (name) {
+                    opts = {
+                        filters: JSON.stringify({"name": [name]})
+                    };
+                }
+                //console.log("opts",opts)
+                let services = await docker.listServices(opts)
+                let service
 
-            let service
-            if (services) {
-                console.log("findService Data", JSON.stringify(services, null, 4))
-                if( services.length === 1){
+                if (!services || services.length === 0) {
+                    return reject(new Error("Service not found"))
+                } else if (services.length === 1) {
                     let item = services[0]
                     service = mapInspectToServiceModel(item)
                     return resolve(service)
-                }else if( services.length === 0){
-                    reject(new Error("Service not found"))
-                }else if( services.length > 1){
+                } else if (services.length > 1) {
 
-                    for(let item of services){
-                        if(name === item?.Spec?.Name){
+                    for (let item of services) {
+                        if (name === item?.Spec?.Name) {
                             service = mapInspectToServiceModel(item)
                             return resolve(service)
                         }
                     }
 
-                    reject(new Error("Multiple match. Refine filter name"))
-                }else{
-                    reject(new Error("Service not found"))
+                    return reject(new Error("Multiple match. Refine filter name"))
                 }
 
-            }else{
-                reject(new Error("Service not found"))
+                return reject(new Error("Service not found"))
+            } catch (e) {
+                reject(e)
             }
-        } catch (e) {
-            reject(e)
-        }
 
-    })
+        }
+    )
 }
 
 export const findService = function (serviceId) {
@@ -72,7 +67,7 @@ export const findService = function (serviceId) {
         try {
 
             let item = await docker.getService(serviceId)
-            if(!item){
+            if (!item) {
                 return reject(new Error("Service not found"))
             }
             let service = mapInspectToServiceModel(item)
@@ -109,7 +104,7 @@ export const fetchService = function (stack) {
 }
 
 
-const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []})=> {
+const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []}) => {
 
     envs.push({name: "CONTROL_VERSION", value: version})
     labels.push({name: "com.docker.stack.namespace", value: stack})
@@ -122,11 +117,11 @@ const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, 
                 Image: image,
                 Mounts: volumes.map(v => (
                     {
-                        Source:v.hostVolume,
+                        Source: v.hostVolume,
                         Target: v.containerVolume,
                         Type: "bind"
                     })),
-                Env: envs.map(e => e.name+"="+e.value)
+                Env: envs.map(e => e.name + "=" + e.value)
                 /* "Hosts": [
                      "10.10.10.10 host1",
                      "ABCD:EF01:2345:6789:ABCD:EF01:2345:6789 host2"
@@ -202,7 +197,9 @@ const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, 
                 TargetPort: parseInt(p.containerPort)
             }))
         },
-        Labels: labels.reduce((obj, item) => {return {...obj, [item.name]: item.value,}}, {})
+        Labels: labels.reduce((obj, item) => {
+            return {...obj, [item.name]: item.value,}
+        }, {})
 
     }
 
@@ -214,12 +211,21 @@ export const dockerServiceCreate = function (user, {name, stack, image, replicas
     return new Promise(async (resolve, reject) => {
         try {
 
-            if(user){
+            if (user) {
                 await createAudit(user, {user: user.id, action: 'CREATE', target: name})
             }
 
             const version = 1
-            const dockerServiceConfig = prepareServiceConfig(version,{name, stack, image, replicas, volumes, ports, envs, labels})
+            const dockerServiceConfig = prepareServiceConfig(version, {
+                name,
+                stack,
+                image,
+                replicas,
+                volumes,
+                ports,
+                envs,
+                labels
+            })
 
             let result = await docker.createService(dockerServiceConfig)
 
@@ -242,7 +248,7 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
     return new Promise(async (resolve, reject) => {
         try {
 
-            if(user){
+            if (user) {
                 await createAudit(user, {user: user.id, action: 'CREATE', target: name})
             }
 
@@ -250,7 +256,16 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
             let serviceInspected = await service.inspect()
             let version = parseInt(serviceInspected.Version.Index)
 
-            const dockerServiceConfig = prepareServiceConfig(version ,{name, stack, image, replicas, volumes, ports, envs, labels})
+            const dockerServiceConfig = prepareServiceConfig(version, {
+                name,
+                stack,
+                image,
+                replicas,
+                volumes,
+                ports,
+                envs,
+                labels
+            })
 
             let result = await docker.getService(serviceId).update(dockerServiceConfig)
 

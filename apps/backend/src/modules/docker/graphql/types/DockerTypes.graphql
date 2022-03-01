@@ -120,6 +120,8 @@ type Query {
     fetchService(stack:String): [DockerService]
     fetchContainer(service:String): [DockerContainer]
     fetchTask(service:String): [DockerTask]
+    findTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): DockerTask
+    dnsTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): String
     fetchNode(role: String): [DockerNode]
     findNode(id: String): DockerNode
     serviceLogs(service: String!): [DockerLog]

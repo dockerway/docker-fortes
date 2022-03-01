@@ -1,5 +1,5 @@
 import getImageObject from "./helpers/getImageObject";
-import {fetchTask, findTask} from "./DockerTaskService";
+import {dnsTaskRunningByServiceAndNode, fetchTask, findTask} from "./DockerTaskService";
 import {findService, findServiceByName} from "./DockerService";
 import axios from "axios";
 
@@ -11,7 +11,7 @@ export const serviceStatsByName = function (serviceName) {
     return new Promise(async (resolve, reject) => {
         try {
             let service = await findServiceByName(serviceName)
-            let stats = await serviceStats(service.id, serviceName)
+            let stats = await serviceStats(service.id)
             resolve(stats)
         } catch (e) {
             reject(e)
@@ -20,20 +20,15 @@ export const serviceStatsByName = function (serviceName) {
     })
 }
 
-export const serviceStats = function (serviceId, serviceName = null) {
+export const serviceStats = function (serviceId) {
     return new Promise(async (resolve, reject) => {
         try {
-
-            if(!serviceName){
-                let service = await findService(serviceId)
-                serviceName = service.name
-            }
 
             let tasks = await fetchTask(serviceId)
             let stats = []
             for(let task of tasks){
                 if(task.state === "running"){
-                    let s = await remoteContainerStats(serviceName, task.nodeId, task.id, task.containerId)
+                    let s = await remoteContainerStats(task.nodeId, task.containerId)
                     stats.push({task, stats: s})
                 }
 
@@ -47,12 +42,11 @@ export const serviceStats = function (serviceId, serviceName = null) {
     })
 }
 
-export const taskStats = function (serviceName, taskId) {
+export const taskStats = function (taskId) {
     return new Promise(async (resolve, reject) => {
         try {
-
             let task = await findTask(taskId)
-            let stats = await remoteContainerStats(serviceName,task.nodeId, task.id, task.containerId)
+            let stats = await remoteContainerStats(task.nodeId,  task.containerId)
             resolve({task, stats})
         } catch (e) {
             reject(e)
@@ -74,12 +68,17 @@ function formatBytes(bytes, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-export const remoteContainerStats = function (serviceName, nodeId, taskId, containerId) {
+export const remoteContainerStats = function (nodeId, containerId) {
     return new Promise(async (resolve, reject) => {
         try {
 
             let path = '/api/docker/container/' + containerId + '/stats'
-            const HOST = "http://"+serviceName +"." + nodeId +"." + taskId
+
+
+            const DEFAULT_AGENT_SERVICE_NAME = "ci_incatainer-agent"
+            const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME
+            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)
+            const HOST = "http://"+ DNS
             const URL = HOST + path
             console.log("remoteContainerStats URL Stats FINAL", URL)
             let response = await axios.get(URL)
