@@ -39,6 +39,19 @@ type Label{
     value: String
 }
 
+type Constraint {
+    name: String!
+    operation: String
+    value: String
+}
+
+type Limit{
+    memoryReservation: Float
+    memoryLimit: Float
+    CPUReservation: Float
+    CPULimit: Float
+}
+
 type DockerService {
     id: String
     name: String
@@ -50,6 +63,8 @@ type DockerService {
     volumes: [Volume]
     envs: [Env]
     labels: [Label]
+    constraints: [Constraint]
+    limits: Limit
 }
 
 
@@ -162,6 +177,18 @@ input LabelInput{
     value: String
 }
 
+input ConstraintServiceInput {
+    name: String!
+    operation: String
+    value: String
+}
+
+input LimitServiceInput{
+    memoryReservation: Float
+    memoryLimit: Float
+    CPUReservation: Float
+    CPULimit: Float
+}
 
 input DockerServiceInput {
     name: String!
@@ -171,8 +198,9 @@ input DockerServiceInput {
     volumes: [VolumeInput]
     envs: [EnvInput]
     labels: [LabelInput]
+    constraints: [ConstraintServiceInput]
+    limits: LimitServiceInput
 }
-
 
 type Mutation {
     dockerRestart(serviceId: String!): DockerRestart

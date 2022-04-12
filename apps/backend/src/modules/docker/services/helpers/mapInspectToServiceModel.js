@@ -28,6 +28,17 @@ export const mapInspectToServiceModel = (item) => {
             name: e.split("=")[0],
             value: e.split("=")[1],
         })),
+        constraints: item?.Spec?.TaskTemplate?.Placement?.Constraints?.map(e => ({
+            name: e.split(" ")[0],
+            operation: e.split(" ")[1],
+            value: e.split(" ")[2]
+        })),
+        limits: {
+            memoryReservation: item?.Spec?.TaskTemplate?.Resources?.Limits?.NanoCPUs,
+            memoryLimit: item?.Spec?.TaskTemplate?.Resources?.Limits?.MemoryBytes,
+            CPUReservation: item?.Spec?.TaskTemplate?.Resources?.Reservations?.NanoCPUs,
+            CPULimit: item?.Spec?.TaskTemplate?.Resources?.Reservations?.MemoryBytes
+        }
     }
 }
 

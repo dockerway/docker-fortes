@@ -103,9 +103,20 @@ export const fetchService = function (stack) {
     })
 }
 
+const prepareConstraintsArray = (constraints) => {
+    let constraintsArr = []
 
-const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []}) => {
+    constraints.map(constraint => {
+        let val = constraint.value ? constraint.value : constraint.defaultValue
+        let constraintString = constraint.name + " " + constraint.operation + " " + val
+        constraintsArr.push(constraintString)
+    })
 
+    return constraintsArr
+}
+
+const prepareServiceConfig = async (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}}) => {
+    let constraintsArray =  await prepareConstraintsArray(constraints)
     envs.push({name: "CONTROL_VERSION", value: version})
     labels.push({name: "com.docker.stack.namespace", value: stack})
 
@@ -157,14 +168,20 @@ const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, 
                     "max-file": "3",
                     "max-size": "10M"
                 }
+            },*/
+            Placement: {
+                Constraints : constraintsArray
             },
-            "Placement": {},*/
-            /* "Resources": {
-                 "Limits": {
-                     "MemoryBytes": 104857600
-                 },
-                 "Reservations": {}
-             },*/
+            Resources: {
+                Limits: {
+                    NanoCPUs: limits.CPULimit,
+                    MemoryBytes: limits.memoryLimit
+                },
+                Reservations: {
+                    NanoCPUs: limits.CPUReservation,
+                    MemoryBytes: limits.memoryReservation
+                }
+            },
             RestartPolicy: {
                 Condition: "on-failure",
                 Delay: 10000000000,
@@ -206,17 +223,15 @@ const prepareServiceConfig = (version = "1", {name, stack, image, replicas = 1, 
     return dockerService
 }
 
-
-export const dockerServiceCreate = function (user, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []}) {
+export const dockerServiceCreate = function (user, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}}) {
     return new Promise(async (resolve, reject) => {
         try {
-
             if (user) {
                 await createAudit(user, {user: user.id, action: 'CREATE', target: name})
             }
 
             const version = 1
-            const dockerServiceConfig = prepareServiceConfig(version, {
+            const dockerServiceConfig = await prepareServiceConfig(version, {
                 name,
                 stack,
                 image,
@@ -224,11 +239,12 @@ export const dockerServiceCreate = function (user, {name, stack, image, replicas
                 volumes,
                 ports,
                 envs,
-                labels
+                labels,
+                constraints,
+                limits
             })
-
+            
             let result = await docker.createService(dockerServiceConfig)
-
             let inspect = await docker.getService(result.id).inspect()
             console.log(inspect)
             let service = mapInspectToServiceModel(inspect)
@@ -244,7 +260,7 @@ export const dockerServiceCreate = function (user, {name, stack, image, replicas
 }
 
 
-export const dockerServiceUpdate = function (user, serviceId, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = []}) {
+export const dockerServiceUpdate = function (user, serviceId, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}}) {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -256,7 +272,7 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
             let serviceInspected = await service.inspect()
             let version = parseInt(serviceInspected.Version.Index)
 
-            const dockerServiceConfig = prepareServiceConfig(version, {
+            const dockerServiceConfig = await prepareServiceConfig(version, {
                 name,
                 stack,
                 image,
@@ -264,7 +280,9 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
                 volumes,
                 ports,
                 envs,
-                labels
+                labels,
+                constraints,
+                limits
             })
 
             let result = await docker.getService(serviceId).update(dockerServiceConfig)
