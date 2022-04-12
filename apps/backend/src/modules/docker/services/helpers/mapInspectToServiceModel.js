@@ -34,10 +34,10 @@ export const mapInspectToServiceModel = (item) => {
             value: e.split(" ")[2]
         })),
         limits: {
-            memoryReservation: item?.Spec?.TaskTemplate?.Resources?.Limits?.NanoCPUs,
+            memoryReservation: item?.Spec?.TaskTemplate?.Resources?.Reservations?.MemoryBytes,
             memoryLimit: item?.Spec?.TaskTemplate?.Resources?.Limits?.MemoryBytes,
             CPUReservation: item?.Spec?.TaskTemplate?.Resources?.Reservations?.NanoCPUs,
-            CPULimit: item?.Spec?.TaskTemplate?.Resources?.Reservations?.MemoryBytes
+            CPULimit: item?.Spec?.TaskTemplate?.Resources?.Limits?.NanoCPUs
         }
     }
 }
