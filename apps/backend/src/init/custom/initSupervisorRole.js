@@ -15,5 +15,6 @@ module.exports = {
         DOCKER_VIEW,
         DOCKER_RESTART, DOCKER_UPDATE, DOCKER_REMOVE,
         AUDIT_MENU, AUDIT_SHOW,
-    ]
+    ],
+    readonly: true
 }

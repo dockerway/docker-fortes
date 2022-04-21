@@ -8,5 +8,6 @@ module.exports = {
         "NOTIFICATION_UPDATE",
         DOCKER_VIEW,
         DOCKER_RESTART
-    ]
+    ],
+    readonly: true
 }
