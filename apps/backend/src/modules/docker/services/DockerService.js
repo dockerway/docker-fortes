@@ -104,36 +104,17 @@ export const fetchService = function (stack) {
 }
 
 const prepareConstraintsArray = (constraints) => {
-    let constraintsArr = []
-
-    constraints.map(constraint => {
-        let val = constraint.value ? constraint.value : constraint.defaultValue
-        let constraintString = constraint.name + " " + constraint.operation + " " + val
-        constraintsArr.push(constraintString)
-    })
-
-    return constraintsArr
+    return constraints.map(constraint => (constraint.name + " " + constraint.operation + " " + constraint.value))
 }
 
 const preparePreferencesArray = (preferences) => {
-    console.log("PREFERENCES SIN MODIFICAR: ", preferences)
-    let preferencesArr = []
-    
-    preferences.map(preference => {
-      let val = preference.value ? preference.value : preference.defaultValue
-      let preferenceObj = new Object()
-      preferenceObj[preference.name] = val
-      preferencesArr.push(preferenceObj)
-    })
-    
-    console.log("RETURN PREFERENCES: ", preferencesArr)
-    return preferencesArr
+    return preferences.map(preference => ({[preference.name]: {"SpreadDescriptor": preference.value}}))
 }
 
 const prepareServiceConfig = async (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = []}) => {
     let constraintsArray =  await prepareConstraintsArray(constraints)
     let preferencesArray =  await preparePreferencesArray(preferences)
-    console.log("array preferences: ", preferencesArray)
+
     envs.push({name: "CONTROL_VERSION", value: version})
     labels.push({name: "com.docker.stack.namespace", value: stack})
 
@@ -237,7 +218,6 @@ const prepareServiceConfig = async (version = "1", {name, stack, image, replicas
         }, {})
 
     }
-    console.log("dockerService: ", dockerService.TaskTemplate.Placement.Preferences)
 
     return dockerService
 }
@@ -263,11 +243,8 @@ export const dockerServiceCreate = function (user, {name, stack, image, replicas
                 limits,
                 preferences
             })
-
-            console.log("dockerServiceConfig: ", dockerServiceConfig)
             
             let result = await docker.createService(dockerServiceConfig)
-            console.log("result: ", result)
             
             let inspect = await docker.getService(result.id).inspect()
             console.log(inspect)
