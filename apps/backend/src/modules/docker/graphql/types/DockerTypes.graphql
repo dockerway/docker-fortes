@@ -52,6 +52,11 @@ type Limit{
     CPULimit: Float
 }
 
+type Preference {
+    name: String!
+    value: String
+}
+
 type DockerService {
     id: String
     name: String
@@ -65,6 +70,7 @@ type DockerService {
     labels: [Label]
     constraints: [Constraint]
     limits: Limit
+    preferences: [Preference]
 }
 
 
@@ -190,6 +196,11 @@ input LimitServiceInput{
     CPULimit: Float
 }
 
+input PreferenceServiceInput {
+    name: String!
+    value: String
+}
+
 input DockerServiceInput {
     name: String!
     stack: String
@@ -200,6 +211,7 @@ input DockerServiceInput {
     labels: [LabelInput]
     constraints: [ConstraintServiceInput]
     limits: LimitServiceInput
+    preferences: [PreferenceServiceInput]
 }
 
 type Mutation {
