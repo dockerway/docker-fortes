@@ -38,7 +38,8 @@ export const mapInspectToServiceModel = (item) => {
             memoryLimit: item?.Spec?.TaskTemplate?.Resources?.Limits?.MemoryBytes,
             CPUReservation: item?.Spec?.TaskTemplate?.Resources?.Reservations?.NanoCPUs,
             CPULimit: item?.Spec?.TaskTemplate?.Resources?.Limits?.NanoCPUs
-        }
+        },
+        preferences: item?.Spec?.TaskTemplate?.Placement?.Preferences?.map(preference => ({name: "Spread", value: preference.Spread.SpreadDescriptor}))
     }
 }
 

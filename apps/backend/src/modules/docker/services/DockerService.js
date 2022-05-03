@@ -104,19 +104,17 @@ export const fetchService = function (stack) {
 }
 
 const prepareConstraintsArray = (constraints) => {
-    let constraintsArr = []
-
-    constraints.map(constraint => {
-        let val = constraint.value ? constraint.value : constraint.defaultValue
-        let constraintString = constraint.name + " " + constraint.operation + " " + val
-        constraintsArr.push(constraintString)
-    })
-
-    return constraintsArr
+    return constraints.map(constraint => (constraint.name + " " + constraint.operation + " " + constraint.value))
 }
 
-const prepareServiceConfig = async (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}}) => {
+const preparePreferencesArray = (preferences) => {
+    return preferences.map(preference => ({[preference.name]: {"SpreadDescriptor": preference.value}}))
+}
+
+const prepareServiceConfig = async (version = "1", {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = []}) => {
     let constraintsArray =  await prepareConstraintsArray(constraints)
+    let preferencesArray =  await preparePreferencesArray(preferences)
+
     envs.push({name: "CONTROL_VERSION", value: version})
     labels.push({name: "com.docker.stack.namespace", value: stack})
 
@@ -170,7 +168,8 @@ const prepareServiceConfig = async (version = "1", {name, stack, image, replicas
                 }
             },*/
             Placement: {
-                Constraints : constraintsArray
+                Constraints: constraintsArray,
+                Preferences: preferencesArray
             },
             Resources: {
                 Limits: {
@@ -223,7 +222,7 @@ const prepareServiceConfig = async (version = "1", {name, stack, image, replicas
     return dockerService
 }
 
-export const dockerServiceCreate = function (user, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}}) {
+export const dockerServiceCreate = function (user, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = []}) {
     return new Promise(async (resolve, reject) => {
         try {
             if (user) {
@@ -241,10 +240,12 @@ export const dockerServiceCreate = function (user, {name, stack, image, replicas
                 envs,
                 labels,
                 constraints,
-                limits
+                limits,
+                preferences
             })
             
             let result = await docker.createService(dockerServiceConfig)
+            
             let inspect = await docker.getService(result.id).inspect()
             console.log(inspect)
             let service = mapInspectToServiceModel(inspect)
@@ -260,7 +261,7 @@ export const dockerServiceCreate = function (user, {name, stack, image, replicas
 }
 
 
-export const dockerServiceUpdate = function (user, serviceId, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}}) {
+export const dockerServiceUpdate = function (user, serviceId, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = []}) {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -282,7 +283,8 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
                 envs,
                 labels,
                 constraints,
-                limits
+                limits,
+                preferences
             })
 
             let result = await docker.getService(serviceId).update(dockerServiceConfig)
