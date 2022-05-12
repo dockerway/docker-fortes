@@ -34,7 +34,7 @@ router.get('/docker/service', async function (req, res) {
 router.post('/docker/service', async function (req, res) {
     try {
         let user = req.user
-        if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto")
         if(!req.rbac.isAllowed(user.id, DOCKER_CREATE)) throw new ForbiddenError("Not Authorized")
 
         let body = req.body
@@ -52,7 +52,7 @@ router.post('/docker/service', async function (req, res) {
 router.put('/docker/service/:service', async function (req, res) {
     try {
         let user = req.user
-        if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto")
         if(!req.rbac.isAllowed(user.id, DOCKER_UPDATE)) throw new ForbiddenError("Not Authorized")
 
         let body = req.body
