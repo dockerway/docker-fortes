@@ -222,4 +222,5 @@ type Mutation {
     dockerRemoveMany(serviceIds: [String!]): [DockerRemove]
 
     dockerServiceCreate(input: DockerServiceInput): DockerService
+    dockerServiceUpdate(input: DockerServiceInput): DockerService
 }

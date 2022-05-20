@@ -3,7 +3,7 @@
 
 
 import {AuthenticationError, ForbiddenError} from "apollo-server-express";
-import {DOCKER_CREATE, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_VIEW} from "../../permissions/dockerPermissions";
+import {DOCKER_CREATE, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW} from "../../permissions/dockerPermissions";
 
 import {fetchNode, findNode} from "../../services/DockerNodeService";
 import {serviceLogs} from "../../services/DockerLogService";
@@ -12,6 +12,7 @@ import {fetchStack} from "../../services/DockerStackService";
 
 import {
     dockerServiceCreate,
+    dockerServiceUpdate,
     fetchService,
     findServiceByName,
     findServiceTag,
@@ -125,6 +126,12 @@ export default {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             if(!rbac.isAllowed(user.id, DOCKER_CREATE)) throw new ForbiddenError("Not Authorized")
             return dockerServiceCreate(user, input)
+        },
+
+        dockerServiceUpdate: (_,{input},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_UPDATE)) throw new ForbiddenError("Not Authorized")
+            return dockerServiceUpdate(user, input)
         },
 
         dockerRestart: (_,{serviceId},{user,rbac}) => {

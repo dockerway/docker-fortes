@@ -266,7 +266,7 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
         try {
 
             if (user) {
-                await createAudit(user, {user: user.id, action: 'CREATE', target: name})
+                await createAudit(user, {user: user.id, action: 'UPDATE', target: name})
             }
 
             let service = await docker.getService(serviceId)
