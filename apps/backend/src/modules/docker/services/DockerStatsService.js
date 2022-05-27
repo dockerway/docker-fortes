@@ -75,7 +75,7 @@ export const remoteContainerStats = function (nodeId, containerId) {
             let path = '/api/docker/container/' + containerId + '/stats'
 
 
-            const DEFAULT_AGENT_SERVICE_NAME = "ci_incatainer-agent"
+            const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent"
             const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME
             const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)
             const HOST = "http://"+ DNS

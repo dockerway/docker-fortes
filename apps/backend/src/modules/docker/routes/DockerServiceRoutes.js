@@ -74,8 +74,7 @@ router.get('/docker/service/:name', async function (req, res) {
         res.json(r)
 
     } catch (e) {
-        let statusCode = (e.statusCode && validateStatusCode(e.statusCode)) ? e.statusCode : 500
-        res.status(statusCode)
+        res.status(e.message === "Service not found" ? 404 : 500)
         res.send(e.message)
     }
 })

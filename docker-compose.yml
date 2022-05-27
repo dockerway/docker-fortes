@@ -1,32 +1,47 @@
 version: "3.5"
 
 services:
-  draculscaffold:
-    build: .
-    image: dracul-scaffold
-    container_name: dracul_scaffold
+  incatainer-agent:
+    image: sndregistry.sondeosglobal.com/dockerway/docker-fortes-agent:1.0.0
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+
+  incatainer:
+    image: sndregistry.sondeosglobal.com/dockerway/docker-fortes:1.0.4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./media:/app/media
       - ./logs:/app/logs
     ports:
-      - "8060:5000"
-    environment:
-      NODE_ENV: "production"
-      MONGO_URI: "mongodb://127.0.0.1:27017/dracul"
-      JWT_SECRET: "V8wzw4iL9H40oxXAVj9u"
-      JWT_LOGIN_EXPIRED_IN: "3d"
+      - "9999:9999"
+    environment: 
+      MONGO_URI: "mongodb://192.168.10.70:27017/incartainer"
+      NODE_ENV: "development"
+      JWT_SECRET: "djghhhhuuwiwuewieuwieuricc"
+      JWT_LOGIN_EXPIRED_IN: "1h"
       JWT_REGISTER_EXPIRED_IN: "30d"
-      APP_NAME: "DraculScaffold"
-      APP_PORT: 5000
-      APP_API_URL: "http://localhost:8060"
-      APP_WEB_URL: "http://localhost:8060"
-      SMTP_HOST: "smtp.xxxx.com.ar"
+      JWT_REFRESHTOKEN_EXPIRED_IN: "1d"
+      NOTIFICATION_TIME_POLLING: 30000
+      NOTIFICATION_ACTIVATE_WEB_SOCKET: "disable"
+      GITLAB_TOKEN: "sxo5kd8K5R9fEuGRRSnS"
+      GITLAB_URL: "http://git.snd.int/api/v4"
+      REGISTRY_URL: "http://sndregistry.sondeosglobal.com:8080/v2/"
+      APP_NAME:  "MEDIA"
+      APP_PORT: 9999
+      APP_API_URL: "http://192.168.10.33:9999"
+      MEDIA_DEFAULT_CAPACITY: 1024
+      MEDIA_MAX_SIZE_PER_FILE_IN_MEGABYTES: 4096
+      MEDIA_FILE_EXPIRATION_TIME_IN_DAYS: 180
+      MEDIA_DELETE_FILES_CRON: "0 0 0 * * * *"
+      SMTP_HOST: "smtp.equila.com.ar"
       SMTP_PORT: 25
       SMTP_SECURE: "false"
-      SMTP_IGNORE_TLS: "true"
-      SMTP_USER: "user@domain.com.ar"
-      SMTP_PASS: "xxxxxx"
-      AVATAR_MAX_SIZE: 2000000
+      SMTP_USER: "pruebas@impakto.com.ar"
+      SMTP_PASS: "Pru.3135!"
       LOG_LEVEL: "debug"
       LOG_REQUEST: "ON"
       LOG_RESPONSE_TIME: "ON"
@@ -38,6 +53,11 @@ services:
       LOG_TRANSPORT_GQL_ERROR: "ON"
       LOG_TRANSPORT_GQL_RESPONSE: "ON"
       LOG_COLORIZE: "ON"
-      LOG_FILE_MAX_SIZE: 50000000
+      LOG_FILE_MAX_SIZE: 10000000
       LOG_FILE_MAX_FILES: 3
       LOG_MODE: "TEXT"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
