@@ -28,7 +28,7 @@ export const foldersCreator = function () {
                 let baseURL = "http://"+ await dnsTaskRunningByServiceAndNode(agentServiceName, nodes[i].id)
                 let URL = baseURL + path
                 console.log("remoteContainerStats URL Stats FINAL", URL)
-                let response = await axios.post(URL, volumes)
+                let response = await axios({ method: 'post', url: URL, data: volumes })
                 console.log("remoteContainerStats: ", response.data)
                 if (response.status = 200) {
                     resolve(response.data)
