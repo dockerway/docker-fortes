@@ -9,7 +9,7 @@ import {
 import http from "http";
 import {serviceStats, serviceStatsByName, taskStats} from "../services/DockerStatsService";
 import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
-import { DOCKER_CREATE, DOCKER_UPDATE } from '../permissions/dockerPermissions';
+import { DOCKER_CREATE, DOCKER_UPDATE, DOCKER_VIEW } from '../permissions/dockerPermissions';
 
 
 var router = express.Router();
@@ -20,6 +20,10 @@ function validateStatusCode(statusCode){
 
 router.get('/docker/service', async function (req, res) {
     try {
+        const user = req.user;
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto");
+        if(!req.rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized");
+
         let r = await fetchService()
         res.json(r)
 
@@ -70,6 +74,10 @@ router.put('/docker/service/:service', async function (req, res) {
 
 router.get('/docker/service/:name', async function (req, res) {
     try {
+        const user = req.user;
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto");
+        if(!req.rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized");
+
         let r = await findServiceByName(req.params.name)
         res.json(r)
 
@@ -81,6 +89,11 @@ router.get('/docker/service/:name', async function (req, res) {
 
 router.get('/docker/service/:name/tag', async function (req, res) {
     try {
+        const user = req.user;
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto");
+        if(!req.rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized");
+
+
         let r = await findServiceTag(req.params.name)
         res.json(r)
 
@@ -94,6 +107,10 @@ router.get('/docker/service/:name/tag', async function (req, res) {
 
 router.get('/docker/service/:serviceName/stats', async function (req, res) {
     try {
+        const user = req.user;
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto");
+        if(!req.rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized");
+
         let r = await serviceStatsByName(req.params.serviceName)
         res.json(r)
 
@@ -106,6 +123,10 @@ router.get('/docker/service/:serviceName/stats', async function (req, res) {
 
 router.get('/docker/service/id/:serviceId/stats', async function (req, res) {
     try {
+        const user = req.user;
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto");
+        if(!req.rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized");
+
         let r = await serviceStats(req.params.serviceId)
         res.json(r)
 
