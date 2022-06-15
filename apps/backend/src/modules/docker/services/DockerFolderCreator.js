@@ -8,8 +8,6 @@ import axios from "axios";
 export const foldersCreator = function (volumes) {
     return new Promise(async (resolve, reject) => {
         try {
-            if(!Array.isArray(req.body)) throw new Error("Request body must be an Array!")
-
             const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent"
             const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME
 
