@@ -14,7 +14,7 @@ export const foldersCreator = function (volumes) {
             let nodes = await fetchNode()
             let path = '/api/docker/folders'
 
-            for(let i = 0; i <= nodes.length; i++){
+            for(let i = 0; i < nodes.length; i++){
                 let baseURL = "http://"+ await dnsTaskRunningByServiceAndNode(agentServiceName, nodes[i].id)
                 let URL = baseURL + path
                 let response = await axios.post(URL, volumes)
