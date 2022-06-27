@@ -5,10 +5,8 @@ var router = express.Router();
 
 router.post('/docker/folders', async function (req, res) {
     try {
-        console.log("BODY: ",req.body)
         if(!Array.isArray(req.body)) throw new Error("Request body must be an Array!")
         let r = await foldersCreator(req.body)
-        console.log("body folders: ",req.body)
         res.json(r)
     } catch(e){
         console.error("Error DockerFolderCreator: ",e)
