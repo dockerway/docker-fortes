@@ -6,6 +6,10 @@ var router = express.Router();
 
 router.post('/docker/files', async function (req, res) {
     try {
+        const user = req.user;
+        if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto");
+        if(!req.rbac.isAllowed(user.id, DOCKER_UPDATE)) throw new ForbiddenError("Not Authorized");
+
         if(!Array.isArray(req.body)) throw new Error("Request body must be an Array!")
 
         for(let i = 0; i < req.body.length; i++){
