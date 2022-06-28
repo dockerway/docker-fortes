@@ -16,6 +16,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./media:/app/media
       - ./logs:/app/logs
+      - /storage:/storage
+      - /logs:/logs
+      - /localdata:/localdata
     ports:
       - "9999:9999"
     environment: 
