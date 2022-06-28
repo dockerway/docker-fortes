@@ -1,7 +1,6 @@
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
 
-
 export const findNode = function (id = '') {
     return new Promise(async (resolve, reject) => {
         try {
