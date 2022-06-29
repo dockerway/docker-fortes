@@ -3,6 +3,8 @@ import createDirIfDoesntExist from '../helpers/createDirIfDoesntExist'
 const fs = require('fs');
 
 var router = express.Router();
+import { DOCKER_UPDATE } from '../permissions/dockerPermissions';
+
 
 router.post('/docker/files', async function (req, res) {
     try {
