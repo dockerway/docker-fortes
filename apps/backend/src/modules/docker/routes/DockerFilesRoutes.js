@@ -19,7 +19,7 @@ router.post('/docker/files', async function (req, res) {
 
             createDirIfDoesntExist(req.body[i].hostPath) //create the directory            
 
-            let pathFile = req.body[i].containerPath + req.body[i].fileName
+            let pathFile = req.body[i].hostPath + "/" + req.body[i].fileName
             fs.writeFile(pathFile,req.body[i].fileContent,{flag:'w'}, (err) => {
                 if(err) throw err;
                 console.log("The file has been saved!");
