@@ -15,7 +15,7 @@ router.post('/docker/files', async function (req, res) {
         if(!Array.isArray(req.body)) throw new Error("Request body must be an Array!")
 
         for(let i = 0; i < req.body.length; i++){
-            if(!req.body[i].fileName || !req.body[i].fileContent || !req.body[i].containerPath) throw new Error("One of the properties of the file is not defined.")
+            if(!req.body[i].fileName || !req.body[i].fileContent || !req.body[i].hostPath) throw new Error("One of the properties of the file is not defined.")
 
             createDirIfDoesntExist(req.body[i].hostPath) //create the directory            
 
