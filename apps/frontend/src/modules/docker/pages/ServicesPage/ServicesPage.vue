@@ -54,6 +54,9 @@
 
           <template v-slot:item.name="{ item }">
             <span class="font-weight-medium">{{ item.name.replace(item.stack + "_", "") }}</span>
+              <v-btn icon @click="showTerminal(item)" color="blue" class="ml-1">
+                <v-icon>terminal</v-icon>
+              </v-btn>
           </template>
 
 
@@ -142,6 +145,17 @@
 
     </simple-dialog>
 
+        <simple-dialog v-if="terminal.show"
+                   v-model="terminal.show"
+                   @close="closeTerminal"
+                   title='Terminal'
+                   fullscreen
+        >
+          <WebTerminal v-if="terminal.show"
+            :container="terminal.container"
+          />
+        </simple-dialog>
+
 
     <confirm-dialog
         v-if="confirm.show"
@@ -158,6 +172,7 @@
 <script>
 import DockerProvider from "@/modules/docker/providers/DockerProvider";
 import StackCombobox from "@/modules/docker/components/StackCombobox/StackCombobox";
+import WebTerminal from "@/modules/docker/components/WebTerminal/WebTerminal";
 import {Dayjs} from "@dracul/dayjs-frontend"
 import {SimpleDialog, Loading, ConfirmDialog} from "@dracul/common-frontend"
 import ServiceLog from "@/modules/docker/components/ServiceLog/ServiceLog";
@@ -165,7 +180,7 @@ import ServiceTasks from "@/modules/docker/components/ServiceTasks/ServiceTasks"
 
 export default {
   name: "ServicesPage",
-  components: {ServiceTasks, ServiceLog, StackCombobox, SimpleDialog, Loading, ConfirmDialog},
+  components: {ServiceTasks, ServiceLog, StackCombobox, SimpleDialog, Loading, ConfirmDialog, WebTerminal},
   data() {
     return {
       services: [],
@@ -192,6 +207,11 @@ export default {
         title: '',
         description: '',
         action: null
+      },
+
+      terminal: {
+        show: false,
+        containerId : null
       }
 
     }
@@ -276,6 +296,7 @@ export default {
 
     },
     showLogs(service) {
+      console.log(service);
       this.logs.show = true
       this.logs.service = service
     },
@@ -333,6 +354,21 @@ export default {
             console.log("restart", r.data)
             this.fetchService()
           })
+    },
+    async showTerminal(service) {
+      const axios = require("axios");
+
+      let runningTask = null;
+
+      await DockerProvider.fetchTask(service.name).then(r => runningTask = r.data.fetchTask.filter(task => task.state === 'running')[0]);
+      this.terminal.containerId = runningTask.containerId;
+      console.log(this.terminal.containerId);
+      await axios.get(`http://localhost:4000/api/docker/container/${this.terminal.containerId}/runterminal/bash`)
+      .then(() => this.terminal.show = true);
+    },
+
+    closeTerminal(){
+      this.terminal.show = false;
     }
   }
 }

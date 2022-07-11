@@ -1,6 +1,5 @@
-import getImageObject from "./helpers/getImageObject";
 import {dnsTaskRunningByServiceAndNode, fetchTask, findTask} from "./DockerTaskService";
-import {findService, findServiceByName} from "./DockerService";
+import {findServiceByName} from "./DockerService";
 import axios from "axios";
 
 const Docker = require('dockerode');
@@ -77,9 +76,9 @@ export const remoteContainerStats = function (nodeId, containerId) {
 
             const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent"
             const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME
-            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)
-            const HOST = "http://"+ DNS
-            const URL = HOST + path
+            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
+            const URL = `http://${DNS}${path}`;
+
             console.log("remoteContainerStats URL Stats FINAL", URL)
             let response = await axios.get(URL)
             console.log("remoteContainerStats", response)
