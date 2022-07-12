@@ -10,7 +10,7 @@ router.post('/docker/folders', async function (req, res) {
         if(!user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto");
         if(!req.rbac.isAllowed(user.id, DOCKER_UPDATE)) throw new ForbiddenError("Not Authorized");
         
-        if(!Array.isArray(req.body)) throw new Error("Request body must be an Array!")
+        if(!Array.isArray(req.body.volumes)) throw new Error("Request body must be an Array!")
         let r = await foldersCreator(req.body)
         res.status(200)
         res.json(r)
