@@ -151,8 +151,10 @@
                    title='Terminal'
                    fullscreen
         >
-          <WebTerminal v-if="terminal.show"
+
+          <WebTerminal
             :container="terminal.container"
+            v-bind:webSocket="terminal.webSocket"
           />
         </simple-dialog>
 
@@ -211,7 +213,8 @@ export default {
 
       terminal: {
         show: false,
-        containerId : null
+        containerId : null,
+        webSocket : null
       }
 
     }
@@ -358,16 +361,20 @@ export default {
     async showTerminal(service) {
       const axios = require("axios");
 
-      let runningTask = null;
+      await DockerProvider.fetchTask(service.name).then((response) => {
+        let runningTask = response.data.fetchTask.filter(task => task.state === 'running')[0];
+        this.terminal.containerId = runningTask.containerId;
+      });
 
-      await DockerProvider.fetchTask(service.name).then(r => runningTask = r.data.fetchTask.filter(task => task.state === 'running')[0]);
-      this.terminal.containerId = runningTask.containerId;
-      console.log(this.terminal.containerId);
-      await axios.get(`http://localhost:4000/api/docker/container/${this.terminal.containerId}/runterminal/bash`)
-      .then(() => this.terminal.show = true);
+      await axios.get(`http://localhost:4080/api/docker/container/${this.terminal.containerId}/runterminal/bash`)
+      .then(() => {
+        this.terminal.webSocket = new WebSocket('ws://localhost:3000');
+        this.terminal.show = true;
+      });
     },
 
-    closeTerminal(){
+    async closeTerminal(){
+      await this.terminal.webSocket.close();
       this.terminal.show = false;
     }
   }

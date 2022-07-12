@@ -10,6 +10,8 @@ import {setGraphQlClientToProviders} from '@dracul/user-frontend'
 import {customizationProvider} from '@dracul/customize-frontend'
 import {notificationProvider} from '@dracul/notification-frontend'
 import {SettingsProvider} from '@dracul/settings-frontend'
+import './assets/css/xterm.css'
+
 setGraphQlClientToProviders(apolloClient)
 customizationProvider.setGqlc(apolloClient)
 notificationProvider.setGqlc(apolloClient)
