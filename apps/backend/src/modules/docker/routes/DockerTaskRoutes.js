@@ -1,13 +1,7 @@
-import express from 'express'
-import {
-    dockerServiceCreate,
-    dockerServiceUpdate,
-    fetchService,
-    findServiceByName,
-    findServiceTag
-} from "../services/DockerService";
+import express from 'express';
 import http from "http";
 import {taskStats} from "../services/DockerStatsService";
+import {runTerminalOnRemoteTaskContainer} from '../services/DockerTaskService';
 
 
 var router = express.Router();
@@ -26,7 +20,20 @@ router.get('/docker/task/:taskid/stats', async function (req, res) {
         res.status(statusCode)
         res.send(e.message)
     }
-})
+});
+
+router.get('/docker/task/:nodeId/:containerId/runTerminal/:terminal', async function (req, res) {
+    try {
+        const response = await runTerminalOnRemoteTaskContainer(req.params.nodeId, req.params.containerId);
+        console.log("RESPONSE from LINE 27: ", response);
+        res.send(response);
+
+    } catch (error) {
+        let statusCode = (error.statusCode && validateStatusCode(error.statusCode)) ? error.statusCode : 500;
+        res.status(statusCode);
+        res.send(error.message);
+    }
+});
 
 
 

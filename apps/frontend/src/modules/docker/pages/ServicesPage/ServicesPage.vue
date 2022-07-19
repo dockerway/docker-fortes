@@ -360,15 +360,15 @@ export default {
     },
     async showTerminal(service) {
       const axios = require("axios");
+      
+      await DockerProvider.fetchTask(service.name).then(async (response) => {
+        const runningTask = response.data.fetchTask.filter(task => task.state === 'running')[0];
+    
+        axios.get(`/api/docker/task/${runningTask.nodeId}/${runningTask.containerId}/runTerminal/bash`).then( (response) => {
+          this.terminal.webSocket = response.data;
+          console.log("new endpoint response: ", response.data);
+        });
 
-      await DockerProvider.fetchTask(service.name).then((response) => {
-        let runningTask = response.data.fetchTask.filter(task => task.state === 'running')[0];
-        this.terminal.containerId = runningTask.containerId;
-      });
-
-      await axios.get(`http://localhost:4080/api/docker/container/${this.terminal.containerId}/runterminal/bash`)
-      .then(() => {
-        this.terminal.webSocket = new WebSocket('ws://localhost:3000');
         this.terminal.show = true;
       });
     },

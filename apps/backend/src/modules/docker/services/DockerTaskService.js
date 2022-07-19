@@ -1,5 +1,4 @@
 import getImageObject from "./helpers/getImageObject";
-import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel";
 
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
@@ -129,5 +128,63 @@ export const dnsTaskRunningByServiceAndNode = function (serviceName, nodeId) {
             reject(e)
         }
 
+    })
+}
+
+export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, terminal = 'bash') {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const path = `/api/docker/container/${containerId}/runterminal/${terminal}`;
+            
+            const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
+            const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
+
+            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
+            const URL = `http://${DNS}${path}`;
+            console.log("Remote Task Container URL: ", URL);
+
+            const axios = require('axios');
+            const response = await axios.get(URL);
+
+            if(response.status == 200){
+                console.log("Agent endpoint consumed");
+
+                const { createWebSocketStream, WebSocket, WebSocketServer } = require('ws');
+
+                // Fortes Backend WebSocketSERVER
+                const webSocketServer = new WebSocketServer({ port: 9999 });
+                webSocketServer.on('connection', (backWS) => {
+                    backWS.onmessage = ({data}) => {
+                        console.log(data.toString());
+                        agentWS.send(data.toString());
+                    }; //send to agent WebSocketSERVER
+
+                    backWS.on('data', (chunk) => {
+                        console.log(chunk.toString());
+                        backWS.send(chunk.toString());
+                    }); //send to client
+
+                    backWS.on('close', () => {
+                        webSocketServer.close();
+                        duplex.destroy();
+                    });
+                });
+                
+                
+                const agentWS = new WebSocket(`ws://${DNS}:8080`);
+                const agentDuplex = createWebSocketStream(agentWS, { encoding: 'utf8' });
+                
+                agentWS.onmessage = ({data}) => {
+                    webSocketServer.
+                };
+
+                resolve('Agent and back LINKED');
+            }else{
+                console.log("Could NOT consume agent endpoint");
+                reject(new Error(response.data));
+            }
+        } catch (error) {
+            reject(error);
+        }
     })
 }
