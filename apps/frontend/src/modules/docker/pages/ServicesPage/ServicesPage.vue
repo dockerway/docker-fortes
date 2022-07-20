@@ -365,7 +365,13 @@ export default {
         const runningTask = response.data.fetchTask.filter(task => task.state === 'running')[0];
     
         axios.get(`/api/docker/task/${runningTask.nodeId}/${runningTask.containerId}/runTerminal/bash`).then( (response) => {
-          this.terminal.webSocket = response.data;
+          if (response.data == 'Linked'){
+            const connectionToBack = new WebSocket('ws://127.0.0.1:9995');
+            this.terminal.webSocket = connectionToBack;
+
+            console.log(`terminal.webSocket from VUE (line 371): '${this.terminal.webSocket}'`);
+          }
+          
           console.log("new endpoint response: ", response.data);
         });
 

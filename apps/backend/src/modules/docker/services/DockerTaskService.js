@@ -147,38 +147,30 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             const response = await axios.get(URL);
 
             if(response.status == 200){
-                console.log("Agent endpoint consumed");
+                const { WebSocket, WebSocketServer } = require('ws');
+                const agentWSClient = new WebSocket(`ws://${DNS}:8080`); //Conexion a WSS del agent
+                const webSocketServer = new WebSocketServer({ port: 9995 }); //Inicializacion de WSS en back
 
-                const { createWebSocketStream, WebSocket, WebSocketServer } = require('ws');
-
-                // Fortes Backend WebSocketSERVER
-                const webSocketServer = new WebSocketServer({ port: 9999 });
                 webSocketServer.on('connection', (backWS) => {
+                    console.log('Backend WS server connection OPENED');
+                    backWS.on('close', () => webSocketServer.close());
+
                     backWS.onmessage = ({data}) => {
                         console.log(data.toString());
-                        agentWS.send(data.toString());
-                    }; //send to agent WebSocketSERVER
-
-                    backWS.on('data', (chunk) => {
-                        console.log(chunk.toString());
-                        backWS.send(chunk.toString());
-                    }); //send to client
-
-                    backWS.on('close', () => {
-                        webSocketServer.close();
-                        duplex.destroy();
-                    });
+                        agentWSClient.send(data.toString());
+                    };
                 });
-                
-                
-                const agentWS = new WebSocket(`ws://${DNS}:8080`);
-                const agentDuplex = createWebSocketStream(agentWS, { encoding: 'utf8' });
-                
-                agentWS.onmessage = ({data}) => {
-                    webSocketServer.
+
+                agentWSClient.onmessage = ({data}) => {
+                    console.log('Data from Agent: ', data.toString());
+                    backWS.send(data.toString());
                 };
 
-                resolve('Agent and back LINKED');
+                agentWSClient.on('open', (agentWS) => {
+                    console.log('WS client connected to agent Server');
+                });
+                
+                resolve('Linked');
             }else{
                 console.log("Could NOT consume agent endpoint");
                 reject(new Error(response.data));

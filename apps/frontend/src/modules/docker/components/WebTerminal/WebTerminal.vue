@@ -20,7 +20,7 @@ import { FitAddon } from 'xterm-addon-fit';
     props:['webSocket'],
     mounted(){
       term.open(this.$refs.mainDiv);
-
+      console.log(this.webSocket);
       const attachAddon = new AttachAddon(this.webSocket);
       term.loadAddon(attachAddon);
     }

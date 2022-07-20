@@ -25,7 +25,7 @@ router.get('/docker/task/:taskid/stats', async function (req, res) {
 router.get('/docker/task/:nodeId/:containerId/runTerminal/:terminal', async function (req, res) {
     try {
         const response = await runTerminalOnRemoteTaskContainer(req.params.nodeId, req.params.containerId);
-        console.log("RESPONSE from LINE 27: ", response);
+        console.log(`RESPONSE from LINE 27: '${response}'`);
         res.send(response);
 
     } catch (error) {
