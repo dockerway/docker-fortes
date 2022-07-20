@@ -10,7 +10,9 @@ import { Terminal } from 'xterm';
 import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon } from 'xterm-addon-fit';
 
-  const term = new Terminal();
+  let term = new Terminal();
+  let attachAddon;
+
   const fitAddon = new FitAddon();
   fitAddon.activate(term);
   term.loadAddon(fitAddon);
@@ -20,12 +22,23 @@ import { FitAddon } from 'xterm-addon-fit';
     props:['webSocket'],
     mounted(){
       term.open(this.$refs.mainDiv);
-      console.log(this.webSocket);
-      const attachAddon = new AttachAddon(this.webSocket);
+      console.log(`From MOUNTED webterm ${this.webSocket.url}`);
+      attachAddon = new AttachAddon(this.webSocket);
       term.loadAddon(attachAddon);
+    },
+    watch:{
+      webSocket: function(){
+        console.log(`From WATCHER webterm ${this.webSocket.url}`);
+        
+        term.clear();
+        attachAddon = new AttachAddon(this.webSocket);
+        term.reset();
+
+        term.loadAddon(attachAddon);
+      }
     }
   };
-  
+
 </script>
 
 <style scoped>

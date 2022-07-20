@@ -153,6 +153,7 @@
         >
 
           <WebTerminal
+            v-if="terminal.webSocket !== null"
             :container="terminal.container"
             v-bind:webSocket="terminal.webSocket"
           />
