@@ -148,23 +148,27 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
 
             if(response.status == 200){
                 const { WebSocket, WebSocketServer } = require('ws');
-                const agentWSClient = new WebSocket(`ws://${DNS}:8080`); //Conexion a WSS del agent
                 const webSocketServer = new WebSocketServer({ port: 9995 }); //Inicializacion de WSS en back
+                const agentWSClient = new WebSocket(`ws://${DNS}:8080`); //Conexion a WSS del agent
 
                 webSocketServer.on('connection', (backWS) => {
                     console.log('Backend WS server connection OPENED');
-                    backWS.on('close', () => webSocketServer.close());
+                    backWS.on('close', () => {
+                        console.log("CLOSING Back WSS & agentWSClient connection");
+                        webSocketServer.close();
+                        agentWSClient.close();
+                    });
 
                     backWS.onmessage = ({data}) => {
                         console.log(data.toString());
                         agentWSClient.send(data.toString());
                     };
-                });
 
-                agentWSClient.onmessage = ({data}) => {
-                    console.log('Data from Agent: ', data.toString());
-                    backWS.send(data.toString());
-                };
+                    agentWSClient.onmessage = ({data}) => {
+                        console.log('Data from Agent (LINE 164): ', data.toString());
+                        backWS.send(data.toString());
+                    };
+                });
 
                 agentWSClient.on('open', (agentWS) => {
                     console.log('WS client connected to agent Server');
