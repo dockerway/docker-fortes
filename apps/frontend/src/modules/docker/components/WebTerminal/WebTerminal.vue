@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div ref="mainDiv"></div>
+    <div ref="mainDiv" id="mainDiv"></div>
   </main>
 </template>
 
@@ -14,29 +14,37 @@ import { FitAddon } from 'xterm-addon-fit';
   let attachAddon;
 
   const fitAddon = new FitAddon();
-  fitAddon.activate(term);
   term.loadAddon(fitAddon);
+  fitAddon.activate(term);
+  fitAddon.fit();
+  const resizeObserver = new ResizeObserver(() => fitAddon.fit());
+
 
   export default {
     name: "DockerInfo",
     props:['webSocket'],
     mounted(){
-      term.open(this.$refs.mainDiv);
-      console.log(`From MOUNTED webterm ${this.webSocket.url}`);
-      attachAddon = new AttachAddon(this.webSocket);
-      term.loadAddon(attachAddon);
-    },
-    watch:{
-      webSocket: function(){
-        console.log(`From WATCHER webterm ${this.webSocket.url}`);
-        
-        term.clear();
-        attachAddon = new AttachAddon(this.webSocket);
-        term.reset();
+      resizeObserver.observe(this.$refs.mainDiv);
 
-        term.loadAddon(attachAddon);
-      }
-    }
+      term.clear();
+      term.reset();
+
+      term.open(this.$refs.mainDiv);
+
+      attachAddon = new AttachAddon(this.webSocket);
+      term.loadAddon(fitAddon);
+
+      fitAddon.fit();
+      term.loadAddon(attachAddon);
+
+      // term.onResize(size => {
+      //   this.webSocket.send({ rows: size.rows });
+      //   this.webSocket.send({ cols: size.cols });
+      // });
+    },
+    beforeDestroy(){
+      resizeObserver.unobserve(this.$refs.mainDiv);
+    },
   };
 
 </script>
