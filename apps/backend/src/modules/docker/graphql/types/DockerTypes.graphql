@@ -121,6 +121,11 @@ type DockerLog{
     text: String
 }
 
+type DockerTaskLog{
+    timestamp: String,
+    text: String
+}
+
 type DockerNode{
     id: String
     hostname: String
@@ -146,7 +151,7 @@ type Query {
     fetchNode(role: String): [DockerNode]
     findNode(id: String): DockerNode
     serviceLogs(service: String!): [DockerLog]
-
+    serviceTaskLogs(task: String!): [DockerTaskLog]
     serviceStats(serviceId: ID!): [DockerTaskStats]
     serviceStatsByName(serviceName: String!): [DockerTaskStats]
     taskStats(taskId: ID!): DockerTaskStats

@@ -1,0 +1,6 @@
+query serviceTaskLogs($task: String!){
+    serviceTaskLogs(task: $task){
+        timestamp
+        text
+    }
+}

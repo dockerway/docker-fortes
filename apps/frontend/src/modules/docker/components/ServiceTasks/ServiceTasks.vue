@@ -1,30 +1,37 @@
 <template>
-  <v-simple-table dense>
-    <thead>
-    <tr>
-      <th>state</th>
-      <th>created</th>
-      <th>updated</th>
-      <th>Node</th>
-      <th>task</th>
-    </tr>
-    </thead>
+  <div>
+    <v-simple-table dense>
+      <thead>
+      <tr>
+        <th>State</th>
+        <th>Created</th>
+        <th>Updated</th>
+        <th>Node</th>
+        <th>Task</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
 
-    <tbody>
-    <tr v-for="task in tasks" :key="task.id">
-      <td>
-        <v-chip small class="font-weight-bold" dark :color="getStateColor(task.state)">
-          {{ task.state }}
-        </v-chip>
-      </td>
-      <td>{{ formatDate(task.createdAt) }}</td>
-      <td>{{ formatDate(task.updatedAt) }}</td>
-      <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
-      <td>{{ task.id }}</td>
-
-    </tr>
-    </tbody>
-  </v-simple-table>
+      <tbody>
+      <tr v-for="task in tasks" :key="task.id">
+        <td>
+          <v-chip small class="font-weight-bold" dark :color="getStateColor(task.state)">
+            {{ task.state }}
+          </v-chip>
+        </td>
+        <td>{{ formatDate(task.createdAt) }}</td>
+        <td>{{ formatDate(task.updatedAt) }}</td>
+        <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
+        <td>{{ task.id }}</td>
+        <td>
+          <v-btn icon @click="showLogs(task)" color="blue">
+            <v-icon small>description</v-icon>
+          </v-btn>
+        </td>
+      </tr>
+      </tbody>
+    </v-simple-table>
+  </div>
 </template>
 
 <script>
@@ -35,6 +42,11 @@ export default {
   props: {
     tasks: {type: Array},
     loading: {type: Boolean, default: false}
+  },
+  methods: {
+    showLogs(task) {
+      this.$emit('showLogs',task)
+    },
   },
   computed: {
     formatDate() {

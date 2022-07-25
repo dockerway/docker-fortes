@@ -113,7 +113,7 @@
               <v-card v-else-if="item.tasks && item.tasks.length > 0" class="ma-3">
                 <v-card-text>
                   <v-btn icon absolute right top small @click="fetchTask(item)"><v-icon>refresh</v-icon></v-btn>
-                  <service-tasks :tasks="item.tasks"></service-tasks>
+                  <service-tasks @showLogs="showTaskLogs" :tasks="item.tasks"></service-tasks>
                 </v-card-text>
               </v-card>
 
@@ -131,7 +131,7 @@
     </v-card>
 
 
-    <simple-dialog v-if="logs.show"
+    <!-- <simple-dialog v-if="logs.show"
                    v-model="logs.show"
                    @close="closeLogs"
                    :title="'Logs '+ logs.service.name"
@@ -140,7 +140,7 @@
     >
       <service-log :service="this.logs.service"></service-log>
 
-    </simple-dialog>
+    </simple-dialog> -->
 
 
     <confirm-dialog
@@ -151,6 +151,15 @@
         @confirmed="confirm.action"
     />
 
+    <simple-dialog
+          fullscreen
+          v-model="logs.show"
+          @close="closeLogs"
+          :title="'Logs '"
+          style="background-color: white; width: 800px;"
+      >
+      <service-task-logs :task="this.logs.task"></service-task-logs>
+    </simple-dialog>
 
   </v-container>
 </template>
@@ -162,10 +171,12 @@ import {Dayjs} from "@dracul/dayjs-frontend"
 import {SimpleDialog, Loading, ConfirmDialog} from "@dracul/common-frontend"
 import ServiceLog from "@/modules/docker/components/ServiceLog/ServiceLog";
 import ServiceTasks from "@/modules/docker/components/ServiceTasks/ServiceTasks";
+import ServiceTaskLogs from "@/modules/docker/components/ServiceTasks/ServiceTaskLogs";
 
 export default {
   name: "ServicesPage",
-  components: {ServiceTasks, ServiceLog, StackCombobox, SimpleDialog, Loading, ConfirmDialog},
+  
+  components: {ServiceTasks, ServiceLog, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs},
   data() {
     return {
       services: [],
@@ -177,7 +188,7 @@ export default {
 
       logs: {
         show: false,
-        service: null,
+        task: null,
       },
 
       expanded: [],
@@ -279,9 +290,14 @@ export default {
       this.logs.show = true
       this.logs.service = service
     },
+    showTaskLogs(task) {
+      this.logs.show = true
+      this.logs.task = task
+    },
     closeLogs() {
       this.logs.show = false
       this.logs.service = null
+      this.logs.task = null
     },
     clearConfirm(){
       this.confirm.title = null

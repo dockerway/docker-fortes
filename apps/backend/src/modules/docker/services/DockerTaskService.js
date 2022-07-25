@@ -71,6 +71,37 @@ export const findTask = function (taskId) {
     })
 }
 
+export const findTaskLogs = function (taskId, tail = 100) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            console.log("task", taskId)
+
+            let filters = {
+                stdout: true,
+                stderr: true,
+                since: 0,
+                timestamps: true,
+                tail: tail
+            }
+
+            let logs = await docker.getTask(taskId).logs(filters)
+
+            logs = logs.toString('utf8').replace(/\u0000|\u0002/g, "").replace(/�/g, "").split('\n')
+
+            logs = logs.map(log => ({
+                timestamp: log.substring(0, 30).trim(),
+                text: log.substring(31)
+            })).filter(log => log.text)
+
+            //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
+            resolve(logs)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
 
 export const findTaskRunningByServiceAndNode = function (serviceName, nodeId) {
     return new Promise(async (resolve, reject) => {

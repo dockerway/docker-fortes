@@ -9,6 +9,7 @@ import {fetchNode, findNode} from "../../services/DockerNodeService";
 import {serviceLogs} from "../../services/DockerLogService";
 import {fetchContainer} from "../../services/DockerContainerService";
 import {fetchStack} from "../../services/DockerStackService";
+import {findTaskLogs} from "../../services/DockerTaskService"
 
 import {
     dockerServiceCreate,
@@ -93,6 +94,11 @@ export default {
              if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return serviceLogs(service)
+        },
+        serviceTaskLogs: (_,{task},{user,rbac}) => {
+             if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            return findTaskLogs(task)
         },
 
         serviceStats: (_,{serviceId},{user,rbac}) => {
