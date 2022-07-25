@@ -133,32 +133,6 @@
       </v-card-text>
     </v-card>
 
-
-    <!-- <simple-dialog v-if="logs.show"
-                   v-model="logs.show"
-                   @close="closeLogs"
-                   :title="'Logs '+ logs.service.name"
-
-                   fullscreen
-    >
-      <service-log :service="this.logs.service"></service-log>
-
-    </simple-dialog> -->
-
-        <simple-dialog v-if="terminal.show"
-                   v-model="terminal.show"
-                   @close="closeTerminal"
-                   title='Terminal'
-                   fullscreen
-        >
-
-          <WebTerminal
-            :container="terminal.container"
-            v-bind:webSocket="terminal.webSocket"
-          />
-        </simple-dialog>
-
-
     <confirm-dialog
         v-if="confirm.show"
         v-model="confirm.show"
@@ -183,9 +157,8 @@
 <script>
 import DockerProvider from "@/modules/docker/providers/DockerProvider";
 import StackCombobox from "@/modules/docker/components/StackCombobox/StackCombobox";
-import WebTerminal from "@/modules/docker/components/WebTerminal/WebTerminal";
-import {Dayjs} from "@dracul/dayjs-frontend"
-import {SimpleDialog, Loading, ConfirmDialog} from "@dracul/common-frontend"
+import {Dayjs} from "@dracul/dayjs-frontend";
+import {SimpleDialog, Loading, ConfirmDialog} from "@dracul/common-frontend";
 import ServiceLog from "@/modules/docker/components/ServiceLog/ServiceLog";
 import ServiceTasks from "@/modules/docker/components/ServiceTasks/ServiceTasks";
 import ServiceTaskLogs from "@/modules/docker/components/ServiceTasks/ServiceTaskLogs";
@@ -220,33 +193,25 @@ export default {
         title: '',
         description: '',
         action: null
-      },
-
-      terminal: {
-        show: false,
-        containerId : null,
-        webSocket : null
       }
-
-    }
+    };
   },
   computed: {
     getServices() {
-      return this.services.filter(s => s.name.includes(this.serviceNameSearch))
+      return this.services.filter(s => s.name.includes(this.serviceNameSearch));
     },
     formatDate() {
       return date => {
-        return Dayjs(date).format("YYYY-MM-DD HH:mm:ss")
-      }
+        return Dayjs(date).format("YYYY-MM-DD HH:mm:ss");
+      };
     },
     formatDateUnix() {
       return date => {
-        console.log(date)
-        return Dayjs.unix(date).format("YYYY-MM-DD HH:mm:ss")
-      }
+        return Dayjs.unix(date).format("YYYY-MM-DD HH:mm:ss");
+      };
     },
     paramStack() {
-      return this.$route.params.stack
+      return this.$route.params.stack;
     },
     headers() {
       return [
@@ -260,59 +225,58 @@ export default {
         //Actions
         {text: this.$t('docker.common.logs'), value: 'logs', sortable: false},
       //  {text: this.$t('common.actions'), value: 'actions', sortable: false},
-      ]
+      ];
     },
   },
   created() {
-    this.stack = this.paramStack
-    this.fetchService()
+    this.stack = this.paramStack;
+    this.fetchService();
   },
   methods: {
     fetchService() {
-      this.loading = true
-      this.selected = []
+      this.loading = true;
+      this.selected = [];
       DockerProvider.fetchService(this.stack)
           .then(r => {
-            this.services = r.data.fetchService
+            this.services = r.data.fetchService;
           })
-          .finally(() => this.loading = false)
+          .finally(() => this.loading = false);
     },
     expandTasks(input){
-      this.fetchTask(input.item)
+      this.fetchTask(input.item);
     },
     fetchTask(service) {
-      this.loadingTask = true
+      this.loadingTask = true;
       DockerProvider.fetchTask(service.name)
           .then(r => {
-            let tasks = r.data.fetchTask
-            this.$set(service, 'tasks', tasks)
+            let tasks = r.data.fetchTask;
+            this.$set(service, 'tasks', tasks);
 
             for (let task of tasks) {
-              this.findNode(task, task.nodeId)
+              this.findNode(task, task.nodeId);
             }
 
           })
-          .finally(() => this.loadingTask = false)
+          .finally(() => this.loadingTask = false);
     },
     findNode(task, nodeId) {
       if(nodeId){
-        let node = this.nodes.find(n => n.id === nodeId)
+        let node = this.nodes.find(n => n.id === nodeId);
         if (node) {
-          this.$set(task, 'node', node)
+          this.$set(task, 'node', node);
         }
 
         DockerProvider.findNode(nodeId).then(r => {
-          let node = r.data.findNode
-          this.nodes.push(node)
-          this.$set(task, 'node', node)
-        })
+          let node = r.data.findNode;
+          this.nodes.push(node);
+          this.$set(task, 'node', node);
+        });
       }
 
     },
     showLogs(service) {
-      console.log(service);
-      this.logs.show = true
-      this.logs.service = service
+      this.logs.show = true;
+      this.logs.service = service;
     },
     showTaskLogs(task) {
       this.logs.show = true
@@ -324,75 +288,52 @@ export default {
       this.logs.task = null
     },
     clearConfirm(){
-      this.confirm.title = null
-      this.confirm.description = null
-      this.confirm.action = null
-      this.confirm.show = false
+      this.confirm.title = null;
+      this.confirm.description = null;
+      this.confirm.action = null;
+      this.confirm.show = false;
     },
     confirmRestartMany(){
-      this.confirm.title = "Restart Services"
-      this.confirm.description = "Are you sure to restart the selected services?"
-      this.confirm.action = this.restartMany
-      this.confirm.show = true
+      this.confirm.title = "Restart Services";
+      this.confirm.description = "Are you sure to restart the selected services?";
+      this.confirm.action = this.restartMany;
+      this.confirm.show = true;
     },
     confirmRemoveMany(){
-      this.confirm.title = "Remove Services"
-      this.confirm.description = "Are you sure to remove the selected services?"
-      this.confirm.action = this.removeMany
-      this.confirm.show = true
+      this.confirm.title = "Remove Services";
+      this.confirm.description = "Are you sure to remove the selected services?";
+      this.confirm.action = this.removeMany;
+      this.confirm.show = true;
     },
     restart(service) {
       DockerProvider.dockerRestart(service.id)
           .then(r => {
-            console.log("restart", r.data)
-            this.fetchTask(service)
-          })
+            this.fetchTask(service);
+          });
     },
     restartMany() {
-      let serviceIds = this.selected.map(s => s.id)
+      let serviceIds = this.selected.map(s => s.id);
       DockerProvider.dockerRestartMany(serviceIds)
           .then(r => {
-            console.log("restart many", r.data)
             for(let service of this.selected){
-              this.fetchTask(service)
+              this.fetchTask(service);
             }
 
-          })
+          });
     },
     remove(service) {
       DockerProvider.dockerRemove(service.id)
           .then(r => {
-            console.log("restart", r.data)
-            this.fetchService()
-          })
+            this.fetchService();
+          });
     },
     removeMany() {
-      let serviceIds = this.selected.map(s => s.id)
+      let serviceIds = this.selected.map(s => s.id);
       DockerProvider.dockerRemoveMany(serviceIds)
           .then(r => {
-            console.log("restart", r.data)
-            this.fetchService()
-          })
+            this.fetchService();
+          });
     },
-    async showTerminal(service) {
-      const axios = require("axios");
-
-      await DockerProvider.fetchTask(service.name).then((response) => {
-        let runningTask = response.data.fetchTask.filter(task => task.state === 'running')[0];
-        this.terminal.containerId = runningTask.containerId;
-      });
-
-      await axios.get(`http://localhost:4080/api/docker/container/${this.terminal.containerId}/runterminal/bash`)
-      .then(() => {
-        this.terminal.webSocket = new WebSocket('ws://localhost:3000');
-        this.terminal.show = true;
-      });
-    },
-
-    async closeTerminal(){
-      await this.terminal.webSocket.close();
-      this.terminal.show = false;
-    }
   }
 }
 </script>
