@@ -95,10 +95,10 @@ export default {
             if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return serviceLogs(service)
         },
-        serviceTaskLogs: (_,{task},{user,rbac}) => {
+        serviceTaskLogs: (_,{task,filters},{user,rbac}) => {
              if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
-            return findTaskLogs(task)
+            return findTaskLogs(task,filters)
         },
 
         serviceStats: (_,{serviceId},{user,rbac}) => {

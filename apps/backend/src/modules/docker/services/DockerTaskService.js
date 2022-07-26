@@ -70,19 +70,22 @@ export const findTask = function (taskId) {
     })
 }
 
-export const findTaskLogs = function (taskId, tail = 100) {
+export const findTaskLogs = function (taskId, filters) {
     return new Promise(async (resolve, reject) => {
         try {
 
             console.log("task", taskId)
-
+/*             console.log("filters", filters)
+ *//* 
             let filters = {
-                stdout: true,
-                stderr: true,
-                since: 0,
-                timestamps: true,
-                tail: tail
-            }
+                details: filtersInput.details, //default false
+                follow: filtersInput.follow, //default false
+                stdout: filtersInput.stdout, //default false
+                stderr: filtersInput.stderr, //default false
+                since: filtersInput.since, //default 0 (int)
+                timestamps: filtersInput.timestamp, //default false
+                tail: filtersInput.follow.tail //int or default "all"
+            } */
 
             let logs = await docker.getTask(taskId).logs(filters)
 

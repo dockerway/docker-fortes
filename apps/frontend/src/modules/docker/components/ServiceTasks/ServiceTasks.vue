@@ -24,12 +24,11 @@
         <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
         <td>{{ task.id }}</td>
         <td>
-          <v-btn icon small @click="showLogs(task)" color="blue">
-            <v-icon >description</v-icon>
+          <v-btn icon @click="showLogs(task)" color="blue">
+            <v-icon small>description</v-icon>
           </v-btn>
-
-          <v-btn v-if="task.state == 'running'" icon small :href="'/docker/terminal/'+task.nodeId+'/'+task.containerId" target="_blank"  color="blue" class="ml-1">
-            <v-icon>terminal</v-icon>
+          <v-btn v-if="task.state == 'running'" icon  :href="'/docker/terminal/'+task.nodeId+'/'+task.containerId" target="_blank"  color="blue" class="ml-1">
+            <v-icon small>terminal</v-icon>
           </v-btn>
 
           <div v-if="task.state == 'running'">

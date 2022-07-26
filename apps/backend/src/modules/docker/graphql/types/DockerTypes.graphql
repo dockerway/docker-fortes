@@ -138,6 +138,16 @@ type DockerNode{
     availability: String
 }
 
+input ServiceTaskLogs{
+    details: Boolean,
+    follow: Boolean,
+    stdout: Boolean,
+    stderr: Boolean,
+    since: Int,
+    timestamps: Boolean,
+    tail: String
+}
+
 type Query {
     dockerVersion: DockerVersion
     fetchStack: [DockerStack]
@@ -151,7 +161,7 @@ type Query {
     fetchNode(role: String): [DockerNode]
     findNode(id: String): DockerNode
     serviceLogs(service: String!): [DockerLog]
-    serviceTaskLogs(task: String!): [DockerTaskLog]
+    serviceTaskLogs(task: String!,filters: ServiceTaskLogs): [DockerTaskLog]
     serviceStats(serviceId: ID!): [DockerTaskStats]
     serviceStatsByName(serviceName: String!): [DockerTaskStats]
     taskStats(taskId: ID!): DockerTaskStats

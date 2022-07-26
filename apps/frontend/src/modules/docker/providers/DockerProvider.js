@@ -71,10 +71,10 @@ class DockerProvider {
         })
     }
     
-    serviceTaskLogs(task = null) {
+    serviceTaskLogs(task = null, filters) {
         return this.gqlc.query({
             query: require('./gql/serviceTaskLogs.graphql'),
-            variables: {task},
+            variables: { task, filters },
             fetchPolicy: "network-only"
         })
     }

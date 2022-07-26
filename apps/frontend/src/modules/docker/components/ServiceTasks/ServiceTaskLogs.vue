@@ -2,20 +2,30 @@
     <v-container class="fullscreen-wrapper">
         <v-row align="center">
             <v-col cols="12" sm="3">
-            <v-switch
-                label="AutoRefresh"
-                v-model="refresh"
-                @change="refreshLogs()"
-            ></v-switch>
+                <v-switch
+                    label="Auto refresh"
+                    v-model="refresh"
+                    @change="refreshLogs()"
+                    inset
+                ></v-switch>
             </v-col>
+            <v-col cols="12" sm="3">
+                <v-switch
+                    label="Display timestamps"
+                    v-model="filters.timestamps"
+                    inset
+                ></v-switch>
+            </v-col>
+        </v-row>
+        <v-row>
             <v-col cols="12" sm="6">
-            <v-slider
-                v-model="refreshRate"
-                :min="1" :max="60"
-                label="Regresh Rate"
-                thumb-color="green"
-                thumb-label="always"
-            ></v-slider>
+                <v-slider
+                    v-model="refreshRate"
+                    :min="1" :max="60"
+                    label="Regresh Rate"
+                    thumb-color="green"
+                    thumb-label="always"
+                ></v-slider>
             </v-col>
         </v-row>
 
@@ -45,6 +55,15 @@ export default {
     },
     data(){
         return {
+            filters: {
+                details: false, //default false
+                follow: false, //default false
+                stdout: true, //default false
+                stderr: true, //default false
+                since: 0, //default 0 (int)
+                timestamps: false, //default false
+                tail: "100" //int or default "all"
+            },
             refresh: true,
             refreshRate: 5,
             loading: false,
@@ -67,9 +86,9 @@ export default {
     },
     methods: {
         fetchLogs() {
-            console.log("Entramos",this.getTaskId)
             this.loading = true
-            DockerProvider.serviceTaskLogs(this.getTaskId)
+            console.log("filters",this.filters)
+            DockerProvider.serviceTaskLogs(this.getTaskId, this.filters)
                 .then(r => {
                     console.log("res:",r)
                     this.data =  []

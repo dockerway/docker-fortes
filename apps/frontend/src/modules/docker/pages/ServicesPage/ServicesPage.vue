@@ -83,15 +83,6 @@
             <v-chip small color="purple lighten-4">{{ formatDate(item.updatedAt) }}</v-chip>
           </template>
 
-
-
-
-          <template v-slot:item.logs="{ item }">
-            <v-btn icon @click="showLogs(item)" color="blue">
-              <v-icon>description</v-icon>
-            </v-btn>
-          </template>
-
           <template v-slot:item.actions="{ item }">
             <v-btn icon @click="restart(item)" color="purple">
               <v-icon>restart_alt</v-icon>
@@ -162,7 +153,7 @@ import ServiceTaskLogs from "@/modules/docker/components/ServiceTasks/ServiceTas
 export default {
   name: "ServicesPage",
 
-  components: {ServiceTasks,  StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs},
+  components: { ServiceTasks, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs},
   data() {
     return {
       services: [],
@@ -219,7 +210,6 @@ export default {
         {text: this.$t('docker.common.createdAt')+"-"+this.$t('docker.common.updatedAt'), value: 'createdAt', align: 'center'},
        // {text: this.$t('docker.common.updatedAt'), value: 'updatedAt'},
         //Actions
-        {text: this.$t('docker.common.logs'), value: 'logs', sortable: false},
       //  {text: this.$t('common.actions'), value: 'actions', sortable: false},
       ];
     },
@@ -270,17 +260,12 @@ export default {
       }
 
     },
-    showLogs(service) {
-      this.logs.show = true;
-      this.logs.service = service;
-    },
     showTaskLogs(task) {
       this.logs.show = true
       this.logs.task = task
     },
     closeLogs() {
       this.logs.show = false
-      this.logs.service = null
       this.logs.task = null
     },
     clearConfirm(){
