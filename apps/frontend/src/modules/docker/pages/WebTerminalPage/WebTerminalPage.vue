@@ -1,17 +1,10 @@
 <template>
   <v-container>
-
-    <h1>TERMINAL</h1>
-    {{ taskId }}
-    {{ containerId }}
-    {{ nodeId }}
-
     <WebTerminal :webSocket="webSocket" v-if="webSocket !== null && terminalHasToBeRendered"/>
   </v-container>
 </template>
 
 <script>
-//import axios from "axios";
 import WebTerminal from "@/modules/docker/components/WebTerminal/WebTerminal";
 export default {
   name: "WebTerminalPage",
