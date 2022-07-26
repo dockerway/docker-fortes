@@ -1,5 +1,4 @@
 import getImageObject from "./helpers/getImageObject";
-import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel";
 
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
@@ -71,6 +70,40 @@ export const findTask = function (taskId) {
     })
 }
 
+export const findTaskLogs = function (taskId, filters) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            console.log("task", taskId)
+/*             console.log("filters", filters)
+ *//* 
+            let filters = {
+                details: filtersInput.details, //default false
+                follow: filtersInput.follow, //default false
+                stdout: filtersInput.stdout, //default false
+                stderr: filtersInput.stderr, //default false
+                since: filtersInput.since, //default 0 (int)
+                timestamps: filtersInput.timestamp, //default false
+                tail: filtersInput.follow.tail //int or default "all"
+            } */
+
+            let logs = await docker.getTask(taskId).logs(filters)
+
+            logs = logs.toString('utf8').replace(/\u0000|\u0002/g, "").replace(/�/g, "").split('\n')
+
+            logs = logs.map(log => ({
+                timestamp: log.substring(0, 30).trim(),
+                text: log.substring(31)
+            })).filter(log => log.text)
+
+            //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
+            resolve(logs)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
 
 export const findTaskRunningByServiceAndNode = function (serviceName, nodeId) {
     return new Promise(async (resolve, reject) => {
@@ -129,5 +162,53 @@ export const dnsTaskRunningByServiceAndNode = function (serviceName, nodeId) {
             reject(e)
         }
 
+    })
+}
+
+export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, terminal = 'bash') {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const path = `/api/docker/container/${containerId}/runterminal/${terminal}`;
+            
+            const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
+            const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
+
+            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
+            const URL = `http://${DNS}${path}`;
+
+            const axios = require('axios');
+            const response = await axios.get(URL);
+
+            if(response.status == 200){
+                const { WebSocket, WebSocketServer } = require('ws');
+                const webSocketServer = new WebSocketServer({ port: 9995 }); //Inicializacion de WSS en back
+                const agentWSClient = new WebSocket(`ws://${DNS}:8080`); //Conexion a WSS del agent
+
+                webSocketServer.on('connection', (backWS) => {
+                    backWS.on('close', () => {
+                        webSocketServer.close();
+                        agentWSClient.close();
+                    });
+
+                    backWS.onmessage = ({data}) => {
+                        agentWSClient.send(data.toString());
+                    };
+
+                    agentWSClient.onmessage = ({data}) => {
+                        backWS.send(data.toString());
+                    };
+                });
+
+                agentWSClient.on('open', (agentWS) => {
+                    console.log('WS client connected to agent Server');
+                });
+                
+                resolve('Linked');
+            }else{
+                reject(new Error(response.data));
+            }
+        } catch (error) {
+            reject(error);
+        }
     })
 }

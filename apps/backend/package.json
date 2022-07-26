@@ -31,12 +31,13 @@
     "@dracul/customize-backend": "^1.8.6",
     "@dracul/logger-backend": "^2.0.0",
     "@dracul/notification-backend": "^1.8.6",
-    "@dracul/user-backend": "^1.8.6",
     "@dracul/settings-backend": "^1.8.6",
+    "@dracul/user-backend": "^1.8.6",
     "apollo-server-express": "^2.12.0",
     "axios": "^0.26.0",
     "bcryptjs": "^2.4.3",
     "csv-parser": "^2.3.2",
+    "dockerode": "^3.3.1",
     "dotenv": "^8.1.0",
     "email-templates": "^6.0.3",
     "express": "^4.17.1",
@@ -59,20 +60,20 @@
     "nodemailer": "^6.3.1",
     "nodemailer-pug-engine": "^1.0.1",
     "saslprep": "^1.0.3",
+    "swagger-ui-express": "^4.3.0",
     "winston": "^3.3.3",
-    "dockerode": "^3.3.1",
-    "swagger-ui-express": "^4.3.0"
+    "ws": "^8.8.1"
   },
   "devDependencies": {
-    "nodemon": "^1.19.4",
-    "@babel/node": "^7.8.7",
-    "@babel/core": "^7.8.7",
     "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/node": "^7.8.7",
     "@babel/preset-env": "^7.8.7",
+    "@shelf/jest-mongodb": "^1.1.5",
     "babel-jest": "^25.4.0",
     "jest": "^25.4.0",
-    "@shelf/jest-mongodb": "^1.1.5",
     "mockingoose": "^2.13.2",
-    "mongodb-memory-server": "^6.5.2"
+    "mongodb-memory-server": "^6.5.2",
+    "nodemon": "^1.19.4"
   }
 }
