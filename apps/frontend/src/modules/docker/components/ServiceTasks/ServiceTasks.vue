@@ -2,48 +2,52 @@
   <div>
     <v-simple-table dense>
       <thead>
-        <tr>
-          <th>State</th>
-          <th>Created</th>
-          <th>Updated</th>
-          <th>Node</th>
-          <th>Task</th>
-          <th>Actions</th>
-        </tr>
+      <tr>
+        <th>State</th>
+        <th>Created</th>
+        <th>Updated</th>
+        <th>Node</th>
+        <th>Task</th>
+        <th>Actions</th>
+      </tr>
       </thead>
 
       <tbody>
-        <tr v-for="task in tasks" :key="task.id">
-          <td>{{ formatDate(task.createdAt) }}</td>
-          <td>{{ formatDate(task.updatedAt) }}</td>
-          <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
-          <td>{{ task.id }}</td>
-          <td>
-            <v-btn icon @click="showLogs(task)" color="blue">
-              <v-icon small>description</v-icon>
-            </v-btn>
-            <v-chip small class="font-weight-bold" dark :color="getStateColor(task.state)">
-              {{ task.state }}
-            </v-chip>
+      <tr v-for="task in tasks" :key="task.id">
+        <td>
+          <v-chip small class="font-weight-bold" dark :color="getStateColor(task.state)">
+            {{ task.state }}
+          </v-chip>
+        </td>
+        <td>{{ formatDate(task.createdAt) }}</td>
+        <td>{{ formatDate(task.updatedAt) }}</td>
+        <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
+        <td>{{ task.id }}</td>
+        <td>
+          <v-btn icon small @click="showLogs(task)" color="blue">
+            <v-icon >description</v-icon>
+          </v-btn>
 
-            <div v-if="task.state == 'running'">
-              <v-btn  @click="showTerminal(task)" icon color="blue" class="ml-1">
-                <v-icon>terminal</v-icon>
-              </v-btn>
+          <v-btn v-if="task.state == 'running'" icon small :href="'/docker/terminal/'+task.nodeId+'/'+task.containerId" target="_blank"  color="blue" class="ml-1">
+            <v-icon>terminal</v-icon>
+          </v-btn>
 
-              <simple-dialog v-if="terminalHasToBeRendered"
-                v-model="terminalHasToBeRendered"
-                @close="closeTerminal"
-                title='Terminal'
-                fullscreen
-              >
-                <WebTerminal :webSocket="webSocket" v-if="webSocket !== null && terminalHasToBeRendered"/>
-              </simple-dialog>
-            </div>
-          </td>
-        </tr>
+          <div v-if="task.state == 'running'">
+
+            <simple-dialog v-if="terminalHasToBeRendered"
+                           v-model="terminalHasToBeRendered"
+                           @close="closeTerminal"
+                           title='Terminal'
+                           fullscreen
+            >
+              <WebTerminal :webSocket="webSocket" v-if="webSocket !== null && terminalHasToBeRendered"/>
+            </simple-dialog>
+          </div>
+        </td>
+      </tr>
       </tbody>
-  </v-simple-table>
+    </v-simple-table>
+  </div>
 </template>
 
 <script>
@@ -63,37 +67,35 @@ export default {
       webSocket: null
     }
   },
-  components:{SimpleDialog, WebTerminal},
-  methods:{
+  components: {SimpleDialog, WebTerminal},
+  methods: {
     async showTerminal(task) {
-      const axios = require("axios");
+      const axios = require("axios")
 
       axios.get(`/api/docker/task/${task.nodeId}/${task.containerId}/runTerminal/bash`)
-        .then( (response) => {
-          if (response.data == 'Linked'){
-            const connectionToBackWSS = new WebSocket('ws://127.0.0.1:9995');
-            this.webSocket = connectionToBackWSS;
-          }
-        });
+          .then((response) => {
+            if (response.data == 'Linked') {
+              const connectionToBackWSS = new WebSocket('ws://127.0.0.1:9995')
+              this.webSocket = connectionToBackWSS
+            }
+          });
 
-      this.terminalHasToBeRendered = true;
+      this.terminalHasToBeRendered = true
     },
 
-    async closeTerminal(){
-      await this.webSocket.close();
-      this.terminalHasToBeRendered = false;
-    }
-  },
-  methods: {
+    async closeTerminal() {
+      await this.webSocket.close()
+      this.terminalHasToBeRendered = false
+    },
     showLogs(task) {
-      this.$emit('showLogs',task)
+      this.$emit('showLogs', task)
     },
   },
   computed: {
     formatDate() {
       return date => {
-        return Dayjs(date).format("YYYY-MM-DD HH:mm:ss");
-      };
+        return Dayjs(date).format("YYYY-MM-DD HH:mm:ss")
+      }
     },
     getStateColor() {
       return state => {

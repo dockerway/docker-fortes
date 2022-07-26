@@ -1,5 +1,7 @@
 <template>
-    <layout :menu="menu">
+   <!--CARGA LAYOUT DINAMICAMENTE SEGUN RUTA-->
+    <component :is="getLayout" :menu="menu">
+
       <template v-slot:toolbar-left>
         <logo-toolbar></logo-toolbar>
         <title-toolbar></title-toolbar>
@@ -10,16 +12,18 @@
         <dashboard-button/>
         <app-bar-user-menu/>
       </template>
-
-
       <router-view></router-view>
       <error-snackbar></error-snackbar>
-    </layout>
+    </component>
+
+
+
 </template>
 
 <script>
 import {NotificationButton} from "@dracul/notification-frontend"
 import Layout from "./layout/Layout";
+import TerminalLayout from "./layout/TerminalLayout";
 import menuConfig from './menu-config'
 import {DashboardButton, AppBarUserMenu} from '@dracul/user-frontend'
 import {LogoToolbar, TitleToolbar} from '@dracul/customize-frontend'
@@ -28,7 +32,7 @@ import ErrorSnackbar from "@/modules/base/components/ErrorSnackbar";
 
 export default {
   name: 'App',
-  components: {ErrorSnackbar, Layout, DashboardButton, AppBarUserMenu, LogoToolbar, TitleToolbar, NotificationButton},
+  components: {ErrorSnackbar, Layout,TerminalLayout, DashboardButton, AppBarUserMenu, LogoToolbar, TitleToolbar, NotificationButton},
   data() {
     return {
       menu: menuConfig
@@ -48,6 +52,9 @@ export default {
   },
   computed: {
     ...mapGetters(['me']),
+    getLayout(){
+      return (this.$route.meta && this.$route.meta.layout) ? this.$route.meta.layout : 'Layout'
+    },
     getUserId() {
       return this.me ? this.me.id : null
     }

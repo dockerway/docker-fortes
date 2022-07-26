@@ -54,9 +54,6 @@
 
           <template v-slot:item.name="{ item }">
             <span class="font-weight-medium">{{ item.name.replace(item.stack + "_", "") }}</span>
-              <v-btn icon @click="showTerminal(item)" color="blue" class="ml-1">
-                <v-icon>terminal</v-icon>
-              </v-btn>
           </template>
 
 
@@ -159,14 +156,13 @@ import DockerProvider from "@/modules/docker/providers/DockerProvider";
 import StackCombobox from "@/modules/docker/components/StackCombobox/StackCombobox";
 import {Dayjs} from "@dracul/dayjs-frontend";
 import {SimpleDialog, Loading, ConfirmDialog} from "@dracul/common-frontend";
-import ServiceLog from "@/modules/docker/components/ServiceLog/ServiceLog";
 import ServiceTasks from "@/modules/docker/components/ServiceTasks/ServiceTasks";
 import ServiceTaskLogs from "@/modules/docker/components/ServiceTasks/ServiceTaskLogs";
 
 export default {
   name: "ServicesPage",
-  
-  components: {ServiceTasks, ServiceLog, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs},
+
+  components: {ServiceTasks,  StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs},
   data() {
     return {
       services: [],
@@ -307,14 +303,14 @@ export default {
     },
     restart(service) {
       DockerProvider.dockerRestart(service.id)
-          .then(r => {
+          .then(() => {
             this.fetchTask(service);
           });
     },
     restartMany() {
       let serviceIds = this.selected.map(s => s.id);
       DockerProvider.dockerRestartMany(serviceIds)
-          .then(r => {
+          .then(() => {
             for(let service of this.selected){
               this.fetchTask(service);
             }
@@ -323,14 +319,14 @@ export default {
     },
     remove(service) {
       DockerProvider.dockerRemove(service.id)
-          .then(r => {
+          .then(() => {
             this.fetchService();
           });
     },
     removeMany() {
       let serviceIds = this.selected.map(s => s.id);
       DockerProvider.dockerRemoveMany(serviceIds)
-          .then(r => {
+          .then(() => {
             this.fetchService();
           });
     },
