@@ -182,7 +182,7 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             if(response.status == 200){
                 const { WebSocket, WebSocketServer } = require('ws');
                 const webSocketServer = new WebSocketServer({ port: 9995 }); //Inicializacion de WSS en back
-                const agentWSClient = new WebSocket(`ws://${DNS}:8080`); //Conexion a WSS del agent
+                const agentWSClient = new WebSocket(`ws://${DNS}:${process.env.AGENTWSSPORT}`); //Conexion a WSS del agent
 
                 webSocketServer.on('connection', (backWS) => {
                     backWS.on('close', () => {
