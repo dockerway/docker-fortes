@@ -37,8 +37,13 @@ export default {
       axios.get(`/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/bash`)
           .then((response) => {
             if (response.data == 'Linked') {
-              const connectionToBackWSS = new WebSocket('ws://127.0.0.1:9995')
-              this.webSocket = connectionToBackWSS
+              try{
+                const BackWSSURL = window.location.origin.replace(/http/, "ws").replace(/:[0-9]+/,':9995')
+                const connectionToBackWSS = new WebSocket(BackWSSURL)
+                this.webSocket = connectionToBackWSS
+              } catch (error){
+                console.error(error)
+              }
             }
           });
 
