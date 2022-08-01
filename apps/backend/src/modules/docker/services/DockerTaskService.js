@@ -180,22 +180,17 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             const response = await axios.get(URL);
 
             if(response.status == 200){
-                const { WebSocket, WebSocketServer } = require('ws');
-                const webSocketServer = new WebSocketServer({ port: 9995 }); //Inicializacion de WSS en back
+                const { WebSocket } = require('ws');
+                const { backWSS } = require('../../../index.js');
                 const agentWSClient = new WebSocket(`ws://${DNS}:${process.env.AGENTWSSPORT ? process.env.AGENTWSSPORT : 9997}`); //Conexion a WSS del agent
 
-                webSocketServer.on('connection', (backWS) => {
-                    backWS.on('close', () => {
-                        webSocketServer.close();
-                        agentWSClient.close();
-                    });
-
-                    backWS.onmessage = ({data}) => {
+                backWSS.on('connection', (ws) => {
+                    ws.onmessage = ({data}) => {
                         agentWSClient.send(data.toString());
                     };
 
                     agentWSClient.onmessage = ({data}) => {
-                        backWS.send(data.toString());
+                        ws.send(data.toString());
                     };
                 });
 

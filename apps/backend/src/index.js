@@ -18,6 +18,9 @@ import {jwtMiddleware, corsMiddleware, rbacMiddleware, sessionMiddleware} from '
 import {ResponseTimeMiddleware,RequestMiddleware, GqlErrorLog, GqlResponseLog} from '@dracul/logger-backend'
 import apiRoutes from './routes-merge'
 
+import {startWebSocketServer} from './modules/docker/services/WebSocketService.js';
+export const backWSS = startWebSocketServer();
+
 const app = express();
 
 
@@ -112,4 +115,3 @@ initService().then(() => {
 }).catch(err => {
     DefaultLogger.error(err.message, err)
 })
-
