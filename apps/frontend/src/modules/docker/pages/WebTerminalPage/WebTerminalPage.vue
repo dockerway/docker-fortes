@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <WebTerminal :webSocket="webSocket" v-if="webSocket !== null && terminalHasToBeRendered"/>
+    <WebTerminal :webSocket="webSocket" v-if="webSocket !== null"/>
   </v-container>
 </template>
 
@@ -22,42 +22,39 @@ export default {
   },
   data() {
     return {
-      terminalHasToBeRendered: false,
       webSocket: null
     }
   },
   mounted() {
-
     this.showTerminal()
   },
+  beforeDestroy(){
+    this.closeWebSocket()
+  },
   methods: {
+    async closeWebSocket() {
+      await this.webSocket.close()
+    },
+
     async showTerminal() {
       const axios = require("axios")
 
-      axios.get(`/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/bash`)
+      this.webSocket ? this.closeWebSocket() : null;
+
+      axios.get(`/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/sh`)
           .then((response) => {
             if (response.data == 'Linked') {
               try{
                 const BackWSSURL = window.location.origin.replace(/http/, "ws").replace(/:[0-9]+/,':9995')
                 const connectionToBackWSS = new WebSocket(BackWSSURL)
+
                 this.webSocket = connectionToBackWSS
               } catch (error){
                 console.error(error)
               }
             }
           });
-
-      this.terminalHasToBeRendered = true
-    },
-
-    async closeTerminal() {
-      await this.webSocket.close()
-      this.terminalHasToBeRendered = false
     }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

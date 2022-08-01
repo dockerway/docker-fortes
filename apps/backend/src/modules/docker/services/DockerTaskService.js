@@ -182,7 +182,7 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             if(response.status == 200){
                 const { WebSocket } = require('ws');
                 const { backWSS } = require('../../../index.js');
-                const agentWSClient = new WebSocket(`ws://${DNS}:${process.env.AGENTWSSPORT ? process.env.AGENTWSSPORT : 9997}`); //Conexion a WSS del agent
+                const agentWSClient = new WebSocket(`ws://${DNS}:${process.env.AGENTWSSPORT ? process.env.AGENTWSSPORT : 9997}`);
 
                 backWSS.on('connection', (ws) => {
                     ws.onmessage = ({data}) => {
