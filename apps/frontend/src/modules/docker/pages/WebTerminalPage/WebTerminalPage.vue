@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <WebTerminal :webSocket="webSocket" v-if="webSocket !== null"/>
+    <WebTerminal v-if="webSocket !== null" :webSocket="webSocket" :containerId="containerId"/>
   </v-container>
 </template>
 
@@ -32,21 +32,15 @@ export default {
     this.closeWebSocket()
   },
   methods: {
-    async closeWebSocket() {
-      await this.webSocket.close()
-    },
-
     async showTerminal() {
       const axios = require("axios")
 
-      this.webSocket ? this.closeWebSocket() : null;
-
-      axios.get(`/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/sh`)
+      axios.get(`/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/sh`) //Back -> Agent
           .then((response) => {
             if (response.data == 'Linked') {
               try{
-                const BackWSSURL = window.location.origin.replace(/http/, "ws").replace(/:[0-9]+/,':9995')
-                const connectionToBackWSS = new WebSocket(BackWSSURL)
+                const BackWSSURL = window.location.origin.replace(/http/, "ws").replace(/:[0-9]+/,':9995') + "?containerId=" + this.containerId;
+                const connectionToBackWSS = new WebSocket(BackWSSURL) // Front -> Back
 
                 this.webSocket = connectionToBackWSS
               } catch (error){

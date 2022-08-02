@@ -6,14 +6,11 @@
 
 <script>
 import { Terminal } from 'xterm';
-
-import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon } from 'xterm-addon-fit';
 
   let term = new Terminal();
-  let attachAddon;
-
   const fitAddon = new FitAddon();
+
   term.loadAddon(fitAddon);
   fitAddon.activate(term);
   fitAddon.fit();
@@ -22,7 +19,10 @@ import { FitAddon } from 'xterm-addon-fit';
 
   export default {
     name: "DockerInfo",
-    props:['webSocket'],
+    props:{
+      webSocket: Object,
+      containerId: String
+    },
     mounted(){
       resizeObserver.observe(this.$refs.mainDiv);
 
@@ -31,11 +31,23 @@ import { FitAddon } from 'xterm-addon-fit';
 
       term.open(this.$refs.mainDiv);
 
-      attachAddon = new AttachAddon(this.webSocket);
       term.loadAddon(fitAddon);
-
       fitAddon.fit();
-      term.loadAddon(attachAddon);
+
+      term.onData((payload) =>{
+        console.log('TERM ONDATA: ', payload);
+        this.webSocket.send(payload);
+      });
+
+      this.webSocket.addEventListener('message', ({event}) => {
+        console.log('Message from server', event.data);
+        const backMessage = JSON.parse(event.data);
+
+        if(backMessage.containerId == this.containerId){
+          term.write(backMessage.payload);
+        }
+      });
+
     },
     beforeDestroy(){
       resizeObserver.unobserve(this.$refs.mainDiv);
