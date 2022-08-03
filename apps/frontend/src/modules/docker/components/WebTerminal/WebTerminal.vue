@@ -39,9 +39,9 @@ import { FitAddon } from 'xterm-addon-fit';
         this.webSocket.send(payload);
       });
 
-      this.webSocket.addEventListener('message', ({event}) => {
-        console.log('Message from server', event.data);
-        const backMessage = JSON.parse(event.data);
+      this.webSocket.addEventListener('message', (message) => {
+        const backMessage = JSON.parse(message.data);
+        console.log('Message from server', backMessage.payload);
 
         if(backMessage.containerId == this.containerId){
           term.write(backMessage.payload);

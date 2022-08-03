@@ -186,22 +186,25 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
 
                 backWSS.on('connection', (ws) => {
                     ws.onmessage = ({data}) => {
+                        console.log(`Data from FRONT: '${data.toString()}'`);
                         const message = {
                             containerId:containerId,
                             payload:data.toString()
                         };
 
+                        console.log(`message created: '${JSON.stringify(message)}'`);
+
                         agentWSClient.send(JSON.stringify(message));
                     };
 
                     agentWSClient.onmessage = (message) => {
-                        const terminalMessage = JSON.parse(message);
+                        const terminalMessage = JSON.parse(message.data);
 
                         console.log(`message received FROM AGENT: '${terminalMessage.payload}'`);
                         console.log(`message containerID received FROM AGENT: '${terminalMessage.containerId}'`);
 
                         if( terminalMessage.containerId == containerId){
-                            ws.send(terminalMessage);
+                            ws.send(JSON.stringify(terminalMessage));
                         }
                     };
                 });
