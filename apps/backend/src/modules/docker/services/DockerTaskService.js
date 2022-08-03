@@ -172,8 +172,8 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             
             const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
             const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
-
-            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
+            
+            const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:4000' : await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
             const URL = `http://${DNS}${path}`;
 
             const axios = require('axios');
@@ -182,7 +182,9 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             if(response.status == 200){
                 const { WebSocket } = require('ws');
                 const { backWSS } = require('../../../index.js');
-                const agentWSClient = new WebSocket(`ws://${DNS}:${process.env.AGENTWSSPORT ? process.env.AGENTWSSPORT : 9997}`);
+
+                const WSURL = `ws://${DNS}`;
+                const agentWSClient = new WebSocket(WSURL);
 
                 backWSS.on('connection', (ws) => {
                     ws.onmessage = ({data}) => {
@@ -215,7 +217,7 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
                 
                 resolve('Linked');
             }else{
-                reject(new Error(response.data));
+                reject(new Error(` ERROR at BACK ${response.data}`));
             }
         } catch (error) {
             reject(error);

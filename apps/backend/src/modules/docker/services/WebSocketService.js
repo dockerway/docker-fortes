@@ -1,6 +1,6 @@
-function startWebSocketServer(){
+function startWebSocketServer(server){
     const { WebSocketServer } = require('ws');
-    const webSocketServer = new WebSocketServer({ port: 9995 });
+    const webSocketServer = new WebSocketServer({ server: server});
 
     return webSocketServer;
 }

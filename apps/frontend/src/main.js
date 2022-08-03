@@ -19,6 +19,7 @@ notificationProvider.setGqlcWs(apolloClient);
 SettingsProvider.setGqlc(apolloClient);
 
 Vue.config.productionTip = false;
+Vue.config.devtools = true;
 
 //Customization instances inject
 store.commit('setVuetifyInstance', vuetify);

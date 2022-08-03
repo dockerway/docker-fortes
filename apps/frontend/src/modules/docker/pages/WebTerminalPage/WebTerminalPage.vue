@@ -26,28 +26,35 @@ export default {
     }
   },
   mounted() {
-    this.showTerminal()
+    this.showTerminal();
   },
   beforeDestroy(){
-    this.closeWebSocket()
+    this.webSocket.close();
   },
   methods: {
     async showTerminal() {
       const axios = require("axios")
 
-      axios.get(`/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/sh`) //Back -> Agent
+      const path = `/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/sh`
+      const URL = process.env.VUE_APP_APIHOST ? process.env.VUE_APP_APIHOST + path : path;
+
+      axios.get(URL) //Back -> Agent
           .then((response) => {
             if (response.data == 'Linked') {
               try{
-                const BackWSSURL = window.location.origin.replace(/http/, "ws").replace(/:[0-9]+/,':9995') + "?containerId=" + this.containerId;
+                const BackWSSURL = window.location.origin.replace(/http/, "ws").replace(/:[0-9]+/,`:7000`);
                 const connectionToBackWSS = new WebSocket(BackWSSURL) // Front -> Back
+                connectionToBackWSS.randomID = Math.floor(Math.random() * 5000)
 
                 this.webSocket = connectionToBackWSS
+                console.log(this.webSocket)
               } catch (error){
                 console.error(error)
               }
             }
-          });
+          }).catch ((error) =>{
+            console.error(error)
+          })
     }
   }
 }

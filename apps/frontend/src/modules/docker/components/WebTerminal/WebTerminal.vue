@@ -20,7 +20,7 @@ import { FitAddon } from 'xterm-addon-fit';
   export default {
     name: "DockerInfo",
     props:{
-      webSocket: Object,
+      webSocket: WebSocket,
       containerId: String
     },
     mounted(){

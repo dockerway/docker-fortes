@@ -18,8 +18,9 @@ import {jwtMiddleware, corsMiddleware, rbacMiddleware, sessionMiddleware} from '
 import {ResponseTimeMiddleware,RequestMiddleware, GqlErrorLog, GqlResponseLog} from '@dracul/logger-backend'
 import apiRoutes from './routes-merge'
 
+const server = require('http').createServer();
 import {startWebSocketServer} from './modules/docker/services/WebSocketService.js';
-export const backWSS = startWebSocketServer();
+export const backWSS = startWebSocketServer(server);
 
 const app = express();
 
@@ -106,10 +107,13 @@ initService().then(() => {
     const PORT = process.env.APP_PORT ? process.env.APP_PORT : "5000"
     const URL = process.env.APP_API_URL ? process.env.APP_API_URL : "http://localhost" + PORT
 
-    const server = app.listen(PORT, () => {
-        DefaultLogger.info(`Web Server started: ${URL}`)
-        DefaultLogger.info(`Graphql Server ready: ${URL}${apolloServer.graphqlPath}`)
-    })
+    server.on('request', app);
+    server.listen(PORT, () =>{
+        DefaultLogger.info(`Web Server started: ${URL}`);
+        DefaultLogger.info(`Graphql Server ready: ${URL}${apolloServer.graphqlPath}`);
+        DefaultLogger.info(`WebSockets Server ready: ws://localhost:${PORT}`);
+    });
+
     server.setTimeout(420000);
 
 }).catch(err => {
