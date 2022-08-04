@@ -7,6 +7,7 @@
 <script>
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
+import { v4 as uuidv4 } from 'uuid';
 
   let term = new Terminal();
   const fitAddon = new FitAddon();
@@ -24,6 +25,11 @@ import { FitAddon } from 'xterm-addon-fit';
       containerId: String,
       nodeId: String,
     },
+    data(){
+      return {
+        wsId: uuidv4()
+      }
+    },
     mounted(){
       resizeObserver.observe(this.$refs.mainDiv);
 
@@ -38,6 +44,7 @@ import { FitAddon } from 'xterm-addon-fit';
       term.onData((payload) =>{
         console.log('TERM ONDATA: ', payload);
         let json = {
+          wsId: this.wsId,
           nodeId: this.nodeId,
           containerId: this.containerId,
           payload: payload

@@ -43,7 +43,8 @@
     "vuex-persistedstate": "^3.0.1",
     "xterm": "^4.19.0",
     "xterm-addon-attach": "^0.6.0",
-    "xterm-addon-fit": "^0.5.0"
+    "xterm-addon-fit": "^0.5.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",

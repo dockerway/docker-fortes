@@ -6,31 +6,36 @@ import wsServer from "../../../websocket-server";
 class AgentWsManager{
 
     constructor() {
-        this.wsClients = []
+        this.wsAgents = []
     }
 
     /**
      * Busca un websocket existente de un agente y si no lo crea, luego lo retorna
-     * @param nodeId
-     * @returns {Promise<WebSocket>}
+     * @param wsId
+     * @returns <WebSocket>
      */
-     findAgentWsClient(nodeId, containerId){
-            return this.wsClients.find(wsClient => wsClient.nodeId === nodeId && wsClient.containerId === containerId)
+     findAgentWsClient(wsId){
+            return this.wsAgents.find(wsAgent => wsAgent.wsId === wsId)
     }
 
     /**
      * Sincroniza un websocket front con un web socket agent
+     * @param wsId
+     * @param wsOriginal
      * @param nodeId
+     * @param containerId
+     * @param data
+     * @returns {Promise<void>}
      */
-    async syncAgentWsClient(nodeId, containerId, wsOrigin, data){
+    async syncAgentWsClient(wsId, wsClient, nodeId, containerId,  data){
         try{
-            let wsClient = this.findAgentWsClient(nodeId, containerId)
-            if(!wsClient){
+            let wsAgent = this.findAgentWsClient(wsId)
+            if(!wsAgent){
                 console.error("syncAgentWsClient wsClient not found. Ask to create.", nodeId)
-                wsClient = await this.createAgentWsClient(nodeId, containerId, wsOrigin)
+                wsAgent = await this.createAgentWsClient(wsId, wsClient, nodeId, containerId)
             }
 
-            wsClient.send(data)
+            wsAgent.send(data)
 
         }catch (e) {
             console.error("Error getting Agent Ws Client", e)
@@ -51,29 +56,33 @@ class AgentWsManager{
 
     /**
      * Crea un websocket client contra un agente
+     * @param wsId
+     * @param wsClient
      * @param nodeId
+     * @param containerId
      * @returns {Promise<WebSocket>}
      */
-    createAgentWsClient(nodeId, containerId, wsOrigin){
+    createAgentWsClient(wsId, wsClient, nodeId, containerId){
 
         return new Promise(async (resolve, reject) => {
             console.log('Trying connection of AgentWSClient. Nodeid:'+nodeId);
             const WSURL = await this.getAgentWsUrl(nodeId)
-            const agentWSClient = new WebSocket(WSURL);
-            agentWSClient.nodeId = nodeId
-            agentWSClient.containerId = containerId
-            this.wsClients.push(agentWSClient)
+            const wsAgent = new WebSocket(WSURL);
+            wsAgent.wsId = wsId
+            wsAgent.nodeId = nodeId
+            wsAgent.containerId = containerId
+            this.wsAgents.push(wsAgent)
 
-            agentWSClient.on('open', () => {
-                console.log('AgentWSClient connected. Nodeid:'+nodeId);
-                agentWSClient.onmessage = ({data}) => {
+            wsAgent.on('open', () => {
+                console.log('AgentWSClient connected. wsId:'+wsId);
+                wsAgent.onmessage = ({data}) => {
                     console.log('AgentWSClient onmessage:',data);
-                    wsOrigin.send(data)
+                    wsClient.send(data)
                 }
-                resolve(agentWSClient)
+                resolve(wsAgent)
             })
 
-            agentWSClient.on('close', () => {
+            wsAgent.on('close', () => {
                 console.log('WS client closed to agent Server');
                 reject()
             })
