@@ -18,9 +18,10 @@ import {jwtMiddleware, corsMiddleware, rbacMiddleware, sessionMiddleware} from '
 import {ResponseTimeMiddleware,RequestMiddleware, GqlErrorLog, GqlResponseLog} from '@dracul/logger-backend'
 import apiRoutes from './routes-merge'
 
-const server = require('http').createServer();
-import {startWebSocketServer} from './modules/docker/services/WebSocketService.js';
-export const backWSS = startWebSocketServer(server);
+const server = require('./http-server')
+const startWebSocketServerWithAgent = require('./modules/docker/services/AgentWsService')
+
+startWebSocketServerWithAgent()
 
 const app = express();
 

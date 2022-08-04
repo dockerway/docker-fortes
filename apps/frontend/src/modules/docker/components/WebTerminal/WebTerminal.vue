@@ -21,7 +21,8 @@ import { FitAddon } from 'xterm-addon-fit';
     name: "DockerInfo",
     props:{
       webSocket: WebSocket,
-      containerId: String
+      containerId: String,
+      nodeId: String,
     },
     mounted(){
       resizeObserver.observe(this.$refs.mainDiv);
@@ -36,7 +37,13 @@ import { FitAddon } from 'xterm-addon-fit';
 
       term.onData((payload) =>{
         console.log('TERM ONDATA: ', payload);
-        this.webSocket.send(payload);
+        let json = {
+          nodeId: this.nodeId,
+          containerId: this.containerId,
+          payload: payload
+        }
+
+        this.webSocket.send(JSON.stringify(json));
       });
 
       this.webSocket.addEventListener('message', (message) => {
