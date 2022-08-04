@@ -104,7 +104,7 @@
               <v-card v-else-if="item.tasks && item.tasks.length > 0" class="ma-3">
                 <v-card-text>
                   <v-btn icon absolute right top small @click="fetchTask(item)"><v-icon>refresh</v-icon></v-btn>
-                  <service-tasks @showLogs="showTaskLogs" :tasks="item.tasks"></service-tasks>
+                  <service-tasks @showLogs="showTaskLogs" @closeLogs="closeTaskLogs" :tasks="item.tasks"></service-tasks>
                 </v-card-text>
               </v-card>
 
@@ -132,7 +132,7 @@
     <simple-dialog
           fullscreen
           v-model="logs.show"
-          @close="closeLogs"
+          @close="closeTaskLogs"
           :title="'Logs '"
           style="background-color: white; width: 800px;"
       >
@@ -264,7 +264,7 @@ export default {
       this.logs.show = true
       this.logs.task = task
     },
-    closeLogs() {
+    closeTaskLogs() {
       this.logs.show = false
       this.logs.task = null
     },

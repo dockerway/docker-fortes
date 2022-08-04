@@ -139,13 +139,10 @@ type DockerNode{
 }
 
 input ServiceTaskLogs{
-    details: Boolean,
-    follow: Boolean,
-    stdout: Boolean,
-    stderr: Boolean,
-    since: Int,
     timestamps: Boolean,
-    tail: String
+    tail: String,
+    since: String,
+    fetch: String
 }
 
 type Query {

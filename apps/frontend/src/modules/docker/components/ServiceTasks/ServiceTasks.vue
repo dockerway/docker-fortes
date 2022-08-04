@@ -24,7 +24,7 @@
         <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
         <td>{{ task.id }}</td>
         <td>
-          <v-btn icon @click="showLogs(task)" color="blue">
+          <v-btn icon @click="showLogs(task)" @close="closeLogs()" color="blue">
             <v-icon small>description</v-icon>
           </v-btn>
           <v-btn v-if="task.state == 'running'" icon  :href="'/docker/terminal/'+task.nodeId+'/'+task.containerId" target="_blank"  color="blue" class="ml-1">
@@ -81,13 +81,15 @@ export default {
 
       this.terminalHasToBeRendered = true
     },
-
     async closeTerminal() {
       await this.webSocket.close()
       this.terminalHasToBeRendered = false
     },
     showLogs(task) {
       this.$emit('showLogs', task)
+    },
+    closeLogs() {
+      this.$emit('closeLogs')
     },
   },
   computed: {
