@@ -30,7 +30,7 @@ import { v4 as uuidv4 } from 'uuid';
         wsId: uuidv4()
       }
     },
-    mounted(){
+    mounted() {
       resizeObserver.observe(this.$refs.mainDiv);
 
       term.clear();
@@ -41,7 +41,9 @@ import { v4 as uuidv4 } from 'uuid';
       term.loadAddon(fitAddon);
       fitAddon.fit();
 
-      term.onData((payload) =>{
+
+
+      term.onData((payload) => {
         console.log('TERM ONDATA: ', payload);
         let json = {
           wsId: this.wsId,
@@ -54,14 +56,27 @@ import { v4 as uuidv4 } from 'uuid';
       });
 
       this.webSocket.addEventListener('message', (message) => {
-        const backMessage = JSON.parse(message.data);
-        console.log('Message from server', backMessage.payload);
+        const backMessage = JSON.parse(message.data)
+        console.log('Message from server', backMessage.payload)
 
-        if(backMessage.containerId == this.containerId){
-          term.write(backMessage.payload);
+        if (backMessage.containerId == this.containerId) {
+          term.write(backMessage.payload)
         }
-      });
+      })
 
+      this.firstMessage()
+
+    },
+    methods: {
+      firstMessage(){
+        let json = {
+          wsId: this.wsId,
+          nodeId: this.nodeId,
+          containerId: this.containerId,
+          payload: ''
+        }
+        this.webSocket.send(JSON.stringify(json));
+      }
     },
     beforeDestroy(){
       resizeObserver.unobserve(this.$refs.mainDiv);

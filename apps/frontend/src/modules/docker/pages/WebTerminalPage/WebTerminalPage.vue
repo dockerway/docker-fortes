@@ -40,8 +40,10 @@ export default {
     async wsSocketConnect() {
       const BackWSSURL = process.env.VUE_APP_APIHOST ? process.env.VUE_APP_APIHOST.replace(/http/, "ws") :  window.location.origin.replace(/http/, "ws")
       const connectionToBackWSS = new WebSocket(BackWSSURL) // Front -> Back
-      connectionToBackWSS.randomID = Math.floor(Math.random() * 5000)
-      this.webSocket = connectionToBackWSS
+      connectionToBackWSS.onopen = () => {
+        this.webSocket = connectionToBackWSS
+      }
+
     }
   }
 }
