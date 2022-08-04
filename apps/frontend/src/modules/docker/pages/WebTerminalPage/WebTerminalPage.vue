@@ -1,18 +1,16 @@
 <template>
   <v-container>
-
-    <h1>TERMINAL</h1>
-    {{ taskId }}
-    {{ containerId }}
-    {{ nodeId }}
-
-    <WebTerminal :webSocket="webSocket" v-if="webSocket !== null && terminalHasToBeRendered"/>
+    <WebTerminal v-if="webSocket !== null"
+                 :webSocket="webSocket"
+                 :nodeId="nodeId"
+                 :containerId="containerId"
+    />
   </v-container>
 </template>
 
 <script>
-//import axios from "axios";
 import WebTerminal from "@/modules/docker/components/WebTerminal/WebTerminal";
+
 export default {
   name: "WebTerminalPage",
   components: {WebTerminal},
@@ -29,37 +27,24 @@ export default {
   },
   data() {
     return {
-      terminalHasToBeRendered: false,
       webSocket: null
     }
   },
   mounted() {
-
-    this.showTerminal()
+    this.wsSocketConnect();
+  },
+  beforeDestroy() {
+    this.webSocket.close();
   },
   methods: {
-    async showTerminal() {
-      const axios = require("axios")
+    async wsSocketConnect() {
+      const BackWSSURL = process.env.VUE_APP_APIHOST ? process.env.VUE_APP_APIHOST.replace(/http/, "ws") :  window.location.origin.replace(/http/, "ws")
+      const connectionToBackWSS = new WebSocket(BackWSSURL) // Front -> Back
+      connectionToBackWSS.onopen = () => {
+        this.webSocket = connectionToBackWSS
+      }
 
-      axios.get(`/api/docker/task/${this.nodeId}/${this.containerId}/runTerminal/bash`)
-          .then((response) => {
-            if (response.data == 'Linked') {
-              const connectionToBackWSS = new WebSocket('ws://127.0.0.1:9995')
-              this.webSocket = connectionToBackWSS
-            }
-          });
-
-      this.terminalHasToBeRendered = true
-    },
-
-    async closeTerminal() {
-      await this.webSocket.close()
-      this.terminalHasToBeRendered = false
     }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

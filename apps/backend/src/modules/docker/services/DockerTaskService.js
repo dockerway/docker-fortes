@@ -172,40 +172,52 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             
             const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
             const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
-
-            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
+            
+            const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:4000' : await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
             const URL = `http://${DNS}${path}`;
 
             const axios = require('axios');
             const response = await axios.get(URL);
 
             if(response.status == 200){
-                const { WebSocket, WebSocketServer } = require('ws');
-                const webSocketServer = new WebSocketServer({ port: 9995 }); //Inicializacion de WSS en back
-                const agentWSClient = new WebSocket(`ws://${DNS}:8080`); //Conexion a WSS del agent
+                const { WebSocket } = require('ws');
+                const { backWSS } = require('../../../index.js');
 
-                webSocketServer.on('connection', (backWS) => {
-                    backWS.on('close', () => {
-                        webSocketServer.close();
-                        agentWSClient.close();
-                    });
+                const WSURL = `ws://${DNS}`;
+                const agentWSClient = new WebSocket(WSURL);
 
-                    backWS.onmessage = ({data}) => {
-                        agentWSClient.send(data.toString());
+                backWSS.on('connection', (ws) => {
+                    ws.onmessage = ({data}) => {
+                        console.log(`Data from FRONT: '${data.toString()}'`);
+                        const message = {
+                            containerId:containerId,
+                            payload:data.toString()
+                        };
+
+                        console.log(`message created: '${JSON.stringify(message)}'`);
+
+                        agentWSClient.send(JSON.stringify(message));
                     };
 
-                    agentWSClient.onmessage = ({data}) => {
-                        backWS.send(data.toString());
+                    agentWSClient.onmessage = (message) => {
+                        const terminalMessage = JSON.parse(message.data);
+
+                        console.log(`message received FROM AGENT: '${terminalMessage.payload}'`);
+                        console.log(`message containerID received FROM AGENT: '${terminalMessage.containerId}'`);
+
+                        if( terminalMessage.containerId == containerId){
+                            ws.send(JSON.stringify(terminalMessage));
+                        }
                     };
                 });
 
-                agentWSClient.on('open', (agentWS) => {
+                agentWSClient.on('open', () => {
                     console.log('WS client connected to agent Server');
                 });
                 
                 resolve('Linked');
             }else{
-                reject(new Error(response.data));
+                reject(new Error(` ERROR at BACK ${response.data}`));
             }
         } catch (error) {
             reject(error);

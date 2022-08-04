@@ -30,18 +30,6 @@
           <v-btn v-if="task.state == 'running'" icon  :href="'/docker/terminal/'+task.nodeId+'/'+task.containerId" target="_blank"  color="blue" class="ml-1">
             <v-icon small>terminal</v-icon>
           </v-btn>
-
-          <div v-if="task.state == 'running'">
-
-            <simple-dialog v-if="terminalHasToBeRendered"
-                           v-model="terminalHasToBeRendered"
-                           @close="closeTerminal"
-                           title='Terminal'
-                           fullscreen
-            >
-              <WebTerminal :webSocket="webSocket" v-if="webSocket !== null && terminalHasToBeRendered"/>
-            </simple-dialog>
-          </div>
         </td>
       </tr>
       </tbody>
@@ -51,8 +39,6 @@
 
 <script>
 import {Dayjs} from "@dracul/dayjs-frontend";
-import {SimpleDialog} from "@dracul/common-frontend";
-import WebTerminal from "@/modules/docker/components/WebTerminal/WebTerminal";
 
 export default {
   name: "ServiceTasks",
@@ -60,31 +46,7 @@ export default {
     tasks: {type: Array},
     loading: {type: Boolean, default: false},
   },
-  data() {
-    return {
-      terminalHasToBeRendered: false,
-      webSocket: null
-    }
-  },
-  components: {SimpleDialog, WebTerminal},
   methods: {
-    async showTerminal(task) {
-      const axios = require("axios")
-
-      axios.get(`/api/docker/task/${task.nodeId}/${task.containerId}/runTerminal/bash`)
-          .then((response) => {
-            if (response.data == 'Linked') {
-              const connectionToBackWSS = new WebSocket('ws://127.0.0.1:9995')
-              this.webSocket = connectionToBackWSS
-            }
-          });
-
-      this.terminalHasToBeRendered = true
-    },
-    async closeTerminal() {
-      await this.webSocket.close()
-      this.terminalHasToBeRendered = false
-    },
     showLogs(task) {
       this.$emit('showLogs', task)
     },
