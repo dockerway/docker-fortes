@@ -16,7 +16,7 @@ const routes = [
 
     {
         name: "WebTerminalPage",
-        path: '/docker/terminal/:nodeid/:containerid',
+        path: '/docker/terminal/:task/:service/:terminal',
         component: WebTerminalPage,
         meta: {layout: 'TerminalLayout'}
     },

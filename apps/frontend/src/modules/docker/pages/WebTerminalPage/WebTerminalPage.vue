@@ -1,9 +1,10 @@
 <template>
   <v-container>
     <WebTerminal v-if="webSocket !== null"
-                 :webSocket="webSocket"
-                 :nodeId="nodeId"
-                 :containerId="containerId"
+      :webSocket="webSocket"
+      :task="task"
+      :service="service"
+      :terminalSelected="terminal"
     />
   </v-container>
 </template>
@@ -15,15 +16,15 @@ export default {
   name: "WebTerminalPage",
   components: {WebTerminal},
   computed: {
-    taskId() {
-      return this.$route.params.taskid
+    task() {
+      return JSON.parse(window.atob(this.$route.params.task));
     },
-    containerId() {
-      return this.$route.params.containerid
+    service() {
+      return JSON.parse(window.atob(this.$route.params.service));
     },
-    nodeId() {
-      return this.$route.params.nodeid
-    },
+    terminal() {
+      return window.atob(this.$route.params.terminal);
+    }
   },
   data() {
     return {

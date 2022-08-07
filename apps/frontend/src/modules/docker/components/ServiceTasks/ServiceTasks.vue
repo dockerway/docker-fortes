@@ -27,9 +27,20 @@
           <v-btn icon @click="showLogs(task)" color="blue">
             <v-icon small>description</v-icon>
           </v-btn>
-          <v-btn v-if="task.state == 'running'" icon  :href="'/docker/terminal/'+task.nodeId+'/'+task.containerId" target="_blank"  color="blue" class="ml-1">
+          <v-btn v-if="task.state == 'running'" @click="showTerminalDialog=true" icon color="blue" class="ml-1">
             <v-icon small>terminal</v-icon>
+            <confirm-dialog
+              fullscreen
+              v-model="showTerminalDialog"
+              @close="closeTerminalDialog"
+              @confirmed="(terminalSelected) => {openTerminal(terminalSelected, task)}"
+              title="Ejecutar consola"
+              defaultSelection="bash"
+              :options="['bash','sh']"
+            ></confirm-dialog>
           </v-btn>
+
+
         </td>
       </tr>
       </tbody>
@@ -38,6 +49,7 @@
 </template>
 
 <script>
+import {ConfirmDialog} from "@dracul/common-frontend";
 import {Dayjs} from "@dracul/dayjs-frontend";
 
 export default {
@@ -45,11 +57,38 @@ export default {
   props: {
     tasks: {type: Array},
     loading: {type: Boolean, default: false},
+    service: {type: Object}
   },
+  data(){
+    return {
+      showTerminalDialog : false,
+    }
+  },
+  components: {ConfirmDialog},
   methods: {
     showLogs(task) {
       this.$emit('showLogs', task)
     },
+
+    getTerminalURL(terminalSelected, task){
+      const stringTask = JSON.stringify(task);
+      const stringService = JSON.stringify(this.service);
+
+      console.log(`/docker/terminal/${stringTask}/${stringService}/${terminalSelected}`);
+
+      return `/docker/terminal/${window.btoa(stringTask)}/${window.btoa(stringService)}/${window.btoa(terminalSelected)}`
+    },
+
+    openTerminal(terminalSelected, task){
+      window.open(this.getTerminalURL(terminalSelected, task), '_blank')
+    },
+    closeTerminalDialog(){
+      this.showTerminalDialog = false;
+    },
+
+  },
+  mounted(){
+    console.log(this.service);
   },
   computed: {
     formatDate() {
