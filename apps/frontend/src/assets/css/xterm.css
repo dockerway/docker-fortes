@@ -104,6 +104,7 @@
 
 .xterm .xterm-screen {
     position: relative;
+    height: 70vh !important;
 }
 
 .xterm .xterm-screen canvas {
