@@ -29,7 +29,7 @@
           </v-btn>
           <v-btn v-if="task.state == 'running'" @click="showTerminalDialog=true" icon color="blue" class="ml-1">
             <v-icon small>terminal</v-icon>
-            <confirm-dialog
+            <ConfirmSelectDialog
               fullscreen
               v-model="showTerminalDialog"
               @close="closeTerminalDialog"
@@ -37,7 +37,7 @@
               title="Ejecutar consola"
               defaultSelection="bash"
               :options="['bash','sh']"
-            ></confirm-dialog>
+            ></ConfirmSelectDialog>
           </v-btn>
 
 
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import {ConfirmDialog} from "@dracul/common-frontend";
+import {ConfirmSelectDialog} from "@dracul/common-frontend";
 import {Dayjs} from "@dracul/dayjs-frontend";
 
 export default {
@@ -64,7 +64,7 @@ export default {
       showTerminalDialog : false,
     }
   },
-  components: {ConfirmDialog},
+  components: {ConfirmSelectDialog},
   methods: {
     showLogs(task) {
       this.$emit('showLogs', task)
@@ -73,8 +73,6 @@ export default {
     getTerminalURL(terminalSelected, task){
       const stringTask = JSON.stringify(task);
       const stringService = JSON.stringify(this.service);
-
-      console.log(`/docker/terminal/${stringTask}/${stringService}/${terminalSelected}`);
 
       return `/docker/terminal/${window.btoa(stringTask)}/${window.btoa(stringService)}/${window.btoa(terminalSelected)}`
     },
@@ -86,9 +84,6 @@ export default {
       this.showTerminalDialog = false;
     },
 
-  },
-  mounted(){
-    console.log(this.service);
   },
   computed: {
     formatDate() {

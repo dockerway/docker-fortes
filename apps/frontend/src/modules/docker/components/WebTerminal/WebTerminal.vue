@@ -41,7 +41,6 @@ import { v4 as uuidv4 } from 'uuid';
       }
     },
     mounted() {
-      console.log(this.task)
       resizeObserver.observe(this.$refs.mainDiv);
 
       term.clear();
@@ -52,10 +51,7 @@ import { v4 as uuidv4 } from 'uuid';
       term.loadAddon(fitAddon);
       fitAddon.fit();
 
-
-
       term.onData((payload) => {
-        console.log('TERM ONDATA: ', payload);
         let json = {
           wsId: this.wsId,
           nodeId: this.task.nodeId,
@@ -68,17 +64,20 @@ import { v4 as uuidv4 } from 'uuid';
 
       this.webSocket.addEventListener('message', (message) => {
         const backMessage = JSON.parse(message.data)
-        console.log('Message from server', backMessage.payload)
 
         if (backMessage.containerId == this.task.containerId) {
           term.write(backMessage.payload)
         }
       })
 
-      this.firstMessage()
+      this.sendFirstMessage()
+    },
+    afterMount(){
+      const xtermScreen = document.querySelector('.xterm-screen')
+      xtermScreen.style += 'height: 70vh !important;'
     },
     methods: {
-      firstMessage(){
+      sendFirstMessage(){
         let json = {
           wsId: this.wsId,
           nodeId: this.task.nodeId,
