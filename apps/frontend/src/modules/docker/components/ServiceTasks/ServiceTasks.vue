@@ -24,12 +24,12 @@
         <td>{{ task.node ? task.node.hostname : task.nodeId }}</td>
         <td>{{ task.id }}</td>
         <td>
-          <v-btn icon @click="showLogs(task)" color="blue">
+          <v-btn icon @click="showLogs(task)" @close="closeLogs()" color="blue">
             <v-icon small>description</v-icon>
           </v-btn>
           <v-btn v-if="task.state == 'running'" @click="showTerminalDialog=true" icon color="blue" class="ml-1">
             <v-icon small>terminal</v-icon>
-            <ConfirmSelectDialog
+            <confirm-select-dialog
               fullscreen
               v-model="showTerminalDialog"
               @close="closeTerminalDialog"
@@ -37,10 +37,8 @@
               title="Ejecutar consola"
               defaultSelection="bash"
               :options="['bash','sh']"
-            ></ConfirmSelectDialog>
+            ></confirm-select-dialog>
           </v-btn>
-
-
         </td>
       </tr>
       </tbody>
@@ -69,14 +67,15 @@ export default {
     showLogs(task) {
       this.$emit('showLogs', task)
     },
-
+    closeLogs() {
+      this.$emit('closeLogs')
+    },
     getTerminalURL(terminalSelected, task){
       const stringTask = JSON.stringify(task);
       const stringService = JSON.stringify(this.service);
 
       return `/docker/terminal/${window.btoa(stringTask)}/${window.btoa(stringService)}/${window.btoa(terminalSelected)}`
     },
-
     openTerminal(terminalSelected, task){
       window.open(this.getTerminalURL(terminalSelected, task), '_blank')
     },

@@ -75,26 +75,25 @@ export const findTaskLogs = function (taskId, filters) {
         try {
 
             console.log("task", taskId)
-/*             console.log("filters", filters)
- *//* 
-            let filters = {
-                details: filtersInput.details, //default false
-                follow: filtersInput.follow, //default false
-                stdout: filtersInput.stdout, //default false
-                stderr: filtersInput.stderr, //default false
-                since: filtersInput.since, //default 0 (int)
-                timestamps: filtersInput.timestamp, //default false
-                tail: filtersInput.follow.tail //int or default "all"
-            } */
 
-            let logs = await docker.getTask(taskId).logs(filters)
+            let apiFilters = {
+                details: false, //default false
+                follow: false, //default false
+                stdout: true, //default false
+                stderr: true, //default false
+                since: filters?.since, //default 0 (int)
+                timestamps: filters?.timestamps, //default false
+                tail: filters?.tail //int or default "all"
+            }
 
-            logs = logs.toString('utf8').replace(/\u0000|\u0002/g, "").replace(/�/g, "").split('\n')
+            console.log("filters", apiFilters)
+            let logs = await docker.getTask(taskId).logs(apiFilters)
+
+            logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "").split('\n')
 
             logs = logs.map(log => ({
-                timestamp: log.substring(0, 30).trim(),
-                text: log.substring(31)
-            })).filter(log => log.text)
+                text: log
+            })).filter(log => filters.fetch != "" ? log.text.includes(filters.fetch) : log.text)
 
             //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
             resolve(logs)

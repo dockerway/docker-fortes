@@ -1,7 +1,32 @@
 <template>
     <v-container class="fullscreen-wrapper">
-        <v-row align="center">
-            <v-col cols="12" sm="3">
+        <v-row  align="center">
+            <v-col cols="12" md="3" sm="4">
+                <v-combobox
+                    label="Filtrar"
+                    v-model="since"
+                    :items="timeOptions"
+                    outlined
+                    hide-selected
+                    persistent-hint
+                ></v-combobox>
+            </v-col>
+            <v-col cols="12" md="3" sm="4">
+                <v-text-field
+                    label="Buscar"
+                    v-model="filters.fetch"
+                    outlined
+                ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="2" sm="4">
+                <v-text-field
+                    label="Cantidad de lineas"
+                    v-model="filters.tail"
+                    type="number"
+                    outlined
+                ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="2" sm="4">
                 <v-switch
                     label="Auto refresh"
                     v-model="refresh"
@@ -9,7 +34,7 @@
                     inset
                 ></v-switch>
             </v-col>
-            <v-col cols="12" sm="3">
+            <v-col cols="12" md="2" sm="4">
                 <v-switch
                     label="Display timestamps"
                     v-model="filters.timestamps"
@@ -17,8 +42,8 @@
                 ></v-switch>
             </v-col>
         </v-row>
-        <v-row>
-            <v-col cols="12" sm="6">
+        <v-row  align="center">
+            <v-col cols="12" md="10" sm="8">
                 <v-slider
                     v-model="refreshRate"
                     :min="1" :max="60"
@@ -32,14 +57,10 @@
 
         <v-data-table
             :items="data"
-            :headers="[{text:'timestamp',value:'timestamp'},{text:'text',value:'text'} ]"
-            :items-per-page="100"
+            :headers="[{text:'Logs',value:'text'} ]"
             hide-default-footer
             :loading="loading"
         >
-            <template v-slot:item.timestamp="{item}">
-            {{ item.timestamp }}
-            </template>
         </v-data-table>
     </v-container>
 </template>
@@ -56,14 +77,15 @@ export default {
     data(){
         return {
             filters: {
-                details: false, //default false
-                follow: false, //default false
-                stdout: true, //default false
-                stderr: true, //default false
-                since: 0, //default 0 (int)
                 timestamps: false, //default false
-                tail: "100" //int or default "all"
+                tail: 100, //int or default "all"
+                since: '0', //default 0 (int)
+                fetch: ''
             },
+            since: 'Todos los logs',
+            timeOptions: [
+                'Todos los logs','Último día','Últimas 4 horas','Última hora','30 minutos'
+            ],
             refresh: true,
             refreshRate: 5,
             loading: false,
@@ -84,17 +106,43 @@ export default {
     created() {
         this.fetchLogs()
     },
+    watch: {
+        // whenever question changes, this function will run
+        filters() {
+            this.fetchLogs()
+        }
+    },
     methods: {
-        fetchLogs() {
+        sinceInMinutes(since){
+            switch (since) {
+                case 'Todos los logs':
+                    return '0'
+                case 'Último día':
+                    return '1440' 
+                case 'Últimas 4 horas':
+                    return '240'
+                case 'Última hora':
+                    return '60'      
+                case '30 minutos':
+                    return '30'         
+                default:
+                    return '0'
+            }
+        },
+        async fetchLogs() {
             this.loading = true
             console.log("filters",this.filters)
-            DockerProvider.serviceTaskLogs(this.getTaskId, this.filters)
-                .then(r => {
-                    console.log("res:",r)
-                    this.data =  []
-                    this.data = r.data.serviceTaskLogs
-                    this.refreshLogs()
-                }).finally(() => this.loading = false)
+            this.filters.tail = this.filters.tail.toString()
+            this.filters.since = await this.sinceInMinutes(this.since)
+            if(this.getTaskId){
+                DockerProvider.serviceTaskLogs(this.getTaskId, this.filters)
+                    .then(r => {
+                        console.log("res:",r)
+                        this.data =  []
+                        this.data = r.data.serviceTaskLogs
+                        this.refreshLogs()
+                    }).finally(() => this.loading = false)
+            }
         },
         refreshLogs() {
             if (this.refresh) {
