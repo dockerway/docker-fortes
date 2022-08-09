@@ -116,13 +116,7 @@ type DockerLabel{
     value: String
 }
 
-type DockerLog{
-    timestamp: String,
-    text: String
-}
-
 type DockerTaskLog{
-    timestamp: String,
     text: String
 }
 
@@ -157,7 +151,6 @@ type Query {
     dnsTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): String
     fetchNode(role: String): [DockerNode]
     findNode(id: String): DockerNode
-    serviceLogs(service: String!): [DockerLog]
     serviceTaskLogs(task: String!,filters: ServiceTaskLogs): [DockerTaskLog]
     serviceStats(serviceId: ID!): [DockerTaskStats]
     serviceStatsByName(serviceName: String!): [DockerTaskStats]

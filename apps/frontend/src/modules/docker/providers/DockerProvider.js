@@ -62,14 +62,6 @@ class DockerProvider {
             fetchPolicy: "network-only"
         })
     }
-
-    serviceLogs(service = null) {
-        return this.gqlc.query({
-            query: require('./gql/serviceLogs.graphql'),
-            variables: {service},
-            fetchPolicy: "network-only"
-        })
-    }
     
     serviceTaskLogs(task = null, filters) {
         return this.gqlc.query({

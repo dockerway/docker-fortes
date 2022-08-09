@@ -1,17 +1,17 @@
 <template>
     <v-container class="fullscreen-wrapper">
         <v-row  align="center">
-            <v-col cols="12" md="2" sm="4">
+            <v-col cols="12" md="3" sm="4">
                 <v-combobox
                     label="Filtrar"
-                    v-model="filters.since"
+                    v-model="since"
                     :items="timeOptions"
                     outlined
                     hide-selected
                     persistent-hint
                 ></v-combobox>
             </v-col>
-            <v-col cols="12" md="2" sm="4">
+            <v-col cols="12" md="3" sm="4">
                 <v-text-field
                     label="Buscar"
                     v-model="filters.fetch"
@@ -57,14 +57,10 @@
 
         <v-data-table
             :items="data"
-            :headers="[{text:'timestamp',value:'timestamp'},{text:'text',value:'text'} ]"
-            :items-per-page="100"
+            :headers="[{text:'Logs',value:'text'} ]"
             hide-default-footer
             :loading="loading"
         >
-            <template v-slot:item.timestamp="{item}">
-            {{ item.timestamp }}
-            </template>
         </v-data-table>
     </v-container>
 </template>
@@ -83,9 +79,10 @@ export default {
             filters: {
                 timestamps: false, //default false
                 tail: 100, //int or default "all"
-                since: 'Todos los logs', //default 0 (int)
+                since: '0', //default 0 (int)
                 fetch: ''
             },
+            since: 'Todos los logs',
             timeOptions: [
                 'Todos los logs','Último día','Últimas 4 horas','Última hora','30 minutos'
             ],
@@ -108,19 +105,6 @@ export default {
     },
     created() {
         this.fetchLogs()
-    },
-    unmounted() {
-        this.data = [],
-        /* this.filters = {
-            details: false, //default false
-            follow: false, //default false
-            stdout: true, //default false
-            stderr: true, //default false
-            since: 0, //default 0 (int)
-            timestamps: false, //default false
-            tail: 100 //int or default "all"
-        }, */
-        console.log("closeLogs")
     },
     watch: {
         // whenever question changes, this function will run
@@ -149,14 +133,16 @@ export default {
             this.loading = true
             console.log("filters",this.filters)
             this.filters.tail = this.filters.tail.toString()
-            this.filters.since = await this.sinceInMinutes(this.filters.since)
-            DockerProvider.serviceTaskLogs(this.getTaskId, this.filters)
-                .then(r => {
-                    console.log("res:",r)
-                    this.data =  []
-                    this.data = r.data.serviceTaskLogs
-                    this.refreshLogs()
-                }).finally(() => this.loading = false)
+            this.filters.since = await this.sinceInMinutes(this.since)
+            if(this.getTaskId){
+                DockerProvider.serviceTaskLogs(this.getTaskId, this.filters)
+                    .then(r => {
+                        console.log("res:",r)
+                        this.data =  []
+                        this.data = r.data.serviceTaskLogs
+                        this.refreshLogs()
+                    }).finally(() => this.loading = false)
+            }
         },
         refreshLogs() {
             if (this.refresh) {

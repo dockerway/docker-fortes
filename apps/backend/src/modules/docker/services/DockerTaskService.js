@@ -89,12 +89,11 @@ export const findTaskLogs = function (taskId, filters) {
             console.log("filters", apiFilters)
             let logs = await docker.getTask(taskId).logs(apiFilters)
 
-            logs = logs.toString('utf8').replace(/\u0000|\u0002/g, "").replace(/�/g, "").split('\n')
+            logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "").split('\n')
 
             logs = logs.map(log => ({
-                timestamp: log.substring(0, 30).trim(),
-                text: log.substring(31)
-            })).filter(log => log.text)
+                text: log
+            })).filter(log => filters.fetch != "" ? log.text.includes(filters.fetch) : log.text)
 
             //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
             resolve(logs)

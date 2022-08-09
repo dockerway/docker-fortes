@@ -1,6 +1,5 @@
 query serviceTaskLogs($task: String!, $filters: ServiceTaskLogs!){
     serviceTaskLogs(task: $task, filters: $filters){
-        timestamp
         text
     }
 }

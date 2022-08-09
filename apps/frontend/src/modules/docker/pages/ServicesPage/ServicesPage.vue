@@ -136,7 +136,7 @@
           :title="'Logs '"
           style="background-color: white; width: 800px;"
       >
-      <service-task-logs :task="this.logs.task"></service-task-logs>
+      <service-task-logs v-if="logs.task" :task="logs.task"></service-task-logs>
     </simple-dialog>
 
   </v-container>

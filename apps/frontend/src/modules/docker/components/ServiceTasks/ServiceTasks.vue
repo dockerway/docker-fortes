@@ -29,7 +29,7 @@
           </v-btn>
           <v-btn v-if="task.state == 'running'" @click="showTerminalDialog=true" icon color="blue" class="ml-1">
             <v-icon small>terminal</v-icon>
-            <ConfirmSelectDialog
+            <confirm-select-dialog
               fullscreen
               v-model="showTerminalDialog"
               @close="closeTerminalDialog"
@@ -37,10 +37,8 @@
               title="Ejecutar consola"
               defaultSelection="bash"
               :options="['bash','sh']"
-            ></ConfirmSelectDialog>
+            ></confirm-select-dialog>
           </v-btn>
-
-
         </td>
       </tr>
       </tbody>

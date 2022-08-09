@@ -26,7 +26,7 @@ export const findNode = function (id = '') {
             //console.log("node", node)
             resolve(node)
         } catch (e) {
-            reject(e)
+            e.includes('no such node') ? resolve('Node not found') : reject(e)
         }
 
     })
