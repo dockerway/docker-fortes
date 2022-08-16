@@ -1,11 +1,9 @@
 <template>
   <main>
     <div class="webTerminalInfo">
-      <h1>Consola</h1>
+      <h1>{{service.stack}}_{{serviceName}}</h1>
       <ul>
-        <li id="stack">Stack: {{service.stack}}</li>
         <li id="taskID">Task: {{task.id}}</li>
-        <li id="service">Servicio: {{serviceName}}</li>
       </ul>
     </div>
 
