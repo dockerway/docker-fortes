@@ -9,6 +9,7 @@
                     outlined
                     hide-selected
                     persistent-hint
+                    @change="fetchLogs()"
                 ></v-combobox>
             </v-col>
             <v-col cols="12" md="3" sm="4">
@@ -16,6 +17,7 @@
                     label="Buscar"
                     v-model="filters.fetch"
                     outlined
+                    @change="fetchLogs()"
                 ></v-text-field>
             </v-col>
             <v-col cols="12" md="2" sm="4">
@@ -24,6 +26,7 @@
                     v-model="filters.tail"
                     type="number"
                     outlined
+                    @change="fetchLogs()"
                 ></v-text-field>
             </v-col>
             <v-col cols="12" md="2" sm="4">
@@ -39,6 +42,7 @@
                     label="Display timestamps"
                     v-model="filters.timestamps"
                     inset
+                    @change="fetchLogs()"
                 ></v-switch>
             </v-col>
         </v-row>
@@ -50,6 +54,7 @@
                     label="Regresh Rate"
                     thumb-color="green"
                     thumb-label="always"
+                    @change="fetchLogs()"
                 ></v-slider>
             </v-col>
         </v-row>
@@ -105,12 +110,6 @@ export default {
     },
     created() {
         this.fetchLogs()
-    },
-    watch: {
-        // whenever question changes, this function will run
-        filters() {
-            this.fetchLogs()
-        }
     },
     methods: {
         sinceInMinutes(since){
