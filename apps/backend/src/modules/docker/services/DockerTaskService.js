@@ -100,7 +100,6 @@ export const findTaskLogs = function (taskId, filters) {
         } catch (e) {
             reject(e)
         }
-
     })
 }
 
