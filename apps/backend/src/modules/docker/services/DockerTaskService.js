@@ -75,7 +75,6 @@ export const findTaskLogs = function (taskId, filters) {
         try {
 
             console.log("task", taskId)
-            console.log("filters", filters)
 
             let apiFilters = {
                 details: false, //default false
@@ -94,17 +93,13 @@ export const findTaskLogs = function (taskId, filters) {
 
             logs = logs.map(log => ({
                 text: log
-            })).filter(log => {
-                console.log("LOG: ",log)
-                return filters.fetch != "" ? log.text.includes(filters.fetch) : log.text
-            })
+            })).filter(log => filters.fetch != "" ? log.text.includes(filters.fetch) : log.text)
 
             //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
             resolve(logs)
         } catch (e) {
             reject(e)
         }
-
     })
 }
 
