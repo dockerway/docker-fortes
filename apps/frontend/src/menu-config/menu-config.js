@@ -60,6 +60,13 @@ export default [
                 permission: 'CUSTOMIZATION_SHOW'
             },
             {
+                icon: 'settings',
+                text: 'menu.settings',
+                link: { name: "SettingsPage" },
+                panel: false,
+                permission: 'SETTINGS_UPDATE'
+            },
+            {
                 icon: 'assignment_ind',
                 text: 'user.title',
                 link: { name: "userManagement" },
