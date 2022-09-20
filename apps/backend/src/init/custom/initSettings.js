@@ -3,14 +3,10 @@ import {createSettings, findSettingsByKey} from "@dracul/settings-backend";
 
 const settings = [
     //{key:'',value: '',label: {en: '', es:'', pt:''} },
-    {
-        key: 'sample',
-        value: '',
-        label: {en: 'Sample', es: 'Ejemplo', pt: 'Ejemplo'}
-    },
-  /*  {
+    /*  {
         key: 'xxxxx',
         value: '60',
+        type: 'number',
         label: {en: 'ENENEN', es: 'ESESES', pt: 'PTPTPT'}
     },*/
 
