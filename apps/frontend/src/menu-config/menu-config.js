@@ -61,7 +61,7 @@ export default [
             },
             {
                 icon: 'settings',
-                text: 'menu.settings',
+                text: 'settings.settings.title',
                 link: { name: "SettingsPage" },
                 panel: false,
                 permission: 'SETTINGS_UPDATE'
