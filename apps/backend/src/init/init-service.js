@@ -9,8 +9,13 @@ mongoose.set('useCreateIndex', true)
 import {InitService} from '@dracul/user-backend'
 import {initPermissionsCustomization} from '@dracul/customize-backend'
 import {initCustomization} from './custom/initCustomization'
-import operatorRole from './custom/initOperatorRole'
-import supervisorRole from './custom/initSupervisorRole'
+import implementacionesRole from './custom/initImplementacionesRole'
+import infraestructuraRole from './custom/initInfraestructuraRole'
+import desarrolloRole from './custom/initDesarrolloRole'
+import direccionRole from './custom/initDireccionRole'
+import pmRole from './custom/initPMRole'
+import qaRole from './custom/initQARole'
+import soporteRole from './custom/initSoporteRole'
 
 import {
     permissions as notiPermissions
@@ -56,7 +61,7 @@ const initService = async () => {
 
     await InitService.initAdminRole()
 
-    await InitService.initRoles([operatorRole,supervisorRole])
+    await InitService.initRoles([implementacionesRole, infraestructuraRole, desarrolloRole, direccionRole, pmRole, qaRole, soporteRole])
 
     await InitService.initRootUser()
 
