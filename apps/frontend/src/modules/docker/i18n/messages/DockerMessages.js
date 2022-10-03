@@ -25,6 +25,9 @@ const messages = {
             createdAt: "Created",
             updatedAt: "Updated",
             logs: "Logs"
+         },
+         logs: {
+            numberOfLines: "Number of filter lines:"
          }
       }
    },
@@ -54,7 +57,9 @@ const messages = {
             updatedAt: "Updated",
             logs: "Logs"
          },
-
+         logs: {
+            numberOfLines: "Cantidad de lineas filtradas:"
+         }
       }
    },
    pt: {
@@ -82,6 +87,9 @@ const messages = {
             createdAt: "Created",
             updatedAt: "Updated",
             logs: "Logs"
+         },
+         logs: {
+            numberOfLines: "Number of filter lines:"
          }
       }
    }
