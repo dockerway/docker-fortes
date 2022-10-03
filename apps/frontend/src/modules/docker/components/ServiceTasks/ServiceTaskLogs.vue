@@ -141,7 +141,6 @@ export default {
             if(this.getTaskId){
                 DockerProvider.serviceTaskLogs(this.getTaskId, this.filters)
                     .then(r => {
-                        console.log("res:",r)
                         this.data =  []
                         this.data = r.data.serviceTaskLogs
                         this.numberOfLines = r.data.serviceTaskLogs.length
