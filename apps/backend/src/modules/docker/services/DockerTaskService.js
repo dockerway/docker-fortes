@@ -86,7 +86,6 @@ export const findTaskLogs = function (taskId, filters) {
                 tail: filters?.tail //int or default "all"
             }
 
-            console.log("filters", apiFilters)
             let logs = await docker.getTask(taskId).logs(apiFilters)
 
             logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "").split('\n')
