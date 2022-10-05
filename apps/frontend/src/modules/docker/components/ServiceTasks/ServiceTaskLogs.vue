@@ -57,6 +57,11 @@
                     @change="fetchLogs()"
                 ></v-slider>
             </v-col>
+            <v-col cols="12" md="2" sm="8">
+                <p class="text-left">
+                    {{$t('docker.logs.numberOfLines')}} {{numberOfLines}}/{{filters.tail}}
+                </p>
+            </v-col>
         </v-row>
 
 
@@ -95,7 +100,8 @@ export default {
             refreshRate: 5,
             loading: false,
             data: [],
-            orderBy: 'timestamp'
+            orderBy: 'timestamp',
+            numberOfLines: 0
         }
     },
     computed: {
@@ -130,15 +136,14 @@ export default {
         },
         async fetchLogs() {
             this.loading = true
-            console.log("filters",this.filters)
             this.filters.tail = this.filters.tail.toString()
             this.filters.since = await this.sinceInMinutes(this.since)
             if(this.getTaskId){
                 DockerProvider.serviceTaskLogs(this.getTaskId, this.filters)
                     .then(r => {
-                        console.log("res:",r)
                         this.data =  []
                         this.data = r.data.serviceTaskLogs
+                        this.numberOfLines = r.data.serviceTaskLogs.length
                         this.refreshLogs()
                     }).finally(() => this.loading = false)
             }
