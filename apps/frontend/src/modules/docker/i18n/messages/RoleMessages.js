@@ -9,7 +9,6 @@ const messages = {
                 DOCKER_REMOVE:"Docker service deletion",
                 DOCKER_RESTART:"Docker services restart",
                 DOCKER_UPDATE:"Docker services updation",
-                AUDIT_UPDATE:"Audit updation",
             }
         },
     },
@@ -23,7 +22,6 @@ const messages = {
                 DOCKER_REMOVE:"Eliminación de servicios Docker",
                 DOCKER_RESTART:"Reinicio de servicios Docker",
                 DOCKER_UPDATE:"Actualizacion de servicios Docker",
-                AUDIT_UPDATE:"Actualizacion de Auditoria",
             }
         },
 
@@ -38,7 +36,6 @@ const messages = {
                 DOCKER_REMOVE:"Exclusão do serviços Docker",
                 DOCKER_RESTART:"Reiniciar o serviços Docker",
                 DOCKER_UPDATE:"Atualização do serviços Docker",
-                AUDIT_UPDATE:"Atualização de Auditoria",
                 }
             }
         },

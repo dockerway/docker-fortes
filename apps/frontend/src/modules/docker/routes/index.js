@@ -1,8 +1,7 @@
 import merge from 'deepmerge'
-import DockerManagementRoutes from './DockerCrudRoutes'
 import ExtraRoutes from './DockerRoutes'
 
-const routes = merge.all([DockerManagementRoutes,ExtraRoutes])
+const routes = merge.all([ExtraRoutes])
 
 
 export default routes;

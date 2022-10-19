@@ -1,8 +1,8 @@
-import {createAudit} from "./AuditService";
+import {AuditProvider} from "@dracul/audit-frontend"
+import Docker from "dockerode"
 
-const Docker = require('dockerode');
-var docker = new Docker({socketPath: '/var/run/docker.sock'});
-import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel";
+let docker = new Docker({socketPath: '/var/run/docker.sock'})
+import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
 
 
 export const findServiceTag = function (name) {
@@ -131,42 +131,7 @@ const prepareServiceConfig = async (version = "1", {name, stack, image, replicas
                         Type: "bind"
                     })),
                 Env: envs.map(e => e.name + "=" + e.value)
-                /* "Hosts": [
-                     "10.10.10.10 host1",
-                     "ABCD:EF01:2345:6789:ABCD:EF01:2345:6789 host2"
-                 ],*/
-                /*"User": "33",*/
-                /*  "DNSConfig": {
-                      "Nameservers": [
-                          "8.8.8.8"
-                      ],
-                      "Search": [
-                          "example.org"
-                      ],
-                      "Options": [
-                          "timeout:3"
-                      ]
-                  },*/
-                /*"Secrets": [
-                    {
-                        "File": {
-                            "Name": "www.example.org.key",
-                            "UID": "33",
-                            "GID": "33",
-                            "Mode": 384
-                        },
-                        "SecretID": "fpjqlhnwb19zds35k8wn80lq9",
-                        "SecretName": "example_org_domain_key"
-                    }
-                ]*/
             },
-            /*"LogDriver": {
-                "Name": "json-file",
-                "Options": {
-                    "max-file": "3",
-                    "max-size": "10M"
-                }
-            },*/
             Placement: {
                 Constraints: constraintsArray,
                 Preferences: preferencesArray
@@ -225,9 +190,7 @@ const prepareServiceConfig = async (version = "1", {name, stack, image, replicas
 export const dockerServiceCreate = function (user, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = []}) {
     return new Promise(async (resolve, reject) => {
         try {
-            if (user) {
-                await createAudit(user, {user: user.id, action: 'CREATE', target: name})
-            }
+            if (user) await AuditProvider.createAudit(user, {user: user.id, action: 'CREATE', target: name})
 
             const version = 1
             const dockerServiceConfig = await prepareServiceConfig(version, {
@@ -265,9 +228,7 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
     return new Promise(async (resolve, reject) => {
         try {
 
-            if (user) {
-                await createAudit(user, {user: user.id, action: 'UPDATE', target: name})
-            }
+            if (user) await AuditProvider.createAudit(user, {user: user.id, action: 'UPDATE', target: name})
 
             let service = await docker.getService(serviceId)
             let serviceInspected = await service.inspect()
