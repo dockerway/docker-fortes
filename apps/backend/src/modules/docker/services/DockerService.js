@@ -1,4 +1,4 @@
-import {AuditProvider} from "@dracul/audit-frontend"
+import {createAudit} from "@dracul/audit-backend"
 import Docker from "dockerode"
 
 let docker = new Docker({socketPath: '/var/run/docker.sock'})
@@ -190,7 +190,7 @@ const prepareServiceConfig = async (version = "1", {name, stack, image, replicas
 export const dockerServiceCreate = function (user, {name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = []}) {
     return new Promise(async (resolve, reject) => {
         try {
-            if (user) await AuditProvider.createAudit(user, {user: user.id, action: 'CREATE', target: name})
+            if (user) await createAudit(user, {user: user.id, action: 'CREATE', target: name})
 
             const version = 1
             const dockerServiceConfig = await prepareServiceConfig(version, {
@@ -228,7 +228,7 @@ export const dockerServiceUpdate = function (user, serviceId, {name, stack, imag
     return new Promise(async (resolve, reject) => {
         try {
 
-            if (user) await AuditProvider.createAudit(user, {user: user.id, action: 'UPDATE', target: name})
+            if (user) await createAudit(user, {user: user.id, action: 'UPDATE', target: name})
 
             let service = await docker.getService(serviceId)
             let serviceInspected = await service.inspect()

@@ -5,6 +5,7 @@ import {commonTypes} from '@dracul/common-backend'
 import {types as customTypes,resolvers as customResolvers} from '@dracul/customize-backend'
 import {types as notificationTypes,resolvers as notificationResolvers} from '@dracul/notification-backend'
 import {types as settingsTypes,resolvers as settingsResolvers} from '@dracul/settings-backend'
+import {types as auditTypes, resolvers as auditResolvers} from '@dracul/settings-backend'
 
 //BASE RESOLVERS
 import {resolvers as baseResolvers } from './modules/base/graphql'
@@ -26,7 +27,8 @@ export const resolvers = mergeResolvers([
     settingsResolvers,
     dockerResolvers,
     gitlabResolvers,
-    registryResolvers
+    registryResolvers,
+    auditResolvers
 ])
 
 export const typeDefs = mergeTypes([
@@ -38,5 +40,6 @@ export const typeDefs = mergeTypes([
     settingsTypes,
     dockerTypes,
     gitlabTypes,
-    registryTypes
+    registryTypes,
+    auditTypes
 ])

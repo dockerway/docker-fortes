@@ -1,4 +1,4 @@
-import {AuditProvider} from "@dracul/audit-frontend"
+import {createAudit} from "@dracul/audit-backend"
 import dayjs from 'dayjs'
 
 const Docker = require('dockerode')
@@ -35,14 +35,13 @@ export const dockerRestartMany = function (user, serviceIds) {
 }
 
 export const dockerRestart = function (user, serviceId) {
-    console.log(`Docker Restart`)
     return new Promise(async (resolve, reject) => {
         try {
             const service = await docker.getService(serviceId)
+            const serviceInspected = await service.inspect()
             console.log("dockerRestart service", service)
 
-            const serviceInspected = await service.inspect()
-            await AuditProvider.createAudit({user: user.id, action: 'RESTART', target: serviceInspected.Spec.Name})
+            await createAudit(user, {user: user.id, action: 'RESTART', target: serviceInspected.Spec.Name})
 
             const opts = serviceInspected.Spec
             opts.version = parseInt(serviceInspected.Version.Index)
@@ -91,7 +90,7 @@ export const dockerRemove = function (user, serviceId) {
         try {
             const service = await docker.getService(serviceId)
             const serviceInspected = await service.inspect()
-            await AuditProvider.createAudit({user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name})
+            await createAudit(user, {user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name})
             
             const result = await service.remove()
             resolve(result)
