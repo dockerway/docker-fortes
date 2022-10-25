@@ -14,7 +14,7 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@dracul/audit-frontend": "^1.13.0",
+    "@dracul/audit-frontend": "^1.13.1",
     "@dracul/common-frontend": "^1.13.0",
     "@dracul/customize-frontend": "^1.13.0",
     "@dracul/dayjs-frontend": "^1.13.0",

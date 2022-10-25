@@ -187,7 +187,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
 export const dockerServiceCreate = function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) {
     return new Promise(async (resolve, reject) => {
         try {
-            if (user) await createAudit(user, {user: user.id, action: 'CREATE', target: name})
+            if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
 
             const version = 1
             const dockerServiceConfig = await prepareServiceConfig(version, {
@@ -225,7 +225,7 @@ export const dockerServiceUpdate = function (user, serviceId, { name, stack, ima
     return new Promise(async (resolve, reject) => {
         try {
 
-            if (user) await createAudit(user, {user: user.id, action: 'UPDATE', target: name})
+            if (user) await createAudit(user, {user: user.id, action: 'UPDATE', resource: name})
 
             let service = await docker.getService(serviceId)
             let serviceInspected = await service.inspect()

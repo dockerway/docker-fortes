@@ -41,7 +41,7 @@ export const dockerRestart = function (user, serviceId) {
             const serviceInspected = await service.inspect()
             console.log("dockerRestart service", service)
 
-            await createAudit(user, {user: user.id, action: 'RESTART', target: serviceInspected.Spec.Name})
+            await createAudit(user, {user: user.id, action: 'RESTART', resource: serviceInspected.Spec.Name})
 
             const opts = serviceInspected.Spec
             opts.version = parseInt(serviceInspected.Version.Index)
@@ -90,7 +90,7 @@ export const dockerRemove = function (user, serviceId) {
         try {
             const service = await docker.getService(serviceId)
             const serviceInspected = await service.inspect()
-            await createAudit(user, { user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name })
+            await createAudit(user, { user: user.id, action: 'REMOVE', resource: serviceInspected.Spec.Name })
 
             const result = await service.remove()
             resolve(result)
