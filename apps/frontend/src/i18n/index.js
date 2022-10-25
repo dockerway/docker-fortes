@@ -10,6 +10,7 @@ import {i18nMessages as i18nMessagesUser} from '@dracul/user-frontend'
 import {i18nMessages as i18nMessagesCustom} from '@dracul/customize-frontend'
 import {i18nMessages as i18nMessagesNotification} from '@dracul/notification-frontend'
 import {i18nMessages as i18nMessagesSettings} from '@dracul/settings-frontend'
+import {i18nMessages as i18nMessagesAudit} from '@dracul/audit-frontend'
 
 const messages = merge.all([
     baseMessages,
@@ -19,7 +20,8 @@ const messages = merge.all([
     i18nMessagesUser,
     i18nMessagesCustom,
     i18nMessagesNotification,
-    i18nMessagesSettings
+    i18nMessagesSettings,
+    i18nMessagesAudit
 ])
 
 Vue.use(VueI18n)

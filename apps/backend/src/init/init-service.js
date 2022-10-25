@@ -3,12 +3,12 @@ dotenv.config()
 import mongoose from 'mongoose'
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true})
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 mongoose.set('useCreateIndex', true)
 
-import {InitService} from '@dracul/user-backend'
-import {initPermissionsCustomization} from '@dracul/customize-backend'
-import {initCustomization} from './custom/initCustomization'
+import { InitService } from '@dracul/user-backend'
+import { initPermissionsCustomization } from '@dracul/customize-backend'
+import { initCustomization } from './custom/initCustomization'
 import implementacionesRole from './custom/initImplementacionesRole'
 import infraestructuraRole from './custom/initInfraestructuraRole'
 import desarrolloRole from './custom/initDesarrolloRole'
@@ -25,9 +25,12 @@ import {
     permissions as settingsPermissions
 } from '@dracul/settings-backend'
 
-import {initSettings} from './custom/initSettings'
+import { permissions as AuditPermissions } from "@dracul/audit-backend"
+
+import { initSettings } from './custom/initSettings'
 
 import modulesPermissions from './custom/modulesPermissions'
+
 
 const initService = async () => {
 
@@ -49,25 +52,28 @@ const initService = async () => {
         settingsPermissions.SETTINGS_SHOW,
     ])
 
-    //Init settings
-    await initSettings()
-    await InitService.initLdapSettings()
+    await InitService.initPermissions([AuditPermissions.AUDIT_SHOW]) 
 
-    //Dracul Customization module Permissions
-    await initPermissionsCustomization()
 
-    //Custom Module permissions
-    await InitService.initPermissions(modulesPermissions)
+//Init settings
+await initSettings()
+await InitService.initLdapSettings()
 
-    await InitService.initAdminRole()
+//Dracul Customization module Permissions
+await initPermissionsCustomization()
 
-    await InitService.initRoles([implementacionesRole, infraestructuraRole, desarrolloRole, direccionRole, pmRole, qaRole, soporteRole])
+//Custom Module permissions
+await InitService.initPermissions(modulesPermissions)
 
-    await InitService.initRootUser()
+await InitService.initAdminRole()
 
-    await initCustomization()
+await InitService.initRoles([implementacionesRole, infraestructuraRole, desarrolloRole, direccionRole, pmRole, qaRole, soporteRole])
+
+await InitService.initRootUser()
+
+await initCustomization()
 }
 
-export {initService}
+export { initService }
 
 export default initService

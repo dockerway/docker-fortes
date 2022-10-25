@@ -30,12 +30,6 @@ export default [
                 link: {name: "NodesPage"},
                 permission: 'DOCKER_VIEW'
             },
-            {
-                icon: 'local_police',
-                text: 'menu.audit',
-                link: {name: "AuditPage"},
-                permission: 'AUDIT_MENU'
-            },
         ]
     },
 
@@ -45,6 +39,13 @@ export default [
         panel: false,
         permission: 'SECURITY_ADMIN_MENU',
         children: [
+            {
+                icon: 'policy',
+                text: 'menu.audit',
+                link: { name: "AuditPage" },
+                panel: false,
+                permission: 'AUDIT_SHOW'
+            },
             {
                 icon: 'assignment_ind',
                 text: 'menu.userdashboard',

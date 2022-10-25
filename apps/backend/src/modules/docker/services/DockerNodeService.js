@@ -5,9 +5,8 @@ export const findNode = function (id = '') {
     return new Promise(async (resolve, reject) => {
         try {
 
-            let data = await docker.getNode(id)
-
-            let item = await data.inspect()
+            const data = await docker.getNode(id)
+            const item = await data.inspect()
 
             // console.log("Nodes Data", JSON.stringify(item, null, 4))
 
