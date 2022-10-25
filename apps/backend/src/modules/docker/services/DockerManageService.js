@@ -2,7 +2,7 @@ import {createAudit} from "@dracul/audit-backend"
 import dayjs from 'dayjs'
 
 const Docker = require('dockerode')
-const docker = new Docker({socketPath: '/var/run/docker.sock'})
+const docker = new Docker({ socketPath: '/var/run/docker.sock' })
 
 export const dockerVersion = function (id) {
     return new Promise(async (resolve, reject) => {
@@ -90,8 +90,8 @@ export const dockerRemove = function (user, serviceId) {
         try {
             const service = await docker.getService(serviceId)
             const serviceInspected = await service.inspect()
-            await createAudit(user, {user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name})
-            
+            await createAudit(user, { user: user.id, action: 'REMOVE', target: serviceInspected.Spec.Name })
+
             const result = await service.remove()
             resolve(result)
         } catch (error) {

@@ -10,6 +10,7 @@ import {setGraphQlClientToProviders} from '@dracul/user-frontend';
 import {customizationProvider} from '@dracul/customize-frontend';
 import {notificationProvider} from '@dracul/notification-frontend';
 import {SettingsProvider} from '@dracul/settings-frontend';
+import {AuditProvider} from '@dracul/audit-frontend';
 import './assets/css/xterm.css';
 
 setGraphQlClientToProviders(apolloClient);
@@ -17,6 +18,7 @@ customizationProvider.setGqlc(apolloClient);
 notificationProvider.setGqlc(apolloClient);
 notificationProvider.setGqlcWs(apolloClient);
 SettingsProvider.setGqlc(apolloClient);
+AuditProvider.setGqlc(apolloClient);
 
 Vue.config.productionTip = false;
 Vue.config.devtools = true;

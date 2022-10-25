@@ -30,12 +30,6 @@ export default [
                 link: {name: "NodesPage"},
                 permission: 'DOCKER_VIEW'
             },
-            {
-                icon: 'local_police',
-                text: 'menu.audit',
-                link: {name: "AuditPage"},
-                permission: 'AUDIT_MENU'
-            },
         ]
     },
 
