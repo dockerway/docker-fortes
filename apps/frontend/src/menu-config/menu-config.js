@@ -40,6 +40,13 @@ export default [
         permission: 'SECURITY_ADMIN_MENU',
         children: [
             {
+                icon: 'policy',
+                text: 'menu.audit',
+                link: { name: "AuditPage" },
+                panel: false,
+                permission: 'AUDIT_SHOW'
+            },
+            {
                 icon: 'assignment_ind',
                 text: 'menu.userdashboard',
                 link: { name: "userDashboard" },
