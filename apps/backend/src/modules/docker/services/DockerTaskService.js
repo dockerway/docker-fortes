@@ -92,7 +92,7 @@ export const findTaskLogs = function (taskId, filters) {
 
             logs = logs.map(log => ({
                 text: log
-            })).filter(log => filters.fetch != "" ? log.text.includes(filters.fetch) : log.text)
+            })).filter(log => filters.fetch != "" ? log.text.toLowerCase().includes(filters.fetch.toLowerCase()) : log.text)
 
             //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
             resolve(logs)

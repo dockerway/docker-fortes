@@ -1,7 +1,7 @@
 import {DOCKER_RESTART, DOCKER_VIEW} from "../../modules/docker/permissions/dockerPermissions";
 
 module.exports = {
-    name: "soporte",
+    name: "Soporte",
     permissions: [
         "SECURITY_GROUP_SHOW",
         "NOTIFICATION_SHOW",
