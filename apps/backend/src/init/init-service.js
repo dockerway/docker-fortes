@@ -6,9 +6,9 @@ mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 mongoose.set('useCreateIndex', true)
 
-import { InitService } from '@dracul/user-backend'
-import { initPermissionsCustomization } from '@dracul/customize-backend'
-import { initCustomization } from './custom/initCustomization'
+import {InitService} from '@dracul/user-backend'
+import {initPermissionsCustomization} from '@dracul/customize-backend'
+import {customizationInit} from './custom/initCustomization'
 import implementacionesRole from './custom/initImplementacionesRole'
 import infraestructuraRole from './custom/initInfraestructuraRole'
 import desarrolloRole from './custom/initDesarrolloRole'
@@ -55,23 +55,23 @@ const initService = async () => {
     await InitService.initPermissions([AuditPermissions.AUDIT_SHOW]) 
 
 
-//Init settings
-await initSettings()
-await InitService.initLdapSettings()
+    //Init settings
+    await initSettings()
+    await InitService.initLdapSettings()
 
-//Dracul Customization module Permissions
-await initPermissionsCustomization()
+    //Dracul Customization module Permissions
+    await initPermissionsCustomization()
 
-//Custom Module permissions
-await InitService.initPermissions(modulesPermissions)
+    //Custom Module permissions
+    await InitService.initPermissions(modulesPermissions)
 
-await InitService.initAdminRole()
+    await InitService.initAdminRole()
 
-await InitService.initRoles([implementacionesRole, infraestructuraRole, desarrolloRole, direccionRole, pmRole, qaRole, soporteRole])
+    await InitService.initRoles([implementacionesRole, infraestructuraRole, desarrolloRole, direccionRole, pmRole, qaRole, soporteRole])
 
-await InitService.initRootUser()
+    await InitService.initRootUser()
 
-await initCustomization()
+    await customizationInit()
 }
 
 export { initService }
