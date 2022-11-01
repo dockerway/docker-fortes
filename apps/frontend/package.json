@@ -14,11 +14,11 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@dracul/audit-frontend": "^1.13.1",
-    "@dracul/dayjs-frontend": "^1.13.0",
+    "@dracul/audit-frontend": "^1.14.10",
+    "@dracul/dayjs-frontend": "^1.14.0",
     "@dracul/common-frontend": "^1.14.2",
     "@dracul/customize-frontend": "^1.14.9",
-    "@dracul/notification-frontend": "^1.14.2",
+    "@dracul/notification-frontend": "^1.14.6",
     "@dracul/settings-frontend": "^1.14.2",
     "@dracul/user-frontend": "^1.14.6",
     "apollo-cache-inmemory": "^1.6.6",
