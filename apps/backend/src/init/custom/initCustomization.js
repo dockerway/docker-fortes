@@ -8,7 +8,7 @@ export const customizationInit = async function () {
     let customDoc = await findCustomization()
 
     if (!customDoc) {
-        let customDoc = await initCustomization({
+        customDoc = await initCustomization({
             lightTheme: {
                 primary: '#3F51B5',
                 onPrimary: '#FFFFFF',
