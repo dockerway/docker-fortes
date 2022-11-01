@@ -1,17 +1,31 @@
 import winston from "winston";
-import {findCustomization,createCustomization} from '@dracul/customize-backend'
+import {findCustomization, initPermissionsCustomization, initCustomization} from '@dracul/customize-backend'
 
-export const initCustomization = async function () {
+export const customizationInit = async function () {
+
+    await initPermissionsCustomization()
 
     let customDoc = await findCustomization()
 
     if (!customDoc) {
-        let customDoc = await createCustomization({
-            colors: {
-                primary: '#000000',
+        let customDoc = await initCustomization({
+            lightTheme: {
+                primary: '#3F51B5',
                 onPrimary: '#FFFFFF',
                 secondary: '#1565C0',
-                onSecondary: '#FFFFFF'
+                onSecondary: '#FFFFFF',
+                background: "#F5F5F5",
+                appBar: "#D6D6D6",
+                onAppBar: "#3F51B5",
+            },
+            darkTheme: {
+                primary: '#71DDC7',
+                onPrimary: '#000000',
+                secondary: '#E57FFB',
+                onSecondary: '#010101',
+                background: "#121212",
+                appBar: "#000000",
+                onAppBar: "#71DDC7",
             },
             logo: {
                 mode: 'OnlyTitle',

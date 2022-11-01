@@ -1,25 +1,27 @@
 <template>
-  <v-footer dark padless>
+  <v-footer dark>
     <v-card
         flat
         tile
         class="text-center"
         min-width="100%"
-        height="60px"
+        height="100px"
     >
-      <div style="position: absolute; top:0%; right: 3%">
-        <dark-mode></dark-mode>
-      </div>
-      <v-card-text>
-        {{ new Date().getFullYear() }} <strong>@PerfilIT</strong>
-      </v-card-text>
+      <v-card-actions>
+        <v-spacer v-if="$vuetify.breakpoint.smAndUp"></v-spacer>
+        <div class="pt-4">
+          {{ new Date().getFullYear() }} <strong>@PerfilIT</strong>
+        </div>
 
+        <v-spacer></v-spacer>
+        <dark-mode show-label></dark-mode>
+      </v-card-actions>
     </v-card>
   </v-footer>
 </template>
 
 <script>
-import DarkMode from "@/layout/components/DarkMode";
+import {DarkMode} from '@dracul/customize-frontend' 
 
 export default {
   name: "Footer",
