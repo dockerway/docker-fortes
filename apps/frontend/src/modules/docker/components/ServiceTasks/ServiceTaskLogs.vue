@@ -1,6 +1,6 @@
 <template>
     <v-container class="fullscreen-wrapper">
-        <v-row align-self="center">
+        <v-row  align="center">
             <v-col cols="12" md="3" sm="4">
                 <v-combobox
                     label="Filtrar"
@@ -66,10 +66,8 @@
 
 
         <v-data-table
-            class="virtual-scroll-table"
-            :items-per-page="-1"
             :items="data"
-            :headers="[{text    :'Logs',value:'text'} ]"
+            :headers="[{text:'Logs',value:'text'} ]"
             hide-default-footer
             :loading="loading"
         >
@@ -82,7 +80,7 @@ import DockerProvider from "@/modules/docker/providers/DockerProvider";
 import {Dayjs} from "@dracul/dayjs-frontend"
 
 export default {
-    name: "ServiceTaskLogs",    
+    name: "ServiceTaskLogs",
     props: {
         task: {type: Object}
     },
@@ -103,7 +101,7 @@ export default {
             loading: false,
             data: [],
             orderBy: 'timestamp',
-            numberOfLines: 0,
+            numberOfLines: 0
         }
     },
     computed: {
@@ -138,8 +136,6 @@ export default {
         },
         async fetchLogs() {
             this.loading = true
-            if(this.filters.tail < 1) this.filters.tail = 1
-            if(this.filters.tail > 10000) this.filters.tail = 10000
             this.filters.tail = this.filters.tail.toString()
             this.filters.since = await this.sinceInMinutes(this.since)
             if(this.getTaskId){
@@ -161,10 +157,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-    .virtual-scroll-table{
-        max-height: calc(100vh - 300px);
-        overflow: auto;
-    }
-</style>
