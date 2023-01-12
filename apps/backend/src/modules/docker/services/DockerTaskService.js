@@ -74,8 +74,6 @@ export const findTaskLogs = function (taskId, filters) {
     return new Promise(async (resolve, reject) => {
         try {
 
-            console.log("task", taskId)
-
             let apiFilters = {
                 details: false, //default false
                 follow: false, //default false
