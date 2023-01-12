@@ -1,7 +1,4 @@
 import express from 'express'
-import {
-    fetchService,
-} from "../services/DockerService";
 import http from "http";
 import { DOCKER_VIEW } from '../permissions/dockerPermissions';
 import { AuthenticationError, ForbiddenError, UserInputError } from 'apollo-server-express';
@@ -23,7 +20,6 @@ router.get('/docker/logs/:stackName/:serviceName', async function (req, res) {
         if(!req.rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
 
         const tasks = await fetchTask(`${stackName}_${serviceName}`)
-
         let firstTaskRunning = null
 
         tasks.forEach(task => {
@@ -33,9 +29,13 @@ router.get('/docker/logs/:stackName/:serviceName', async function (req, res) {
 
         if(firstTaskRunning === null) return res.send('task not found')
 
-        const taskLogs = await findTaskLogs(firstTaskRunning.id, {
+        let taskLogs = await findTaskLogs(firstTaskRunning.id, {
             fetch: search,
             tail: lines
+        })
+
+        taskLogs = taskLogs.map(({text}) => {
+            return text
         })
 
         return res.json(taskLogs)
