@@ -1,0 +1,96 @@
+import {DOCKER_CONSOLE, DOCKER_CREATE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW} from "../../modules/docker/permissions/dockerPermissions";
+
+import {
+    NOTIFICATION_SHOW,
+    NOTIFICATION_UPDATE,
+    NOTIFICATION_CREATE,
+} from "@dracul/notification-backend/lib/permissions"
+
+import {
+    AUDIT_SHOW,
+} from "@dracul/audit-backend/lib/permissions/AuditPermissions"
+
+import {
+    BASE_SHOW,
+} from '../../modules/base/permissions/'
+
+import {
+    CUSTOMIZATION_SHOW,
+    CUSTOMIZATION_CREATE,
+    CUSTOMIZATION_UPDATE,
+    CUSTOMIZATION_COLORS_UPDATE,
+    CUSTOMIZATION_LANG_UPDATE,
+    CUSTOMIZATION_LOGO_UPDATE,
+} from "@dracul/customize-backend/lib/permissions"
+
+import {
+    SETTINGS_SHOW,
+    SETTINGS_UPDATE,
+    SETTINGS_CREATE,
+    SETTINGS_DELETE,
+} from '@dracul/settings-backend/lib/permissions/Settings.js'
+
+import {
+    SECURITY_DASHBOARD_SHOW,
+    SECURITY_ADMIN_MENU,
+    SECURITY_GROUP_CREATE,
+    SECURITY_GROUP_DELETE,
+    SECURITY_GROUP_EDIT,
+    SECURITY_GROUP_SHOW,
+    SECURITY_ROLE_CREATE,
+    SECURITY_ROLE_EDIT,
+    SECURITY_ROLE_SHOW,
+    SECURITY_ROLE_DELETE,
+    SECURITY_USER_CREATE,
+    SECURITY_USER_DELETE,
+    SECURITY_USER_EDIT,
+    SECURITY_USER_SHOW,
+    SECURITY_ROLE_SHOW_CHILD
+} from "@dracul/user-backend/lib/permissions/"
+
+module.exports = {
+    name: "Sudo",
+    permissions: [
+        AUDIT_SHOW,
+        BASE_SHOW,
+        "SECURITY_GROUP_SHOW",
+        "NOTIFICATION_SHOW",
+        "NOTIFICATION_UPDATE",
+        DOCKER_VIEW,
+        DOCKER_REMOVE,
+        DOCKER_RESTART,
+        DOCKER_LOGS,
+        DOCKER_CONSOLE,
+        DOCKER_CREATE,
+        DOCKER_UPDATE,
+        SECURITY_DASHBOARD_SHOW,
+        SECURITY_ADMIN_MENU,
+        SECURITY_GROUP_CREATE,
+        SECURITY_GROUP_DELETE,
+        SECURITY_GROUP_EDIT,
+        SECURITY_GROUP_SHOW,
+        SECURITY_ROLE_CREATE,
+        SECURITY_ROLE_EDIT,
+        SECURITY_ROLE_SHOW,
+        SECURITY_ROLE_DELETE,
+        SECURITY_USER_CREATE,
+        SECURITY_USER_DELETE,
+        SECURITY_USER_EDIT,
+        SECURITY_USER_SHOW,
+        SECURITY_ROLE_SHOW_CHILD,
+        SETTINGS_SHOW,
+        SETTINGS_UPDATE,
+        SETTINGS_CREATE,
+        SETTINGS_DELETE,
+        CUSTOMIZATION_SHOW,
+        CUSTOMIZATION_CREATE,
+        CUSTOMIZATION_UPDATE,
+        CUSTOMIZATION_COLORS_UPDATE,
+        CUSTOMIZATION_LANG_UPDATE,
+        CUSTOMIZATION_LOGO_UPDATE,
+        NOTIFICATION_SHOW,
+        NOTIFICATION_UPDATE,
+        NOTIFICATION_CREATE,
+    ],
+    readonly: true
+}
