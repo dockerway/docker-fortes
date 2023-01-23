@@ -66,8 +66,10 @@
 
 
         <v-data-table
+            class="virtual-scroll-table"
+            :items-per-page="-1"
             :items="data"
-            :headers="[{text:'Logs',value:'text'} ]"
+            :headers="[{text    :'Logs',value:'text'} ]"
             hide-default-footer
             :loading="loading"
         >
@@ -157,3 +159,10 @@ export default {
     }
 }
 </script>
+
+<style>
+.virtual-scroll-table{
+        max-height: calc(100vh - 300px);
+        overflow: auto;
+}
+</style>

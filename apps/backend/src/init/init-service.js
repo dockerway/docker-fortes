@@ -10,6 +10,7 @@ import {InitService} from '@dracul/user-backend'
 import {initPermissionsCustomization} from '@dracul/customize-backend'
 import {customizationInit} from './custom/initCustomization'
 import implementacionesRole from './custom/initImplementacionesRole'
+import sudoRole from './custom/initSudoRole'
 import infraestructuraRole from './custom/initInfraestructuraRole'
 import desarrolloRole from './custom/initDesarrolloRole'
 import direccionRole from './custom/initDireccionRole'
@@ -67,7 +68,7 @@ const initService = async () => {
 
     await InitService.initAdminRole()
 
-    await InitService.initRoles([implementacionesRole, infraestructuraRole, desarrolloRole, direccionRole, pmRole, qaRole, soporteRole])
+    await InitService.initRoles([sudoRole, implementacionesRole, infraestructuraRole, desarrolloRole, direccionRole, pmRole, qaRole, soporteRole])
 
     await InitService.initRootUser()
 
