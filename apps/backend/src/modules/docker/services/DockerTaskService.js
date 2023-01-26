@@ -1,3 +1,4 @@
+import { getSettingsValueByKey } from "@dracul/settings-backend";
 import getImageObject from "./helpers/getImageObject";
 
 const Docker = require('dockerode');
@@ -73,6 +74,7 @@ export const findTask = function (taskId) {
 export const findTaskLogs = function (taskId, filters) {
     return new Promise(async (resolve, reject) => {
         try {
+            const maxTail = await getSettingsValueByKey('maxLogsLines')
 
             let apiFilters = {
                 details: false, //default false
@@ -81,7 +83,7 @@ export const findTaskLogs = function (taskId, filters) {
                 stderr: true, //default false
                 since: filters?.since, //default 0 (int)
                 timestamps: filters?.timestamps, //default false
-                tail: filters?.tail //int or default "all"
+                tail: Number(filters?.tail) < Number(maxTail) ? Number(filters?.tail) : Number(maxTail)  //int or default "all"
             }
 
             let logs = await docker.getTask(taskId).logs(apiFilters)
