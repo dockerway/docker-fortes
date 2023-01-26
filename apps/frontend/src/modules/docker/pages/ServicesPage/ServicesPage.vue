@@ -5,10 +5,10 @@
     <v-card class="my-3">
       <v-card-text class="py-0">
         <v-row align="center">
-          <v-col cols="12" sm="4" md="3">
+          <v-col cols="12" sm="3" md="2">
             <h4 class="text-h4 mb-4">Services</h4>
           </v-col>
-          <v-col cols="12" sm="4" md="3" class="text-right">
+          <v-col cols="12" sm="3" md="3" class="text-right">
             <v-btn  class="purple mr-2" dark @click="fetchService"><v-icon>refresh</v-icon></v-btn>
 
             <v-btn class="blue mr-2" dark
@@ -22,14 +22,17 @@
               Remove
             </v-btn>
           </v-col>
-          <v-col cols="12" sm="4" md="3">
+          <v-col cols="12" sm="3" md="2">
             <stack-combobox v-model="stack"
                             @input="fetchService"
                             clearable
             />
           </v-col>
-          <v-col cols="12" sm="4" md="3">
+          <v-col cols="12" sm="3" md="3">
             <v-text-field v-model="serviceNameSearch" label="ServiceName"></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="3" md="2">
+            <v-text-field v-model="portSearch" label="Port"></v-text-field>
           </v-col>
         </v-row>
       </v-card-text>
@@ -156,6 +159,7 @@ export default {
   components: { ServiceTasks, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs},
   data() {
     return {
+      portSearch: '',
       services: [],
       selected: [],
       itemsPerPage: 25,
@@ -185,7 +189,24 @@ export default {
   },
   computed: {
     getServices() {
-      return this.services.filter(s => s.name.includes(this.serviceNameSearch))
+      return this.services.filter(s => {
+
+        if(!s.name.includes(this.serviceNameSearch)) return false
+        
+        if(this.portSearch && this.portSearch != null){
+          if(s.ports === null) return false
+          return `${s.ports[0].hostPort}`.includes(this.portSearch) || `${s.ports[0].containerPort}`.includes(this.portSearch)
+        }
+        
+        if(s.name.includes(this.serviceNameSearch)){
+          if(this.portSearch && this.portSearch != null){
+            if(s.ports === null) return false
+            return `${s.ports[0].hostPort}`.includes(this.portSearch) || `${s.ports[0].containerPort}`.includes(this.portSearch)
+          }
+          return true
+        }
+
+      })
     },
     formatDate() {
       return date => {
