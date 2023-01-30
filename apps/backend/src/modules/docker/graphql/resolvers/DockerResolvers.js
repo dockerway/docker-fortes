@@ -16,6 +16,7 @@ import {
     fetchService,
     findServiceByName,
     findServiceTag,
+    findServiceById
 
 } from "../../services/DockerService";
 import {
@@ -53,6 +54,11 @@ export default {
             if(!user)  throw new AuthenticationError("Usted no esta autenticado")
             if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return findServiceByName(name)
+        },
+        findServiceById: (_,{id},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            return findServiceById(id)
         },
         fetchService: (_,{stack},{user,rbac}) => {
              if(!user)  throw new AuthenticationError("Usted no esta autenticado")
