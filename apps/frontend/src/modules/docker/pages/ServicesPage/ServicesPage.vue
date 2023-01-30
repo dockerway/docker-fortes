@@ -136,7 +136,7 @@
           fullscreen
           v-model="logs.show"
           @close="closeTaskLogs"
-          :title="'Logs '"
+          :title="currentLogsServiceName + ' logs'"
           style="background-color: white; width: 800px;"
       >
       <service-task-logs v-if="logs.task" :task="logs.task"></service-task-logs>
@@ -184,8 +184,9 @@ export default {
         title: '',
         description: '',
         action: null
-      }
-    };
+      },
+      currentLogsServiceName : ''
+    }
   },
   computed: {
     getServices() {
@@ -281,10 +282,22 @@ export default {
       }
 
     },
-    showTaskLogs(task) {
-      this.logs.show = true
-      this.logs.task = task
+    async showTaskLogs(task) {
+      try {
+        await this.setCurrentLogsServiceName(task)
+
+        this.logs.show = true
+        this.logs.task = task
+      } catch (error) {
+        console.error(error)
+      }
     },
+
+    async setCurrentLogsServiceName(currentTask){
+      const currentTaskService = await DockerProvider.fetchServiceById(currentTask.serviceId)
+      this.currentLogsServiceName = currentTaskService.data.findServiceById.name
+    },
+
     closeTaskLogs() {
       this.logs.show = false
       this.logs.task = null
