@@ -1,0 +1,22 @@
+query findServiceById($id: String!){
+    findServiceById(id: $id){
+        id
+        name
+        stack
+        image {
+            name
+            nameWithTag
+            namespace
+            domain
+            fullname
+            tag
+        }
+        createdAt
+        updatedAt
+        ports{
+            hostPort
+            containerPort
+            protocol
+        }
+    }
+}

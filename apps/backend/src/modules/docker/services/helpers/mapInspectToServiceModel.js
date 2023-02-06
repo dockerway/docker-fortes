@@ -7,7 +7,7 @@ export const mapInspectToServiceModel = (item) => {
         id: item?.ID,
         name: item?.Spec?.Name,
         stack: getStackNameFromService(item),
-        image: getImageObject(item.Spec.TaskTemplate.ContainerSpec.Image),
+        image: getImageObject(item.Spec?.TaskTemplate.ContainerSpec.Image),
         createdAt: item?.CreatedAt,
         updatedAt: item?.UpdatedAt,
         ports: item?.Spec?.EndpointSpec?.Ports?.map(p => ({

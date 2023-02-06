@@ -62,16 +62,13 @@ export const findServiceByName = function (name) {
     )
 }
 
-export const findService = function (serviceId) {
+export const findServiceById = function (serviceId) {
     return new Promise(async (resolve, reject) => {
         try {
+            const item = await docker.getService(serviceId).inspect()
+            if (!item) return reject(new Error("Service not found"))
 
-            let item = await docker.getService(serviceId)
-            if (!item) {
-                return reject(new Error("Service not found"))
-            }
-            let service = mapInspectToServiceModel(item)
-            return resolve(service)
+            return resolve(mapInspectToServiceModel(item))
 
         } catch (e) {
             reject(e)

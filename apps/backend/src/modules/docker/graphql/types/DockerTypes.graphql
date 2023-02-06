@@ -142,6 +142,7 @@ input ServiceTaskLogs{
 type Query {
     dockerVersion: DockerVersion
     fetchStack: [DockerStack]
+    findServiceById(id:String!):DockerService
     findService(name:String!):DockerService
     findServiceTag(name:String!):String
     fetchService(stack:String): [DockerService]

@@ -56,6 +56,7 @@ app.use(sessionMiddleware)
 GraphQLExtension.didEncounterErrors
 
 const apolloServer = new ApolloServer({
+    uploads: false,
     typeDefs,
     resolvers,
     context: ({req}) => {
