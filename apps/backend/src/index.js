@@ -4,6 +4,7 @@ require('dotenv').config();
 import {DefaultLogger} from "@dracul/logger-backend";
 DefaultLogger.info("Starting APP")
 
+import { graphqlUploadExpress } from 'graphql-upload'
 
 import initService from "./init/init-service";
 import express from 'express';
@@ -77,6 +78,8 @@ const apolloServer = new ApolloServer({
         }
     ]
 });
+
+app.use(graphqlUploadExpress({maxFileSize: 1000000000, maxFiles: 10}))
 
 
 apolloServer.applyMiddleware({app})
