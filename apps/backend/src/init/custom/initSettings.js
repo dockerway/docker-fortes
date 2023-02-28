@@ -1,4 +1,4 @@
-import {createSettings, findSettingsByKey} from "@dracul/settings-backend";
+import {createOrUpdateSettings} from "@dracul/settings-backend";
 
 
 const settings = [
@@ -13,6 +13,7 @@ const settings = [
         key: 'maxLogsLines',
         value: 10000,
         type: 'number',
+        group: 'Fortes',
         label: {en: 'Maximum quantity log lines', es: 'Cantidad máxima de lineas de logs', pt: 'máximo de linhas de logs'}   
     }
 ]
@@ -20,11 +21,7 @@ const settings = [
 export const initSettings = async function () {
 
     for (let i in settings) {
-        let setting = await findSettingsByKey(settings[i].key)
-        if (!setting) {
-            await createSettings(null, settings[i])
-        }
+        await createOrUpdateSettings(null, settings[i])
     }
-
 
 }
