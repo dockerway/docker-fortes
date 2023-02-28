@@ -9,7 +9,10 @@ import initService from "./init/init-service";
 import express from 'express';
 
 const mongoConnect = require('./mongo-db')
+import {graphqlUploadExpress} from 'graphql-upload';
+
 mongoConnect()
+
 
 import {ApolloServer, GraphQLExtension} from 'apollo-server-express'
 import {resolvers, typeDefs} from './modules-merge'
@@ -26,7 +29,7 @@ startWebSocketServerWithAgent()
 const app = express();
 
 
-
+app.use(graphqlUploadExpress({maxFileSize: 10000000, maxFiles: 10}));
 app.use(corsMiddleware)
 app.use(express.json())
 app.use(jwtMiddleware)
