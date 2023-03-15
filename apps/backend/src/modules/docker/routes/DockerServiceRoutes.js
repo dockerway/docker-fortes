@@ -7,7 +7,7 @@ import {
     findServiceTag
 } from "../services/DockerService";
 import http from "http";
-import { serviceStatsByName } from "../services/DockerStatsService";
+import { serviceStats, serviceStatsByName } from "../services/DockerStatsService";
 import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
 import { DOCKER_CREATE, DOCKER_UPDATE, DOCKER_VIEW } from '../permissions/dockerPermissions';
 
