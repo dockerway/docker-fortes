@@ -29,9 +29,9 @@ export const findServiceByName = function (name) {
             if (name) {
                 opts = {
                     filters: JSON.stringify({ "name": [name] })
-                };
+                }
             }
-            //console.log("opts",opts)
+
             let services = await docker.listServices(opts)
             let service
 
@@ -181,79 +181,68 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
     return dockerService
 }
 
-export const dockerServiceCreate = function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
+export const dockerServiceCreate = async function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) {
+    try {
+        if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
 
-            const version = 1
-            const dockerServiceConfig = await prepareServiceConfig(version, {
-                name,
-                stack,
-                image,
-                replicas,
-                volumes,
-                ports,
-                envs,
-                labels,
-                constraints,
-                limits,
-                preferences
-            })
+        const dockerServiceConfig = await prepareServiceConfig(1, {
+            name,
+            stack,
+            image,
+            replicas,
+            volumes,
+            ports,
+            envs,
+            labels,
+            constraints,
+            limits,
+            preferences
+        })
 
-            let result = await docker.createService(dockerServiceConfig)
+        const result = await docker.createService(dockerServiceConfig)
+        const inspect = await docker.getService(result.id).inspect()
 
-            let inspect = await docker.getService(result.id).inspect()
-            console.log(inspect)
-            let service = mapInspectToServiceModel(inspect)
-            console.log(service)
+        return(mapInspectToServiceModel(inspect))
 
-            resolve(service)
+    } catch (error) {
+        const serviceAlreadyExists = error.message.includes("name conflicts with an existing object")
+        if(serviceAlreadyExists) throw new Error(`Service already exists with ID '${(await findServiceByName(name)).id}'`)
 
-        } catch (e) {
-            reject(e)
-        }
-
-    })
+        console.error(`error.message: '${error.message}'`)
+        throw error
+    }
 }
 
+export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) {
+    try {
+        if (user) await createAudit(user, {user: user.id, action: 'UPDATE', resource: name})
 
-export const dockerServiceUpdate = function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) {
-    return new Promise(async (resolve, reject) => {
-        try {
+        let service = await docker.getService(serviceId)
 
-            if (user) await createAudit(user, {user: user.id, action: 'UPDATE', resource: name})
+        const serviceInspected = await service.inspect()
+        const version = parseInt(serviceInspected.Version.Index)
 
-            let service = await docker.getService(serviceId)
-            let serviceInspected = await service.inspect()
-            let version = parseInt(serviceInspected.Version.Index)
+        const dockerServiceConfig = await prepareServiceConfig(version, {
+            name,
+            stack,
+            image,
+            replicas,
+            volumes,
+            ports,
+            envs,
+            labels,
+            constraints,
+            limits,
+            preferences
+        })
 
-            const dockerServiceConfig = await prepareServiceConfig(version, {
-                name,
-                stack,
-                image,
-                replicas,
-                volumes,
-                ports,
-                envs,
-                labels,
-                constraints,
-                limits,
-                preferences
-            })
+        await docker.getService(serviceId).update(dockerServiceConfig)
+        const inspect = await docker.getService(serviceId).inspect()
 
-            let result = await docker.getService(serviceId).update(dockerServiceConfig)
+        return(mapInspectToServiceModel(inspect))
 
-            let inspect = await docker.getService(serviceId).inspect()
-
-            service = mapInspectToServiceModel(inspect)
-            console.log(service)
-
-            resolve(service)
-
-        } catch (e) {
-            reject(e)
-        }
-
-    })
+    } catch (error) {
+        throw error
+    }
 }
+
