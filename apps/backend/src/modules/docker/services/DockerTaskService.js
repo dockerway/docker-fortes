@@ -71,35 +71,30 @@ export const findTask = function (taskId) {
     })
 }
 
-export const findTaskLogs = function (taskId, filters) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const maxTail = await getSettingsValueByKey('maxLogsLines')
-
-            let apiFilters = {
-                details: false, //default false
-                follow: false, //default false
-                stdout: true, //default false
-                stderr: true, //default false
-                since: filters?.since, //default 0 (int)
-                timestamps: filters?.timestamps, //default false
-                tail: Number(filters?.tail) < Number(maxTail) ? Number(filters?.tail) : Number(maxTail)  //int or default "all"
-            }
-
-            let logs = await docker.getTask(taskId).logs(apiFilters)
-
-            logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "").split('\n')
-
-            logs = logs.map(log => ({
-                text: log
-            })).filter(log => filters.fetch != "" ? log.text.toLowerCase().includes(filters.fetch.toLowerCase()) : log.text)
-
-            //logs = logs.sort((a,b) => (a.timestamp < b.timestamp))
-            resolve(logs)
-        } catch (e) {
-            reject(e)
+export const findTaskLogs = async function (taskId, filters) {
+    try {
+        const maxTail = await getSettingsValueByKey('maxLogsLines')
+        const apiFilters = {
+            details: false, //default false
+            follow: false, //default false
+            stdout: true, //default false
+            stderr: true, //default false
+            since: filters?.since, //default 0 (int)
+            timestamps: filters?.timestamps, //default false
+            tail: Number(filters?.tail) < Number(maxTail) ? Number(filters?.tail) : Number(maxTail)  //int or default "all"
         }
-    })
+
+        let logs = await docker.getTask(taskId).logs(apiFilters)
+
+        logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "")
+        .split('\n')
+        .map(log => ({text: log}))
+        .filter(log => filters.fetch != "" ? log.text.toLowerCase().includes(filters.fetch.toLowerCase()) : log.text)
+
+        return logs
+    } catch (error) {
+        throw (error)
+    }
 }
 
 export const findTaskRunningByServiceAndNode = function (serviceName, nodeId) {
