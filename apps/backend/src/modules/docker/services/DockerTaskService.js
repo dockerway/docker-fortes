@@ -4,42 +4,33 @@ import getImageObject from "./helpers/getImageObject";
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
 
-export const fetchTask = function (serviceName) {
-    return new Promise(async (resolve, reject) => {
-        try {
+export const fetchTask = async function (serviceIdentifier) {
+    try {
+        if (!serviceIdentifier) throw new Error("You need to specify an service identifier (id or name)!")
 
-            let opts = {}
-            if (serviceName) {
-                opts = {
-                    filters: JSON.stringify({"service": [serviceName]})
-                };
-            }
-            console.log("opts", opts)
-            let data = await docker.listTasks(opts)
+        const serviceIdentifierIsAnId = serviceIdentifier.match(/[a-z0-9]{25}/)
+        const opts = {}
 
-            //console.log("Task Data", JSON.stringify(data, null,4))
+        opts.filters = JSON.stringify({"service": [serviceIdentifierIsAnId ? serviceIdentifier[0] : serviceIdentifier]})
+        const data = await docker.listTasks(opts)
 
-            let containers = data.map(
-                item => ({
-                    id: item?.ID,
-                    nodeId: item.NodeID,
-                    createdAt: item?.CreatedAt,
-                    updatedAt: item?.UpdatedAt,
-                    state: item?.Status?.State,
-                    message: item?.Status?.Message,
-                    image: getImageObject(item?.Spec?.ContainerSpec?.Image),
-                    serviceId: item?.ServiceID,
-                    containerId: item?.Status?.ContainerStatus?.ContainerID,
-                    //labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
-                })
-            )
-            //console.log("tasks", containers)
-            resolve(containers)
-        } catch (e) {
-            reject(e)
-        }
-
-    })
+        return data.map(
+            item => ({
+                id: item?.ID,
+                nodeId: item.NodeID,
+                createdAt: item?.CreatedAt,
+                updatedAt: item?.UpdatedAt,
+                state: item?.Status?.State,
+                message: item?.Status?.Message,
+                image: getImageObject(item?.Spec?.ContainerSpec?.Image),
+                serviceId: item?.ServiceID,
+                containerId: item?.Status?.ContainerStatus?.ContainerID,
+                //labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
+            })
+        )
+    } catch (error) {
+        throw error
+    }
 }
 
 
@@ -137,7 +128,6 @@ export const findTaskRunningByServiceAndNode = function (serviceName, nodeId) {
 
     })
 }
-
 
 export const dnsTaskRunningByServiceAndNode = function (serviceName, nodeId) {
     return new Promise(async (resolve, reject) => {
