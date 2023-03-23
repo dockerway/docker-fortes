@@ -3,7 +3,7 @@ import {
     dockerServiceCreate,
     dockerServiceUpdate,
     fetchService,
-    findServiceByName,
+    findServiceByIdOrName,
     findServiceTag
 } from "../services/DockerService";
 import http from "http";
@@ -66,12 +66,12 @@ router.put('/docker/service/:service', async function (req, res) {
     }
 })
 
-router.get('/docker/service/:name', async function (req, res) {
+router.get('/docker/service/:serviceIdentifier', async function (req, res) {
     try {
         if(!req.user)  throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto")
         if(!req.rbac.isAllowed(req.user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
 
-        res.json(await findServiceByName(req.params.name))
+        res.json(await findServiceByIdOrName(req.params.serviceIdentifier))
     } catch (error) {
         res.status(error.message === "Service not found" ? 404 : 500).send(error.message)
     }

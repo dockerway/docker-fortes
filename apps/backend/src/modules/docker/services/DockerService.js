@@ -1,118 +1,95 @@
+import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
 import {createAudit} from "@dracul/audit-backend"
 import Docker from "dockerode"
 
-let docker = new Docker({socketPath: '/var/run/docker.sock'})
-import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
+const docker = new Docker({socketPath: '/var/run/docker.sock'})
 
 
-export const findServiceTag = function (name) {
-
-    return new Promise(async (resolve, reject) => {
-
-        try {
-            let service = await findServiceByName(name)
-            resolve(service.image.tag)
-
-        } catch (e) {
-            reject(e)
-        }
-
-    })
-
-}
-
-export const findServiceByName = function (name) {
-    return new Promise(async (resolve, reject) => {
-        try {
-
-            let opts = {}
-            if (name) {
-                opts = {
-                    filters: JSON.stringify({ "name": [name] })
-                }
-            }
-
-            let services = await docker.listServices(opts)
-            let service
-
-            if (!services || services.length === 0) {
-                return reject(new Error("Service not found"))
-            } else if (services.length === 1) {
-                let item = services[0]
-                service = mapInspectToServiceModel(item)
-                return resolve(service)
-            } else if (services.length > 1) {
-
-                for (let item of services) {
-                    if (name === item?.Spec?.Name) {
-                        service = mapInspectToServiceModel(item)
-                        return resolve(service)
-                    }
-                }
-
-                return reject(new Error("Multiple match. Refine filter name"))
-            }
-
-            return reject(new Error("Service not found"))
-        } catch (e) {
-            reject(e)
-        }
-
+export const findServiceTag = async function (name) {
+    try {
+        return ((await findServiceByName(name)).image.tag)
+    } catch (error) {
+        throw error
     }
-    )
 }
 
-export const findServiceById = function (serviceId) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const item = await docker.getService(serviceId).inspect()
-            if (!item) return reject(new Error("Service not found"))
+export const findServiceByName = async function (name) {
+    try {
+      const opts = name ? { filters: JSON.stringify({ name: [name] }) } : {};
 
-            return resolve(mapInspectToServiceModel(item))
+      const services = await docker.listServices(opts);
+      if (!services || services.length === 0) throw new Error("Service not found")
+      if (services.length === 1) return mapInspectToServiceModel(services[0])
+  
+      const matchingServices = services.filter(item => item?.Spec?.Name === name);
 
-        } catch (e) {
-            reject(e)
+      switch (matchingServices.length) {
+        case 0:
+            throw new Error("Service not found")
+        case 1:
+            return mapInspectToServiceModel(matchingServices[0])
+        default:
+            throw new Error("Multiple match. Refine filter name")
         }
+    } catch (error) {
+      throw error
+    }
+}
+  
 
-    })
+export const findServiceById = async function (serviceId) {
+    try {
+        const item = await docker.getService(serviceId).inspect()
+        if (!item) throw new Error("Service not found")
+         
+        return mapInspectToServiceModel(item)
+    } catch (error) {
+        throw error
+    }
 }
 
-export const fetchService = function (stack) {
-    return new Promise(async (resolve, reject) => {
-        try {
+/**
 
-            let opts = {}
-            if (stack) {
-                opts = {
-                    filters: JSON.stringify({ "label": ["com.docker.stack.namespace=" + stack] })
-                };
-            }
-            let data = await docker.listServices(opts)
-            let services = data.map(item => (mapInspectToServiceModel(item)))
-            resolve(services)
-        } catch (e) {
-            reject(e)
-        }
+Finds a service by either id or name.
 
-    })
+@param {string} serviceIdentifier - The service identifier of the service to find. It can be an ID or a name.
+@returns {Promise<Object>} - A promise that resolves with the service object found.
+
+@throws {Error} - If a service identifier is NOT specified.
+*/
+export const findServiceByIdOrName = async function(serviceIdentifier){
+    if (!serviceIdentifier) throw new Error("You need to specify an service identifier (id or name)!")
+    const serviceIdentifierIsAnId = serviceIdentifier.match(/[a-z0-9]{25}/)
+
+    return (serviceIdentifierIsAnId) ? (await findServiceById(serviceIdentifier)) : (await findServiceByName(serviceIdentifier))
 }
 
-const prepareConstraintsArray = (constraints) => {
-    return constraints.map(constraint => (constraint.name + " " + constraint.operation + " " + constraint.value))
+export const fetchService = async function (stack) {
+    try {
+        const opts = {}
+        if (stack) opts.filters = JSON.stringify({ "label": ["com.docker.stack.namespace=" + stack] })
+        
+        const data = await docker.listServices(opts)
+        const services = data.map(item => (mapInspectToServiceModel(item)))
+
+        return services
+    } catch (error) {
+        throw error
+    }
 }
 
-const preparePreferencesArray = (preferences) => {
-    return preferences.map(preference => ({ [preference.name]: { "SpreadDescriptor": preference.value } }))
-}
+const prepareConstraintsArray = (constraints) => constraints.map(constraint => (constraint.name + " " + constraint.operation + " " + constraint.value))
+const preparePreferencesArray = (preferences) => preferences.map(preference => ({ [preference.name]: { "SpreadDescriptor": preference.value } }))
+
 
 const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) => {
-    let constraintsArray = await prepareConstraintsArray(constraints)
-    let preferencesArray = await preparePreferencesArray(preferences)
+    const constraintsArray = await prepareConstraintsArray(constraints)
+    const preferencesArray = await preparePreferencesArray(preferences)
 
     envs.push({ name: "CONTROL_VERSION", value: version })
     labels.push({ name: "com.docker.stack.namespace", value: stack })
 
-    let dockerService = {
+    const dockerService = {
         Name: name,
         version: version,
         TaskTemplate: {
