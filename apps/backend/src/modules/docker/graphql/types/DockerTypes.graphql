@@ -148,6 +148,7 @@ type Query {
     fetchService(stack:String): [DockerService]
     fetchContainer(service:String): [DockerContainer]
     fetchTask(service:String): [DockerTask]
+    fetchTaskInspect(taskId:String): JSON
     findTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): DockerTask
     dnsTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): String
     fetchNode(role: String): [DockerNode]
@@ -230,3 +231,4 @@ type Mutation {
     dockerServiceCreate(input: DockerServiceInput): DockerService
     dockerServiceUpdate(input: DockerServiceInput): DockerService
 }
+

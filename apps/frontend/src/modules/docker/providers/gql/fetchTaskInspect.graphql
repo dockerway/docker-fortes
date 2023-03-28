@@ -1,0 +1,3 @@
+query fetchTaskInspect($taskId: String) {
+  fetchTaskInspect(taskId: $taskId)
+}

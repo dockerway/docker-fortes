@@ -1,10 +1,10 @@
-import {ApolloClient} from 'apollo-client'
-import {createUploadLink} from 'apollo-upload-client'
-import {InMemoryCache} from 'apollo-cache-inmemory'
-import {ApolloLink} from 'apollo-link'
+import { InMemoryCache } from 'apollo-cache-inmemory'
+import { ApolloClient } from 'apollo-client'
+import { ApolloLink } from 'apollo-link'
+import { createUploadLink } from 'apollo-upload-client'
 import store from '../store'
 
-import {onError} from "apollo-link-error";
+import { onError } from "apollo-link-error"
 
 const errorLink = onError(({graphQLErrors, networkError}) => {
     if (graphQLErrors)
@@ -65,6 +65,9 @@ const cache = new InMemoryCache()
 const apolloClient = new ApolloClient({
     link: link,
     cache,
+    JSON: {
+        scalar: JSON,
+      },
 })
 
 

@@ -107,7 +107,7 @@
               <v-card v-else-if="item.tasks && item.tasks.length > 0" class="ma-3">
                 <v-card-text>
                   <v-btn icon absolute right top small @click="fetchTask(item)"><v-icon>refresh</v-icon></v-btn>
-                  <service-tasks @showLogs="showTaskLogs" @closeLogs="closeTaskLogs" :tasks="item.tasks" :service="item"></service-tasks>
+                  <service-tasks @showLogs="showTaskLogs" @closeLogs="closeTaskLogs" @showInspect="showTaskInspect" :tasks="item.tasks" :service="item"></service-tasks>
                 </v-card-text>
               </v-card>
 
@@ -142,6 +142,16 @@
       <service-task-logs v-if="logs.task" :task="logs.task"></service-task-logs>
     </simple-dialog>
 
+    <simple-dialog
+          fullscreen
+          v-model="inspect.show"
+          @close="closeTaskInspect"
+          title="Service task inspect"
+          style="background-color: white; width: 800px;"
+      >
+      <service-task-inspect v-if="inspect.task" :taskID="inspect.task.id"/>
+    </simple-dialog>
+
   </v-container>
 </template>
 
@@ -150,13 +160,12 @@ import DockerProvider from "@/modules/docker/providers/DockerProvider"
 import StackCombobox from "@/modules/docker/components/StackCombobox/StackCombobox"
 import {Dayjs} from "@dracul/dayjs-frontend"
 import {SimpleDialog, Loading, ConfirmDialog} from "@dracul/common-frontend"
-import ServiceTasks from "@/modules/docker/components/ServiceTasks/ServiceTasks"
-import ServiceTaskLogs from "@/modules/docker/components/ServiceTasks/ServiceTaskLogs"
+import {ServiceTasks, ServiceTaskLogs, ServiceTaskInspect} from "@/modules/docker/components/ServiceTasks/"
 
 export default {
   name: "ServicesPage",
 
-  components: { ServiceTasks, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs},
+  components: { ServiceTasks, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs, ServiceTaskInspect},
   data() {
     return {
       portSearch: '',
@@ -168,6 +177,11 @@ export default {
       loadingTask: false,
 
       logs: {
+        show: false,
+        task: null,
+      },
+
+      inspect: {
         show: false,
         task: null,
       },
@@ -293,6 +307,15 @@ export default {
       }
     },
 
+    async showTaskInspect(task) {
+      try {
+        this.inspect.show = true
+        this.inspect.task = task
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
     async setCurrentLogsServiceName(currentTask){
       const currentTaskService = await DockerProvider.fetchServiceById(currentTask.serviceId)
       this.currentLogsServiceName = currentTaskService.data.findServiceById.name
@@ -301,6 +324,10 @@ export default {
     closeTaskLogs() {
       this.logs.show = false
       this.logs.task = null
+    },
+    closeTaskInspect() {
+      this.inspect.show = false
+      this.inspect.task = null
     },
     clearConfirm(){
       this.confirm.title = null;

@@ -1,11 +1,6 @@
-import {AuthenticationError} from "apollo-server-errors";
-
-
 export default {
     Query: {
         ping: (_,{},{user}) => {
-           // if(!user)  throw new AuthenticationError("Usted no esta autenticado")
-
             return Promise.resolve({status: true})
         },
         pingDelayed: (parent, {}, {req}) => {
