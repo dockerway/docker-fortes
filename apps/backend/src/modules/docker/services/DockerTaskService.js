@@ -1,8 +1,8 @@
 import { getSettingsValueByKey } from "@dracul/settings-backend";
 import getImageObject from "./helpers/getImageObject";
+import Docker from "dockerode";
 
-const Docker = require('dockerode');
-var docker = new Docker({socketPath: '/var/run/docker.sock'});
+const docker = new Docker({socketPath: '/var/run/docker.sock'})
 
 export const fetchTask = async function (serviceIdentifier) {
     try {
@@ -57,6 +57,7 @@ export const findTask = function (taskId) {
 }
 
 export const findTaskLogs = async function (taskId, filters) {
+    inspectTask(taskId)
     try {
         const maxTail = await getSettingsValueByKey('maxLogsLines')
         const apiFilters = {
@@ -82,63 +83,56 @@ export const findTaskLogs = async function (taskId, filters) {
     }
 }
 
-export const findTaskRunningByServiceAndNode = function (serviceName, nodeId) {
-    return new Promise(async (resolve, reject) => {
-        try {
+export const fetchTaskInspect = async function (taskId) {
+    try {
+        return await docker.getTask(taskId).inspect()
+        }
+     catch (error) {
+        throw (error)
+    }
+}
 
-            let opts = {
-                filters: JSON.stringify({
+
+export const findTaskRunningByServiceAndNode = async function (serviceName, nodeId) {
+    try {
+        const opts = {
+            filters: JSON.stringify({
                     service: [serviceName],
                     node: [nodeId],
                     "desired-state": ["running"]
                 })
-            };
-            console.log("opts", opts)
-            let tasks = await docker.listTasks(opts)
-            let task
-            if(!tasks || tasks.length === 0){
-                return reject(new Error("Task not found"))
-            }else{
-                let item = tasks[0]
-                task = {
-                    id: item?.ID,
-                    nodeId: item.NodeID,
-                    createdAt: item?.CreatedAt,
-                    updatedAt: item?.UpdatedAt,
-                    state: item?.Status?.State,
-                    message: item?.Status?.Message,
-                    image: getImageObject(item?.Spec?.ContainerSpec?.Image),
-                    serviceId: item?.ServiceID,
-                    containerId: item?.Status?.ContainerStatus?.ContainerID,
-                    //labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
-                }
-                return resolve(task)
-            }
-
-            resolve(task)
-        } catch (e) {
-            reject(e)
         }
+        
+        const tasks = await docker.listTasks(opts)
+        if (!tasks || tasks.length === 0) throw new Error("Task not found")
 
-    })
+        return {
+            id: tasks[0]?.ID,
+            nodeId: tasks[0].NodeID,
+            createdAt: tasks[0]?.CreatedAt,
+            updatedAt: tasks[0]?.UpdatedAt,
+            state: tasks[0]?.Status?.State,
+            message: tasks[0]?.Status?.Message,
+            image: getImageObject(tasks[0]?.Spec?.ContainerSpec?.Image),
+            serviceId: tasks[0]?.ServiceID,
+            containerId: tasks[0]?.Status?.ContainerStatus?.ContainerID,
+        }
+        
+    } catch (error) {
+        console.warn(error)
+    }
 }
 
-export const dnsTaskRunningByServiceAndNode = function (serviceName, nodeId) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let task = await findTaskRunningByServiceAndNode(serviceName, nodeId)
-            if(task){
-                let dns = serviceName + "." + nodeId + "." + task.id
-                return resolve(dns)
-            }else{
-                return reject(new Error("Task not found"))
-            }
+export const dnsTaskRunningByServiceAndNode = async function (serviceName, nodeId) {
+    try {
+        const task = await findTaskRunningByServiceAndNode(serviceName, nodeId)
+        if(!task) throw new Error("Task not found") 
+        
+        return `${serviceName}.${nodeId}.${task.id}`
 
-        } catch (e) {
-            reject(e)
-        }
-
-    })
+    } catch (error) {
+        throw (error)
+    }
 }
 
 export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, terminal = 'bash') {
