@@ -61,6 +61,9 @@ export const findServiceByIdOrName = async function(serviceIdentifier){
     if (!serviceIdentifier) throw new Error("You need to specify an service identifier (id or name)!")
     const serviceIdentifierIsAnId = serviceIdentifier.match(/[a-z0-9]{25}/)
 
+    console.log(`serviceIdentifierIsAnId: '${serviceIdentifierIsAnId}'`)
+    console.log(`serviceIdentifier: '${serviceIdentifier}'`)
+
     return (serviceIdentifierIsAnId) ? (await findServiceById(serviceIdentifier)) : (await findServiceByName(serviceIdentifier))
 }
 

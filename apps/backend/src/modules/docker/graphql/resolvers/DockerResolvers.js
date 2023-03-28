@@ -8,7 +8,7 @@ import {DOCKER_CREATE, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW
 import {fetchNode, findNode} from "../../services/DockerNodeService";
 import {fetchContainer} from "../../services/DockerContainerService";
 import {fetchStack} from "../../services/DockerStackService";
-import {findTaskLogs} from "../../services/DockerTaskService"
+import {findTaskLogs, fetchTaskInspect} from "../../services/DockerTaskService"
 
 import {
     dockerServiceCreate,
@@ -71,18 +71,27 @@ export default {
             return fetchContainer(service)
         },
         fetchTask: (_,{service},{user,rbac}) => {
-            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
-            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            if (!user) throw new AuthenticationError("Usted no esta autenticado")
+            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+
             return fetchTask(service)
         },
+        fetchTaskInspect: (_,{taskId},{user,rbac}) => {
+            if (!user) throw new AuthenticationError("Usted no esta autenticado")
+            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+
+            return fetchTaskInspect(taskId)
+        },
         findTaskRunningByServiceAndNode: (_,{serviceName, nodeId},{user,rbac}) => {
-            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
-            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            if (!user) throw new AuthenticationError("Usted no esta autenticado")
+            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+
             return findTaskRunningByServiceAndNode(serviceName, nodeId)
         },
         dnsTaskRunningByServiceAndNode: (_,{serviceName, nodeId},{user,rbac}) => {
-            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
-            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            if (!user) throw new AuthenticationError("Usted no esta autenticado")
+            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+
             return dnsTaskRunningByServiceAndNode(serviceName, nodeId)
         },
         fetchNode: (_,{role},{user,rbac}) => {

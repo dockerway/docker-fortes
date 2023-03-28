@@ -27,6 +27,11 @@
           <v-btn icon @click="showLogs(task)" @close="closeLogs()" color="blue">
             <v-icon small>description</v-icon>
           </v-btn>
+
+          <v-btn icon>
+            <v-icon small color="blue" @click="showInspect(task)">info</v-icon>
+          </v-btn>
+
           <v-btn v-if="task.state == 'running'" @click="showTerminalDialog=true" icon color="blue" class="ml-1">
             <v-icon small>terminal</v-icon>
             <confirm-select-dialog
@@ -71,8 +76,8 @@ export default {
       this.$emit('closeLogs')
     },
     getTerminalURL(terminalSelected, task){
-      const stringTask = JSON.stringify(task);
-      const stringService = JSON.stringify(this.service);
+      const stringTask = JSON.stringify(task)
+      const stringService = JSON.stringify(this.service)
 
       return `/docker/terminal/${window.btoa(stringTask)}/${window.btoa(stringService)}/${window.btoa(terminalSelected)}`
     },
@@ -80,9 +85,11 @@ export default {
       window.open(this.getTerminalURL(terminalSelected, task), '_blank')
     },
     closeTerminalDialog(){
-      this.showTerminalDialog = false;
+      this.showTerminalDialog = false
     },
-
+    showInspect(task) {
+      this.$emit('showInspect', task)
+    },
   },
   computed: {
     formatDate() {
@@ -124,6 +131,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
