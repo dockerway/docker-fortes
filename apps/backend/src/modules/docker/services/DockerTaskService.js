@@ -8,13 +8,8 @@ export const fetchTask = async function (serviceIdentifier) {
     try {
         if (!serviceIdentifier) throw new Error("You need to specify an service identifier (id or name)!")
 
-        const serviceIdentifierIsAnId = serviceIdentifier.match(/[a-z0-9]{25}/)
-        const opts = {}
-
-        opts.filters = JSON.stringify({"service": [serviceIdentifierIsAnId ? serviceIdentifier[0] : serviceIdentifier]})
-        const data = await docker.listTasks(opts)
-
-        return data.map(
+        const task = await docker.listTasks({ filters: JSON.stringify({"service": [serviceIdentifier]}) })
+        return task.map(
             item => ({
                 id: item?.ID,
                 nodeId: item.NodeID,
@@ -24,8 +19,7 @@ export const fetchTask = async function (serviceIdentifier) {
                 message: item?.Status?.Message,
                 image: getImageObject(item?.Spec?.ContainerSpec?.Image),
                 serviceId: item?.ServiceID,
-                containerId: item?.Status?.ContainerStatus?.ContainerID,
-                //labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
+                containerId: item?.Status?.ContainerStatus?.ContainerID
             })
         )
     } catch (error) {
