@@ -85,7 +85,7 @@ const prepareConstraintsArray = (constraints) => constraints.map(constraint => (
 const preparePreferencesArray = (preferences) => preferences.map(preference => ({ [preference.name]: { "SpreadDescriptor": preference.value } }))
 
 
-const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) => {
+const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [] }) => {
     const constraintsArray = await prepareConstraintsArray(constraints)
     const preferencesArray = await preparePreferencesArray(preferences)
 
@@ -145,6 +145,10 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
             Monitor: 15000000000,
             MaxFailureRatio: 0.15
         },
+        Networks : (networks.length > 0) ? networks.forEach((network) => { return {network}}) : [{
+            Target: `${stack}_default`,
+            Aliases: []
+        }],
         EndpointSpec: {
             Ports: ports.map(p => ({
                 Protocol: "tcp",
@@ -158,10 +162,13 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
 
     }
 
+
+    console.log(`dockerService: '${JSON.stringify(dockerService.Networks)}'`)
+
     return dockerService
 }
 
-export const dockerServiceCreate = async function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) {
+export const dockerServiceCreate = async function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [] }) {
     try {
         if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
 
@@ -176,7 +183,8 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
             labels,
             constraints,
             limits,
-            preferences
+            preferences,
+            networks
         })
 
         const result = await docker.createService(dockerServiceConfig)
@@ -193,7 +201,7 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
     }
 }
 
-export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [] }) {
+export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [] }) {
     try {
         if (user) await createAudit(user, {user: user.id, action: 'UPDATE', resource: name})
 
@@ -213,7 +221,8 @@ export const dockerServiceUpdate = async function (user, serviceId, { name, stac
             labels,
             constraints,
             limits,
-            preferences
+            preferences,
+            networks
         })
 
         await docker.getService(serviceId).update(dockerServiceConfig)
