@@ -17,7 +17,7 @@ router.get('/docker/network/:network', async function (req, res) {
     }
 })
 
-router.get('/docker/networks', async function (req, res) {
+router.get('/docker/network', async function (req, res) {
     try {
         if (!req.user) throw new AuthenticationError('Usted no esta autenticado o su token es incorrecto')
         if (!req.rbac.isAllowed(req.user.id, DOCKER_NETWORK_VIEW)) throw new ForbiddenError('Not Authorized')
