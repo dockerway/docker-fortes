@@ -1,8 +1,10 @@
 import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
 import {createAudit} from "@dracul/audit-backend"
 import Docker from "dockerode"
+import axios from "axios"
 
 const docker = new Docker({socketPath: '/var/run/docker.sock'})
+
 
 
 export const findServiceTag = async function (name) {
@@ -170,7 +172,6 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
 
 export const dockerServiceCreate = async function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [] }) {
     try {
-        if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
 
         const dockerServiceConfig = await prepareServiceConfig(1, {
             name,
@@ -187,9 +188,11 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
             networks
         })
 
+
         const result = await docker.createService(dockerServiceConfig)
         const inspect = await docker.getService(result.id).inspect()
-
+        
+        if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
         return(mapInspectToServiceModel(inspect))
 
     } catch (error) {
