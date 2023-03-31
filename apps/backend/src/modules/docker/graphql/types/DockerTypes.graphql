@@ -168,6 +168,11 @@ type DockerRemove{
     message: String
 }
 
+input NetworksInput {
+  Target: String!
+  Aliases: [String!]
+}
+
 input PortInput{
     protocol: String
     containerPort: Int
@@ -219,6 +224,7 @@ input DockerServiceInput {
     constraints: [ConstraintServiceInput]
     limits: LimitServiceInput
     preferences: [PreferenceServiceInput]
+    networks: [NetworksInput]
 }
 
 type Mutation {

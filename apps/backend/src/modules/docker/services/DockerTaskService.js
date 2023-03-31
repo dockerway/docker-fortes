@@ -57,7 +57,6 @@ export const findTask = function (taskId) {
 }
 
 export const findTaskLogs = async function (taskId, filters) {
-    inspectTask(taskId)
     try {
         const maxTail = await getSettingsValueByKey('maxLogsLines')
         const apiFilters = {
