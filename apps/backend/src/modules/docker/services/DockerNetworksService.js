@@ -21,7 +21,11 @@ export const getNetwork = async function (networkIdentifier) {
 
         return network
     } catch (error) {
-        throw new Error(`Error getting Docker network '${networkIdentifier}': ${error.message}`)
+        if (error.message.includes('(HTTP code 404) no such network')){
+            return false
+        }else{
+            throw new Error(`Error getting Docker network '${networkIdentifier}': ${error.message}`)
+        }
     }
 };
 
