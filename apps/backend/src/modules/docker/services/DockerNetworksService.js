@@ -6,8 +6,10 @@ const docker = new Docker({ socketPath: "/var/run/docker.sock" })
 export const createNetwork = async function (user, networkData) {
     try {
         const network = await docker.createNetwork(networkData)
-        console.log('network: ', network)
-        await createAudit(user, { user: user.id, action: "Create", resource: network.id, description: JSON.stringify(network) })
+        const networkInspect = await network.inspect()
+        
+        console.log(`created Network: '${networkInspect}'`)
+        await createAudit(user, { user: user.id, action: "Create", resource: network.id, description: JSON.stringify(networkInspect) })
 
         return network
     } catch (error) {
@@ -32,7 +34,7 @@ export const getNetwork = async function (networkIdentifier) {
 export const getOrCreateNetwork = async function (user, networkIdentifier) {
     try {
         const networkAlreadyExists = await getNetwork(networkIdentifier)
-        if (!networkAlreadyExists) return (await createNetwork(user, networkIdentifier))
+        if (!networkAlreadyExists) return (await createNetwork(user, {Name: networkIdentifier, Driver: 'overlay'}))
     } catch (error) {
         throw new Error(`An error happened while trying to getOrCreateNetwork '${networkIdentifier}': ${error.message}`)
     }
