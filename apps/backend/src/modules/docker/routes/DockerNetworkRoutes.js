@@ -33,7 +33,7 @@ router.get('/docker/network/getOrCreate/:network', async function (req, res) {
         if (!req.user) throw new AuthenticationError('Usted no esta autenticado o su token es incorrecto')
         if (!req.rbac.isAllowed(req.user.id, DOCKER_NETWORK_VIEW) || !req.rbac.isAllowed(req.user.id, DOCKER_NETWORK_CREATE)) throw new ForbiddenError('Not Authorized')
 
-        res.json(await getOrCreateNetwork(req.params.network))
+        res.json(await getOrCreateNetwork(req.user, req.params.network))
     } catch (error) {
         res.status(500).send(error.message)
     }

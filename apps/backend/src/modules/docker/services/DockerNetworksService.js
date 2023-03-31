@@ -6,10 +6,10 @@ const docker = new Docker({ socketPath: "/var/run/docker.sock" })
 export const createNetwork = async function (user, networkData) {
     try {
         const network = await docker.createNetwork(networkData)
-        const networkInspect = await network.inspect()
+        const networkInspect = JSON.stringify(await network.inspect())
         
         console.log(`created Network: '${networkInspect}'`)
-        await createAudit(user, { user: user.id, action: "Create", resource: network.id, description: JSON.stringify(networkInspect) })
+        await createAudit(user, { user: user.id, action: "Create", resource: network.id, description: networkInspect })
 
         return network
     } catch (error) {
