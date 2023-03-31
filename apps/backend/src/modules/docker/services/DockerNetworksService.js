@@ -25,6 +25,15 @@ export const getNetwork = async function (networkIdentifier) {
     }
 };
 
+export const getOrCreateNetwork = async function (user, networkIdentifier) {
+    try {
+        const networkAlreadyExists = await getNetwork(networkIdentifier)
+        if (!networkAlreadyExists) return (await createNetwork(user, networkIdentifier))
+    } catch (error) {
+        throw new Error(`An error happened while trying to getOrCreateNetwork '${networkIdentifier}': ${error.message}`)
+    }
+};
+
 export const getNetworks = async function () {
     try {
         return await docker.listNetworks()

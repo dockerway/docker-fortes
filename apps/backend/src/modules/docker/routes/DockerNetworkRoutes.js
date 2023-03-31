@@ -1,7 +1,7 @@
 import express from 'express';
 import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
 import { DOCKER_NETWORK_CREATE, DOCKER_NETWORK_UPDATE, DOCKER_NETWORK_VIEW } from '../permissions/dockerPermissions';
-import { createNetwork, updateNetwork, getNetworks, getNetwork, removeNetwork } from '../services/DockerNetworksService';
+import { createNetwork, updateNetwork, getNetworks, getNetwork, removeNetwork, getOrCreateNetwork } from '../services/DockerNetworksService';
 
 const router = express.Router()
 router.use(express.json())
@@ -28,7 +28,16 @@ router.get('/docker/network', async function (req, res) {
     }
 })
 
+router.get('/docker/network/getOrCreate/:network', async function (req, res) {
+    try {
+        if (!req.user) throw new AuthenticationError('Usted no esta autenticado o su token es incorrecto')
+        if (!req.rbac.isAllowed(req.user.id, DOCKER_NETWORK_VIEW) || !req.rbac.isAllowed(req.user.id, DOCKER_NETWORK_CREATE)) throw new ForbiddenError('Not Authorized')
 
+        res.json(await getOrCreateNetwork(req.params.network))
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+})
 
 router.post('/docker/network', async function (req, res) {
     try {

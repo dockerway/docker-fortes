@@ -1,10 +1,9 @@
 import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
+import { getOrCreateNetwork } from "./DockerNetworksService"
 import {createAudit} from "@dracul/audit-backend"
 import Docker from "dockerode"
-import axios from "axios"
 
 const docker = new Docker({socketPath: '/var/run/docker.sock'})
-
 
 
 export const findServiceTag = async function (name) {
@@ -188,6 +187,14 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
             networks
         })
 
+        console.log(`networks: '${dockerServiceConfig.Networks}'`)
+
+        for (let networksIndex = 0; networksIndex < dockerServiceConfig.Networks.length; networksIndex++) {
+            const networkIdentifier = dockerServiceConfig.Networks[networksIndex].Target
+            console.log(`Curent networkIdentifier: '${networkIdentifier}'`)
+
+            await getOrCreateNetwork(user, networkIdentifier)
+        }
 
         const result = await docker.createService(dockerServiceConfig)
         const inspect = await docker.getService(result.id).inspect()
