@@ -19,9 +19,7 @@ export const createNetwork = async function (user, networkData) {
 
 export const getNetwork = async function (networkIdentifier) {
     try {
-        const network = await docker.getNetwork(networkIdentifier).inspect()
-
-        return network
+        return await docker.getNetwork(networkIdentifier).inspect()
     } catch (error) {
         if (error.message.includes('(HTTP code 404) no such network')){
             return false
@@ -44,7 +42,7 @@ export const getNetworks = async function () {
     try {
         return await docker.listNetworks()
     } catch (error) {
-        throw new Error(`Error getting all Docker networks '${networkId}': ${error.message}`)
+        throw new Error(`Error getting all Docker networks: ${error.message}`)
     }
 };
 
