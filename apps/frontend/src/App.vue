@@ -3,8 +3,8 @@
     <component :is="getLayout" :menu="menu">
 
       <template v-slot:toolbar-left>
-        <logo-toolbar></logo-toolbar>
-        <title-toolbar></title-toolbar>
+        <logo-toolbar/>
+        <title-toolbar/>
       </template>
 
       <template v-slot:toolbar-right>

@@ -158,6 +158,38 @@ type Query {
     serviceStatsByName(serviceName: String!): [DockerTaskStats]
     taskStats(taskId: ID!): DockerTaskStats
     containerStats(containerId: ID!): DockerStats
+    fetchNetworks: [DockerNetwork]
+}
+
+type DockerNetwork {
+  Name: String
+  Id: String
+  Created: String
+  Scope: String
+  Driver: String
+  EnableIPv6: Boolean
+  IPAM: IPAM
+  Internal: Boolean
+  Attachable: Boolean
+  Ingress: Boolean
+  ConfigFrom: ConfigFrom
+  ConfigOnly: Boolean
+  Containers: [String]
+}
+
+type IPAM {
+  Driver: String
+  Options: String
+  Config: [IPAMConfig]
+}
+
+type IPAMConfig {
+  Subnet: String
+  Gateway: String
+}
+
+type ConfigFrom {
+  Network: String
 }
 
 type DockerRestart{

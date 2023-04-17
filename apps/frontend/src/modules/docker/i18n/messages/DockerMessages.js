@@ -17,7 +17,6 @@ const messages = {
             ip: "IP",
             role: "Role",
             leader: "Leader",
-            reachability: "Reachability",
             state: "State",
             engine: "Engine"
          },
@@ -28,6 +27,15 @@ const messages = {
          },
          logs: {
             numberOfLines: "Number of filter lines:"
+         },
+         networks:{
+            name: "Name",
+            stack: "Stack",
+            driver: "Driver",
+            attachable: "Attachable",
+            ipamdriver: "IPAM driver",
+            ipv4ipamsubnet: "Ipv4 IPAM subnet",
+            ipv4ipamgateway: "Ipv4 IPAM gateway",
          }
       }
    },
@@ -48,7 +56,6 @@ const messages = {
             ip: "IP",
             role: "Role",
             leader: "Leader",
-            reachability: "Reachability",
             state: "State",
             engine: "Engine"
          },
@@ -59,6 +66,16 @@ const messages = {
          },
          logs: {
             numberOfLines: "Cantidad de lineas filtradas:"
+         },
+         networks:{
+            name: "Nombre",
+            dateOfCreation: "Fecha de creacion",
+            stack: "Stack",
+            driver: "Driver",
+            attachable: "Enlazable",
+            ipamdriver: "Driver IPAM",
+            ipv4ipamsubnet: "Subnet IPAM Ipv4",
+            ipv4ipamgateway: "Gateway IPAM Ipv4",
          }
       }
    },
@@ -79,7 +96,6 @@ const messages = {
             ip: "IP",
             role: "Role",
             leader: "Leader",
-            reachability: "Reachability",
             state: "State",
             engine: "Engine"
          },
@@ -90,6 +106,15 @@ const messages = {
          },
          logs: {
             numberOfLines: "Number of filter lines:"
+         },
+         networks:{
+            name: "Name",
+            stack: "Stack",
+            driver: "Driver",
+            attachable: "Attachable",
+            ipamdriver: "IPAM driver",
+            ipv4ipamsubnet: "Ipv4 IPAM subnet",
+            ipv4ipamgateway: "Ipv4 IPAM gateway",
          }
       }
    }
