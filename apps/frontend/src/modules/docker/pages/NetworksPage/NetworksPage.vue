@@ -18,7 +18,7 @@
         </v-card-title>
 
         <network-filters
-        
+          @updateFilters="fetchNetworksByFilters"
         />
         <v-divider/>
       </v-card>
@@ -65,7 +65,6 @@ export default {
   computed: {
     headers() {
       return [
-        //Entity Headers
         {text: this.$t('docker.networks.name'), value: 'Name'},
         {text: this.$t('docker.networks.dateOfCreation'), value: 'Created'},
         {text: this.$t('docker.networks.driver'), value: 'Driver'},
@@ -80,8 +79,8 @@ export default {
     await this.fetchNetworks()
   },
   methods: {
-    async fetchNetworks() {
-      const normalizedNetworks = (await DockerProvider.fetchNetworks()).data.fetchNetworks.map(network => (
+    getNormalizedNetworks(networks){
+      return networks.map(network => (
         {
           ...network,
           IPAM: {
@@ -89,11 +88,39 @@ export default {
             Subnet: (network.IPAM.Config[0]) ? network.IPAM.Config[0].Subnet : null,
             Gateway: (network.IPAM.Config[0]) ? network.IPAM.Config[0].Gateway : null,
           },
-          Created: Dayjs(network.Created).tz('America/Buenos_Aires').format('YYYY-MM-DD HH:mm')
+          Created: Dayjs(network.Created).format('YYYY-MM-DD HH:mm')
         }
       ))
+    },
 
-      this.networks = normalizedNetworks
+    async fetchNetworks() {
+      this.networks = this.getNormalizedNetworks((await DockerProvider.fetchNetworks()).data.fetchNetworks)
+      console.log(this.networks)
+    },
+
+    async fetchNetworksByFilters(filters){
+        console.log(filters)
+      const dockerApiAcceptedFilters = {
+        Driver: filters.networkDriver,
+        Name: filters.networkName
+      }
+
+      const normalizedNetworks = this.getNormalizedNetworks((await DockerProvider.fetchNetworksByFilters(dockerApiAcceptedFilters)).data.fetchNetworksByFilters)
+      const networksByFilters = normalizedNetworks.filter((network) => {
+
+        const createdDate = Dayjs(network.Created)
+
+        if (filters.untilDate && createdDate.isAfter(filters.untilDate)) return false
+        if (filters.sinceDate && createdDate.isBefore(filters.sinceDate)) return false
+
+        if (filters.attachable && network.Attachable !== filters.attachable) return false
+        if (filters.ipv4ipamsubnet && !network.IPAM.Subnet || filters.ipv4ipamsubnet && !network.IPAM.Subnet.includes(filters.ipv4ipamsubnet)) return false
+
+        return true
+        
+      })
+
+      this.networks = networksByFilters
     }
   }
 }

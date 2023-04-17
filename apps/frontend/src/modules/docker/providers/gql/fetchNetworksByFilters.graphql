@@ -1,0 +1,19 @@
+query fetchNetworksByFilters($filters: networksFilterInput){
+    fetchNetworksByFilters(filters: $filters){
+       Name
+        Id
+        Created
+        Scope
+        Driver
+        EnableIPv6
+        IPAM{
+            Driver
+            Options
+            Config{
+                Subnet
+                Gateway
+            }
+        }
+        Attachable
+    }
+}

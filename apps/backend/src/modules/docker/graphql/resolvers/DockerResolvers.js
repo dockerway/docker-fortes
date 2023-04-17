@@ -141,6 +141,13 @@ export default {
             if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
 
             return getNetworks()
+        },
+
+        fetchNetworksByFilters: (_,{filters},{user,rbac}) => {
+            if (!user) throw new AuthenticationError("Usted no esta autenticado")
+            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+
+            return getNetworks(filters)
         }
 
     },

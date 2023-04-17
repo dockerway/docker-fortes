@@ -23,6 +23,7 @@
             :items = "[{text:'Si', value: true}, {text:'No', value: false}]"
             :label = "this.$t('docker.networks.attachable')"
             prependIcon = "attachment"
+            clearable
             v-model="attachable"
             />
           </v-col>
@@ -33,7 +34,6 @@
             :label = "this.$t('docker.networks.driver')"
             :items = "['overlay', 'bridge', 'host']"
             clearable
-            multiple
             v-model="networkDriver"
             />
           </v-col>
@@ -75,10 +75,15 @@
         <!-- Actions -->
         <v-row>
           <v-col cols="12" class="text-right">
-            <v-btn small text color="secondary" @click="cleanFilters()">
+            <v-btn small text color="secondary" @click="cleanFilters">
               {{ $t('filters.reset') }}
             </v-btn>
-            <v-btn small color="secondary" :loading="filterLoading" @click="setFilters">
+            <v-btn 
+              small 
+              color="secondary" 
+              :loading="filterLoading" 
+              @click="setFilters"
+            >
               {{ $t("filters.apply") }}
             </v-btn>
           </v-col>
@@ -101,15 +106,33 @@
       }
     },
     components: { DateInput},
+    data() {
+      return {
+        networkName: '',
+        attachable: '',
+
+        networkDriver: '',
+        ipv4ipamsubnet: '',
+
+        sinceDate: Dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+        untilDate: Dayjs().add(1, 'day').format('YYYY-MM-DD'),
+      }
+    },
     computed: {
       filters() {
         const filters = {
-          since: '',
-          until: '',
+          sinceDate: this.sinceDate ,
+          untilDate: this.untilDate ,
+
+          networkName: this.networkName ,
+          attachable: this.attachable ,
+
+          networkDriver: this.networkDriver ,
+          ipv4ipamsubnet: this.ipv4ipamsubnet ,
         }
 
-        if (this.sinceDate) filters.until = JSON.stringify(Dayjs(this.sinceDate))
-        if (this.untilDate) filters.since = JSON.stringify(Dayjs(this.untilDate))
+        if (this.sinceDate) filters.sinceDate = this.sinceDate
+        if (this.untilDate) filters.untilDate = this.untilDate
 
         return filters
     },
@@ -126,18 +149,6 @@
       }
     }
   },
-    data() {
-      return {
-        networkName: '',
-        attachable: '',
-
-        networkDriver: '',
-        ipv4ipamsubnet: '',
-
-        sinceDate: Dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
-        untilDate: Dayjs().add(1, 'day').format('YYYY-MM-DD'),
-      }
-    },
     methods: {
       setFilters() {
         this.$emit('updateFilters', this.filters)
@@ -151,7 +162,7 @@
         this.ipv4ipamsubnet = ''
         
         this.attachable = null
-        this.networkDriver = null
+        this.networkDriver = ''
 
         this.$emit('updateFilters', this.filters)
       }
