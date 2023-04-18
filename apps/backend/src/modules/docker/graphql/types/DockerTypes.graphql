@@ -159,12 +159,6 @@ type Query {
     taskStats(taskId: ID!): DockerTaskStats
     containerStats(containerId: ID!): DockerStats
     fetchNetworks: [DockerNetwork]
-    fetchNetworksByFilters(filters: networksFilterInput): [DockerNetwork]
-}
-
-input networksFilterInput{
-    Driver: String 
-    Name: String 
 }
 
 type DockerNetwork {

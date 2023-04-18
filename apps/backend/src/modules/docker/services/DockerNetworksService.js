@@ -38,53 +38,9 @@ export const getOrCreateNetwork = async function (user, networkIdentifier) {
     }
 };
 
-export const getNetworks = async function (filters = null) {
+export const getNetworks = async function () {
     try {
-        console.log(filters)
-
-        if (!filters || !filters.Driver && !filters.Name || filters.length < 1) {
-            return await docker.listNetworks()
-        } else {
-
-            const getFiltersObject = (filters) => {
-
-                console.log(`debug filters: '${JSON.stringify(filters)}'`)
-                if (filters.Driver && !filters.Name) {
-                    return {
-                        filters: JSON.stringify(
-                            {
-                                driver: [`${filters.Driver}`]
-                            }
-                        )
-                    } 
-                } else if (!filters.Driver && filters.Name) {
-                    return {
-                        filters: JSON.stringify(
-                            {
-                                name: [`${filters.Name}`]
-                            }
-                        )
-                    } 
-                } else if (filters.Driver && filters.Name){
-                    return {
-                        filters: JSON.stringify(
-                            {
-                                driver: [`${filters.Driver}`],
-                                name: [`${filters.Name}`]
-                            }
-                        )
-                    } 
-                }
-
-                return null
-            }
-
-            const filtersObject = getFiltersObject(filters)
-            console.log(`final filtersObject: '${JSON.stringify(filtersObject, null, 2)}'`)
-            return await docker.listNetworks(filtersObject)
-        }
-
-
+        return await docker.listNetworks()
     } catch (error) {
         throw new Error(`Error getting all Docker networks: ${error.message}`)
     }

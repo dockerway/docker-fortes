@@ -99,19 +99,18 @@ export default {
     },
 
     async fetchNetworksByFilters(filters){
-        console.log(filters)
-      const dockerApiAcceptedFilters = {
-        Driver: filters.networkDriver,
-        Name: filters.networkName
-      }
+      console.log(`filters: ${JSON.stringify(filters, null, 2)}`)
 
-      const normalizedNetworks = this.getNormalizedNetworks((await DockerProvider.fetchNetworksByFilters(dockerApiAcceptedFilters)).data.fetchNetworksByFilters)
-      const networksByFilters = normalizedNetworks.filter((network) => {
+      await this.fetchNetworks()
+      const filteredNetworks = this.networks.filter((network) => {
 
         const createdDate = Dayjs(network.Created)
 
         if (filters.untilDate && createdDate.isAfter(filters.untilDate)) return false
         if (filters.sinceDate && createdDate.isBefore(filters.sinceDate)) return false
+
+        if (filters.networkName && !network.Name.includes(filters.networkName)) return false
+        if (filters.networkDriver && network.Driver !== filters.networkDriver) return false
 
         if (filters.attachable && network.Attachable !== filters.attachable) return false
         if (filters.ipv4ipamsubnet && !network.IPAM.Subnet || filters.ipv4ipamsubnet && !network.IPAM.Subnet.includes(filters.ipv4ipamsubnet)) return false
@@ -120,7 +119,8 @@ export default {
         
       })
 
-      this.networks = networksByFilters
+      this.networks = filteredNetworks
+      
     }
   }
 }
