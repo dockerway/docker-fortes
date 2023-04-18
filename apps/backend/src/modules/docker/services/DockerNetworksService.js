@@ -57,12 +57,19 @@ export const getNetworks = async function (filters = null) {
                             }
                         )
                     } 
-                }
-
-                if (!filters.Driver && filters.Name) {
+                } else if (!filters.Driver && filters.Name) {
                     return {
                         filters: JSON.stringify(
                             {
+                                name: [`${filters.Name}`]
+                            }
+                        )
+                    } 
+                } else if (filters.Driver && filters.Name){
+                    return {
+                        filters: JSON.stringify(
+                            {
+                                driver: [`${filters.Driver}`],
                                 name: [`${filters.Name}`]
                             }
                         )
@@ -73,6 +80,7 @@ export const getNetworks = async function (filters = null) {
             }
 
             const filtersObject = getFiltersObject(filters)
+            console.log(`final filtersObject: '${JSON.stringify(filtersObject, null, 2)}'`)
             return await docker.listNetworks(filtersObject)
         }
 
