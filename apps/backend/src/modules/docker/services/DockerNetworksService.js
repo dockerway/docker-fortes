@@ -15,7 +15,7 @@ export const createNetwork = async function (user, networkData) {
     } catch (error) {
         throw new Error(`Error creating Docker network: ${error.message}`)
     }
-};
+}
 
 export const getNetwork = async function (networkIdentifier) {
     try {
@@ -27,7 +27,7 @@ export const getNetwork = async function (networkIdentifier) {
             throw new Error(`Error getting Docker network '${networkIdentifier}': ${error.message}`)
         }
     }
-};
+}
 
 export const getOrCreateNetwork = async function (user, networkIdentifier) {
     try {
@@ -36,7 +36,7 @@ export const getOrCreateNetwork = async function (user, networkIdentifier) {
     } catch (error) {
         throw new Error(`An error happened while trying to getOrCreateNetwork '${networkIdentifier}': ${error.message}`)
     }
-};
+}
 
 export const getNetworks = async function () {
     try {
