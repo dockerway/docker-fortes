@@ -109,7 +109,7 @@ export default {
         if (filters.untilDate && createdDate.isAfter(filters.untilDate)) return false
         if (filters.sinceDate && createdDate.isBefore(filters.sinceDate)) return false
 
-        if (filters.networkName && !network.Name.includes(filters.networkName)) return false
+        if (filters.networkName && !network.Name.includes(filters.networkName.toLowerCase())) return false
         if (filters.networkDriver && network.Driver !== filters.networkDriver) return false
 
         if (filters.attachable && network.Attachable !== filters.attachable) return false
