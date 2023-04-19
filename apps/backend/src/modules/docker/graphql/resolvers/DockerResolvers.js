@@ -32,6 +32,7 @@ import {
     dockerVersion
 } from "../../services/DockerManageService";
 import {containerStats, serviceStats, serviceStatsByName, taskStats} from "../../services/DockerStatsService";
+import {getNetworks} from "../../services/DockerNetworksService";
 
 export default {
     Query: {
@@ -129,11 +130,18 @@ export default {
         },
 
         containerStats: (_,{containerId},{user,rbac}) => {
-            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
-            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            if (!user) throw new AuthenticationError("Usted no esta autenticado")
+            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            
             return containerStats(containerId)
         },
 
+        fetchNetworks: (_,{},{user,rbac}) => {
+            if (!user) throw new AuthenticationError("Usted no esta autenticado")
+            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+
+            return getNetworks()
+        },
     },
     Mutation:{
 

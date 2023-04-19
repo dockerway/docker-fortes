@@ -7,7 +7,7 @@ export const createNetwork = async function (user, networkData) {
     try {
         const network = await docker.createNetwork(networkData)
         const networkInspect = JSON.stringify(await network.inspect())
-        
+
         console.log(`created Network: '${networkInspect}'`)
         await createAudit(user, { user: user.id, action: "Create", resource: network.id, description: networkInspect })
 
@@ -15,28 +15,28 @@ export const createNetwork = async function (user, networkData) {
     } catch (error) {
         throw new Error(`Error creating Docker network: ${error.message}`)
     }
-};
+}
 
 export const getNetwork = async function (networkIdentifier) {
     try {
         return await docker.getNetwork(networkIdentifier).inspect()
     } catch (error) {
-        if (error.message.includes('(HTTP code 404) no such network')){
+        if (error.message.includes('(HTTP code 404) no such network')) {
             return false
-        }else{
+        } else {
             throw new Error(`Error getting Docker network '${networkIdentifier}': ${error.message}`)
         }
     }
-};
+}
 
 export const getOrCreateNetwork = async function (user, networkIdentifier) {
     try {
         const networkAlreadyExists = await getNetwork(networkIdentifier)
-        if (!networkAlreadyExists) return (await createNetwork(user, {Name: networkIdentifier, Driver: 'overlay'}))
+        if (!networkAlreadyExists) return (await createNetwork(user, { Name: networkIdentifier, Driver: 'overlay' }))
     } catch (error) {
         throw new Error(`An error happened while trying to getOrCreateNetwork '${networkIdentifier}': ${error.message}`)
     }
-};
+}
 
 export const getNetworks = async function () {
     try {
@@ -44,7 +44,7 @@ export const getNetworks = async function () {
     } catch (error) {
         throw new Error(`Error getting all Docker networks: ${error.message}`)
     }
-};
+}
 
 export const updateNetwork = async function (user, networkId, networkData) {
     try {

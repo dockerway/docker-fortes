@@ -114,6 +114,13 @@ class DockerProvider {
             variables: {serviceIds},
         })
     }
+
+    fetchNetworks() {
+        return this.gqlc.query({
+            query: require('./gql/fetchNetworks.graphql'),
+            fetchPolicy: "network-only"
+        })
+    }
 }
 
 const dockerProvider = new DockerProvider()

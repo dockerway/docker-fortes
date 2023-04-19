@@ -30,6 +30,12 @@ export default [
                 link: {name: "NodesPage"},
                 permission: 'DOCKER_VIEW'
             },
+            {
+                icon: 'lan',
+                text: 'menu.networks',
+                link: {name: "NetworksPage"},
+                permission: 'DOCKER_VIEW'
+            },
         ]
     },
 

@@ -2,6 +2,7 @@ import DockerVersionPage from '../pages/DockerVersionPage'
 import StacksPage from '../pages/StacksPage'
 import ServicesPage from '../pages/ServicesPage'
 import NodesPage from '../pages/NodesPage'
+import NetworksPage from '../pages/NetworksPage'
 import WebTerminalPage from '../pages/WebTerminalPage'
 
 const routes = [
@@ -13,6 +14,8 @@ const routes = [
     {name: "ServicesPage", path: '/docker/services/:stack?', component: ServicesPage},
 
     {name: "NodesPage", path: '/docker/nodes', component: NodesPage},
+
+    {name: "NetworksPage", path: '/docker/networks', component: NetworksPage},
 
     {
         name: "WebTerminalPage",
