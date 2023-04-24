@@ -19,10 +19,6 @@ import qaRole from './custom/roles/initQARole'
 import soporteRole from './custom/roles/initSoporteRole'
 
 import {
-    permissions as notiPermissions
-} from "@dracul/notification-backend"
-
-import {
     permissions as settingsPermissions
 } from '@dracul/settings-backend'
 
@@ -37,13 +33,6 @@ const initService = async () => {
 
     //Default user Permissions
     await InitService.initPermissions()
-
-    //Notification permissions
-    await InitService.initPermissions([
-        notiPermissions.NOTIFICATION_SHOW,
-        notiPermissions.NOTIFICATION_CREATE,
-        notiPermissions.NOTIFICATION_UPDATE
-    ])
 
     //Settings Permissions
     await InitService.initPermissions([

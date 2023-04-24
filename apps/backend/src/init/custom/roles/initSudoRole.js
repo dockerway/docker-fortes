@@ -1,12 +1,6 @@
 import {DOCKER_CONSOLE, DOCKER_CREATE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW} from "../../../modules/docker/permissions/dockerPermissions";
 
 import {
-    NOTIFICATION_SHOW,
-    NOTIFICATION_UPDATE,
-    NOTIFICATION_CREATE,
-} from "@dracul/notification-backend/lib/permissions"
-
-import {
     AUDIT_SHOW,
 } from "@dracul/audit-backend/lib/permissions/AuditPermissions"
 
@@ -88,9 +82,6 @@ module.exports = {
         CUSTOMIZATION_COLORS_UPDATE,
         CUSTOMIZATION_LANG_UPDATE,
         CUSTOMIZATION_LOGO_UPDATE,
-        NOTIFICATION_SHOW,
-        NOTIFICATION_UPDATE,
-        NOTIFICATION_CREATE,
     ],
     readonly: true
 }
