@@ -5,6 +5,9 @@ services:
     image: sndregistry.sondeosglobal.com/dockerway/docker-fortes-agent:1.0.0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /localdata:/localdata
+      - /storage:/storage
+      - /logs:/logs
     deploy:
       mode: global
       placement:
@@ -14,11 +17,11 @@ services:
     image: sndregistry.sondeosglobal.com/dockerway/docker-fortes:1.0.4
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./media:/app/media
-      - ./logs:/app/logs
-      - /storage:/storage
-      - /logs:/logs
       - /localdata:/localdata
+      - ./media:/app/media
+      - /storage:/storage
+      - ./logs:/app/logs
+      - /logs:/logs
     ports:
       - "9999:9999"
     environment: 
