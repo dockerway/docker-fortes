@@ -1,4 +1,4 @@
-import {DOCKER_CONSOLE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_VIEW} from "../../modules/docker/permissions/dockerPermissions";
+import {DOCKER_CONSOLE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_VIEW} from "../../../modules/docker/permissions/dockerPermissions";
 
 module.exports = {
     name: "Infraestructura",

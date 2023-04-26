@@ -1,4 +1,4 @@
-import {DOCKER_CONSOLE, DOCKER_CREATE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW} from "../../modules/docker/permissions/dockerPermissions";
+import {DOCKER_CONSOLE, DOCKER_CREATE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW} from "../../../modules/docker/permissions/dockerPermissions";
 
 module.exports = {
     name: "Implementaciones",

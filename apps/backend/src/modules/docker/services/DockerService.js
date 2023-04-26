@@ -21,7 +21,7 @@ export const findServiceByName = async function (name) {
       const services = await docker.listServices(opts);
       if (!services || services.length === 0) throw new Error("Service not found")
       if (services.length === 1) return mapInspectToServiceModel(services[0])
-  
+
       const matchingServices = services.filter(item => item?.Spec?.Name === name);
 
       switch (matchingServices.length) {
@@ -36,13 +36,13 @@ export const findServiceByName = async function (name) {
       throw error
     }
 }
-  
+
 
 export const findServiceById = async function (serviceId) {
     try {
         const item = await docker.getService(serviceId).inspect()
         if (!item) throw new Error("Service not found")
-         
+
         return mapInspectToServiceModel(item)
     } catch (error) {
         throw error
@@ -72,7 +72,7 @@ export const fetchService = async function (stack) {
     try {
         const opts = {}
         if (stack) opts.filters = JSON.stringify({ "label": ["com.docker.stack.namespace=" + stack] })
-        
+
         const data = await docker.listServices(opts)
         const services = data.map(item => (mapInspectToServiceModel(item)))
 
@@ -86,7 +86,7 @@ const prepareConstraintsArray = (constraints) => constraints.map(constraint => (
 const preparePreferencesArray = (preferences) => preferences.map(preference => ({ [preference.name]: { "SpreadDescriptor": preference.value } }))
 
 
-const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [] }) => {
+const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command= null }) => {
     const constraintsArray = await prepareConstraintsArray(constraints)
     const preferencesArray = await preparePreferencesArray(preferences)
 
@@ -105,7 +105,8 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
                         Target: v.containerVolume,
                         Type: "bind"
                     })),
-                Env: envs.map(e => e.name + "=" + e.value)
+                Env: envs.map(e => e.name + "=" + e.value),
+                ...(command ? {Command: command} : {})
             },
             Placement: {
                 Constraints: constraintsArray,
@@ -169,7 +170,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
     return dockerService
 }
 
-export const dockerServiceCreate = async function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [] }) {
+export const dockerServiceCreate = async function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) {
     try {
 
         const dockerServiceConfig = await prepareServiceConfig(1, {
@@ -184,7 +185,8 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
             constraints,
             limits,
             preferences,
-            networks
+            networks,
+            command
         })
 
         console.log(`networks: '${dockerServiceConfig.Networks}'`)
@@ -198,7 +200,7 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
 
         const result = await docker.createService(dockerServiceConfig)
         const inspect = await docker.getService(result.id).inspect()
-        
+
         if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
         return(mapInspectToServiceModel(inspect))
 
@@ -211,7 +213,7 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
     }
 }
 
-export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [] }) {
+export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command }) {
     try {
         if (user) await createAudit(user, {user: user.id, action: 'UPDATE', resource: name})
 
@@ -232,7 +234,8 @@ export const dockerServiceUpdate = async function (user, serviceId, { name, stac
             constraints,
             limits,
             preferences,
-            networks
+            networks,
+            command
         })
 
         await docker.getService(serviceId).update(dockerServiceConfig)
