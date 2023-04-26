@@ -9,14 +9,14 @@ mongoose.set('useCreateIndex', true)
 import { InitService } from '@dracul/user-backend'
 import { initPermissionsCustomization } from '@dracul/customize-backend'
 import { customizationInit } from './custom/initCustomization'
-import implementacionesRole from './custom/initImplementacionesRole'
-import sudoRole from './custom/initSudoRole'
-import infraestructuraRole from './custom/initInfraestructuraRole'
-import desarrolloRole from './custom/initDesarrolloRole'
-import direccionRole from './custom/initDireccionRole'
-import pmRole from './custom/initPMRole'
-import qaRole from './custom/initQARole'
-import soporteRole from './custom/initSoporteRole'
+import implementacionesRole from './custom/roles/initImplementacionesRole'
+import sudoRole from './custom/roles/initSudoRole'
+import infraestructuraRole from './custom/roles/initInfraestructuraRole'
+import desarrolloRole from './custom/roles/initDesarrolloRole'
+import direccionRole from './custom/roles/initDireccionRole'
+import pmRole from './custom/roles/initPMRole'
+import qaRole from './custom/roles/initQARole'
+import soporteRole from './custom/roles/initSoporteRole'
 
 import {
     permissions as notiPermissions

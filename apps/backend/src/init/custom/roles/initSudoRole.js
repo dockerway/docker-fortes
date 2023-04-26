@@ -1,4 +1,4 @@
-import {DOCKER_CONSOLE, DOCKER_CREATE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW} from "../../modules/docker/permissions/dockerPermissions";
+import {DOCKER_CONSOLE, DOCKER_CREATE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW} from "../../../modules/docker/permissions/dockerPermissions";
 
 import {
     NOTIFICATION_SHOW,
@@ -12,7 +12,7 @@ import {
 
 import {
     BASE_SHOW,
-} from '../../modules/base/permissions/'
+} from '../../../modules/base/permissions'
 
 import {
     CUSTOMIZATION_SHOW,
