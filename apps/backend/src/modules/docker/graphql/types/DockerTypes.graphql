@@ -71,6 +71,7 @@ type DockerService {
     constraints: [Constraint]
     limits: Limit
     preferences: [Preference]
+    command: String
 }
 
 

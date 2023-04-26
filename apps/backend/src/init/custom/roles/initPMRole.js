@@ -1,7 +1,7 @@
-import {DOCKER_CONSOLE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_VIEW} from "../../modules/docker/permissions/dockerPermissions";
+import {DOCKER_CONSOLE, DOCKER_LOGS, DOCKER_REMOVE, DOCKER_VIEW} from "../../../modules/docker/permissions/dockerPermissions";
 
 module.exports = {
-    name: "Direccion",
+    name: "PM",
     permissions: [
         "SECURITY_GROUP_SHOW",
         "NOTIFICATION_SHOW",
