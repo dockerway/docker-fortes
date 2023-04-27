@@ -106,7 +106,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
                         Type: "bind"
                     })),
                 Env: envs.map(e => e.name + "=" + e.value),
-                ...(command ? {Command: command} : {})
+                ...(command ? {Command: command.split(" ")} : {})
             },
             Placement: {
                 Constraints: constraintsArray,
