@@ -11,7 +11,7 @@ router.post('/docker/files', async function (req, res) {
         if (!req.user) throw new AuthenticationError("Usted no esta autenticado o su token es incorrecto")
         if (!req.rbac.isAllowed(req.user.id, DOCKER_UPDATE)) throw new ForbiddenError("Not Authorized")
         if (!Array.isArray(req.body)) throw new Error("Request body must be an Array!")
-        if (!checkIfMountedDirectoriesExists()) res.send(notMountedMessage)
+        if (!(await checkIfMountedDirectoriesExists())) res.send(notMountedMessage)
 
         for(let i = 0; i < req.body.length; i++){
             if(!req.body[i].fileName || !req.body[i].fileContent || !req.body[i].hostPath) throw new Error("One of the properties of the file is not defined.")

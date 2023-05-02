@@ -1,8 +1,10 @@
+const { getSettingsValueByKey } = require('@dracul/settings-backend');
 const fs = require('fs');
 
-const checkIfMountedDirectoriesExists = function() {
+const checkIfMountedDirectoriesExists = async function() {
+    
+    const directories = await getSettingsValueByKey('volumes')
 
-    const directories = ['/localdata', '/storage', '/logs']
     let result = null
 
     try {
