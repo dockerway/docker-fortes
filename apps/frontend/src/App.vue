@@ -8,7 +8,6 @@
       </template>
 
       <template v-slot:toolbar-right>
-        <notification-button v-if="me" :user-id="getUserId"/>
         <dashboard-button/>
         <app-bar-user-menu/>
       </template>
@@ -21,7 +20,6 @@
 </template>
 
 <script>
-import {NotificationButton} from "@dracul/notification-frontend"
 import Layout from "./layout/Layout";
 import TerminalLayout from "./layout/TerminalLayout";
 import menuConfig from './menu-config'
@@ -32,7 +30,7 @@ import ErrorSnackbar from "@/modules/base/components/ErrorSnackbar";
 
 export default {
   name: 'App',
-  components: {ErrorSnackbar, Layout,TerminalLayout, DashboardButton, AppBarUserMenu, LogoToolbar, TitleToolbar, NotificationButton},
+  components: {ErrorSnackbar, Layout,TerminalLayout, DashboardButton, AppBarUserMenu, LogoToolbar, TitleToolbar},
   data() {
     return {
       menu: menuConfig
