@@ -15,7 +15,14 @@ const settings = [
         type: 'number',
         group: 'Fortes',
         label: {en: 'Maximum quantity log lines', es: 'Cantidad máxima de lineas de logs', pt: 'máximo de linhas de logs'}   
-    }
+    },
+    {
+        key: 'volumes',
+        valueList: [],
+        type: 'stringList',
+        group: 'Fortes',
+        label: {en: 'List of volumes to mount', es: 'Lista de volumenes a montar'}   
+    },
 ]
 
 export const initSettings = async function () {
