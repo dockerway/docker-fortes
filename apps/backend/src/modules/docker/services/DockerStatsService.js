@@ -1,9 +1,9 @@
-import {dnsTaskRunningByServiceAndNode, fetchTask, findTask} from "./DockerTaskService";
-import {findServiceByName} from "./DockerService";
+import { dnsTaskRunningByServiceAndNode, fetchTask, findTask } from "./DockerTaskService";
+import { findServiceByName } from "./DockerService";
 import axios from "axios";
 
 const Docker = require('dockerode');
-var docker = new Docker({socketPath: '/var/run/docker.sock'});
+var docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
 
 export const serviceStatsByName = function (serviceName) {
@@ -25,10 +25,10 @@ export const serviceStats = function (serviceId) {
             let tasks = await fetchTask(serviceId);
             let stats = [];
 
-            for(let task of tasks){
-                if(task.state === "running"){
+            for (let task of tasks) {
+                if (task.state === "running") {
                     let s = await remoteContainerStats(task.nodeId, task.containerId);
-                    stats.push({task, stats: s});
+                    stats.push({ task, stats: s });
                 }
             }
 
@@ -44,9 +44,9 @@ export const taskStats = function (taskId) {
     return new Promise(async (resolve, reject) => {
         try {
             let task = await findTask(taskId);
-            let stats = await remoteContainerStats(task.nodeId,  task.containerId);
+            let stats = await remoteContainerStats(task.nodeId, task.containerId);
 
-            resolve({task, stats});
+            resolve({ task, stats });
         } catch (error) {
             reject(error);
         }
@@ -73,7 +73,7 @@ export const remoteContainerStats = function (nodeId, containerId) {
 
             const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
             const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
-            const DNS = await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
+            const DNS = `${await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)}:${process.env.AGENT_PORT}`;
             const URL = `http://${DNS}${path}`;
 
             console.log("remoteContainerStats URL Stats FINAL", URL);
@@ -81,7 +81,7 @@ export const remoteContainerStats = function (nodeId, containerId) {
             console.log("remoteContainerStats", response);
             if (response.status = 200) {
                 resolve(response.data);
-            }else{
+            } else {
                 reject(new Error(response.data));
             }
         } catch (error) {
@@ -101,20 +101,20 @@ export const containerStats = function (containerId) {
             };
 
             const container = await docker.getContainer(containerId);
-            const opts =  {stream: false};
+            const opts = { stream: false };
             const metric = await container.stats(opts);
 
             //CPU
-            const cpuDelta = metric.cpu_stats.cpu_usage.total_usage -  metric.precpu_stats.cpu_usage.total_usage;
+            const cpuDelta = metric.cpu_stats.cpu_usage.total_usage - metric.precpu_stats.cpu_usage.total_usage;
             const systemDelta = metric.cpu_stats.system_cpu_usage - metric.precpu_stats.system_cpu_usage;
-            const cpu= cpuDelta / systemDelta * metric.cpu_stats.cpu_usage.percpu_usage.length * 100;
+            const cpu = cpuDelta / systemDelta * metric.cpu_stats.cpu_usage.percpu_usage.length * 100;
             stats.cpu = Math.round((cpu + Number.EPSILON) * 100) / 100;
 
             //Memory
             stats.memoryLimit = formatBytes(metric.memory_stats.limit);
             stats.memoryUsage = formatBytes(metric.memory_stats.usage);
 
-            console.log("stats ",stats);
+            console.log("stats ", stats);
             resolve(stats);
         } catch (error) {
             reject(error);
