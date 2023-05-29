@@ -8,7 +8,7 @@ export const customizationInit = async function () {
     let customDoc = await findCustomization()
 
     if (!customDoc) {
-        customDoc = await initCustomization({
+        const newCustomDoc = await initCustomization({
             lightTheme: {
                 primary: '#3F51B5',
                 onPrimary: '#FFFFFF',
@@ -35,7 +35,7 @@ export const customizationInit = async function () {
             },
             language: 'es'
         })
-        winston.info("Customization created: " + customDoc.id)
+        winston.info("Customization created: " + newCustomDoc?.id)
     } else {
         winston.debug("Customization found: " + customDoc.id)
     }
