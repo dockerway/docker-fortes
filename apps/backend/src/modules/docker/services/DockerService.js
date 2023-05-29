@@ -114,12 +114,12 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
             },
             Resources: {
                 Limits: {
-                    NanoCPUs: limits.CPULimit,
-                    MemoryBytes: limits.memoryLimit
+                    NanoCPUs: limits?.CPULimit,
+                    MemoryBytes: limits?.memoryLimit
                 },
                 Reservations: {
-                    NanoCPUs: limits.CPUReservation,
-                    MemoryBytes: limits.memoryReservation
+                    NanoCPUs: limits?.CPUReservation,
+                    MemoryBytes: limits?.memoryReservation
                 }
             },
             RestartPolicy: {
