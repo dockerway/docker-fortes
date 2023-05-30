@@ -142,7 +142,7 @@ export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, t
             const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
             const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
             
-            const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:4000' : await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId);
+            const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:4000' : `${await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)}:${process.env.AGENT_PORT}`;
             const URL = `http://${DNS}${path}`;
 
             const axios = require('axios');

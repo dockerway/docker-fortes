@@ -8,13 +8,18 @@ services:
       - /localdata:/localdata
       - /storage:/storage
       - /logs:/logs
+    ports:
+      - "9997:9997"
+    environment: 
+      PORT: 9997
+      NEEDEDVOLUMES: '/localdata,/logs,/storage,/var'
     deploy:
       mode: global
       placement:
         constraints: [node.platform.os == linux]
 
   incatainer:
-    image: sndregistry.sondeosglobal.com/dockerway/docker-fortes:1.0.4
+    image: sndregistry.sondeosglobal.com/dockerway/docker-fortes:1.11.3
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /localdata:/localdata
@@ -62,6 +67,7 @@ services:
       LOG_FILE_MAX_SIZE: 10000000
       LOG_FILE_MAX_FILES: 3
       LOG_MODE: "TEXT"
+      AGENT_PORT: 9997
     deploy:
       mode: replicated
       replicas: 1

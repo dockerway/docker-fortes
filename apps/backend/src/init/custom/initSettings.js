@@ -18,7 +18,7 @@ const settings = [
     },
     {
         key: 'volumes',
-        valueList: [],
+        valueList: ['/logs', '/localdata', '/storage', '/var'],
         type: 'stringList',
         group: 'Fortes',
         label: {en: 'List of volumes to mount', es: 'Lista de volumenes a montar'}   

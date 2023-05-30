@@ -1,5 +1,4 @@
 import { dnsTaskRunningByServiceAndNode } from "./DockerTaskService";
-import { DefaultLogger as winston } from "@dracul/logger-backend";
 import { fetchNode } from './DockerNodeService';
 import axios from "axios";
 
@@ -17,13 +16,13 @@ export const foldersCreator = async function (volumes) {
 
         for (let i = 0; i < nodes.length; i++) {
             try {
-                const baseURL = "http://" + await dnsTaskRunningByServiceAndNode(agentServiceName, nodes[i].id)
+                const baseURL = `http://${await dnsTaskRunningByServiceAndNode(agentServiceName, nodes[i].id)}:${process.env.AGENT_PORT}`
                 const path = '/api/docker/folders'
 
                 const URL = baseURL + path
                 const response = await axios.post(URL, volumes)
 
-                winston.info(`agent folders endpoint response: '${JSON.stringify(response.data)}'`)
+                console.log(`agent folders endpoint response: '${JSON.stringify(response.data)}'`)
 
                 if (response.data.response == notMountedMessage) {
                     neededDirectoriesAreMountedInFortesAgent = false
@@ -33,14 +32,15 @@ export const foldersCreator = async function (volumes) {
                 }
 
             } catch (error) {
-                winston.error("ERROR foldersCreator node: " + JSON.stringify(nodes[i]), error)
+                console.error(`ERROR foldersCreator node: ${JSON.stringify(nodes[i])}: '${error}'`)
             }
 
-            winston.info("Nodes created successfully: " + successCounter + "/" + nodes.length)
+            console.log("Nodes created successfully: " + successCounter + "/" + nodes.length)
         }
 
         return (neededDirectoriesAreMountedInFortesAgent) ? { nodes: nodes.length, success: successCounter } : notMountedMessage
     } catch (error) {
+        console.error(`ERROR at foldersCreator: '${error.message}'`)
         throw (error)
     }
 }
