@@ -204,19 +204,19 @@ export default {
   },
   computed: {
     getServices() {
-      return this.services.filter(s => {
+      return this.services.filter(service => {
 
-        if(!s.name.includes(this.serviceNameSearch)) return false
+        if(!service.name.toLowerCase().includes(this.serviceNameSearch.toLowerCase())) return false
         
         if(this.portSearch && this.portSearch != null){
-          if(s.ports === null) return false
-          return `${s.ports[0].hostPort}`.includes(this.portSearch) || `${s.ports[0].containerPort}`.includes(this.portSearch)
+          if(service.ports === null) return false
+          return `${service.ports[0].hostPort}`.includes(this.portSearch) || `${service.ports[0].containerPort}`.includes(this.portSearch)
         }
         
-        if(s.name.includes(this.serviceNameSearch)){
+        if(service.name.toLowerCase().includes(this.serviceNameSearch.toLowerCase())){
           if(this.portSearch && this.portSearch != null){
-            if(s.ports === null) return false
-            return `${s.ports[0].hostPort}`.includes(this.portSearch) || `${s.ports[0].containerPort}`.includes(this.portSearch)
+            if(service.ports === null) return false
+            return `${service.ports[0].hostPort}`.includes(this.portSearch) || `${service.ports[0].containerPort}`.includes(this.portSearch)
           }
           return true
         }
@@ -250,49 +250,63 @@ export default {
       ]
     },
   },
-  created() {
+  async created() {
     this.stack = this.paramStack
-    this.fetchService()
+    await this.fetchService()
   },
   methods: {
-    fetchService() {
-      this.loading = true
-      this.selected = []
-      DockerProvider.fetchService(this.stack)
-          .then(r => {
-            this.services = r.data.fetchService
-          })
-          .finally(() => this.loading = false)
-    },
-    expandTasks(input){
-      this.fetchTask(input.item)
-    },
-    fetchTask(service) {
-      this.loadingTask = true
-      DockerProvider.fetchTask(service.name)
-          .then(r => {
-            let tasks = r.data.fetchTask
-            this.$set(service, 'tasks', tasks)
+    async fetchService() {
+      try {
+        this.loading = true
 
-            for (let task of tasks) {
-              this.findNode(task, task.nodeId)
-            }
+        this.selected = []
+        this.services = (await DockerProvider.fetchService(this.stack)).data.fetchService
+      } catch (error) {
+        console.log(`An error happened at the fetchService method: '${error.message}'`)
+        throw error
+      }finally{
+        this.loading = false
+      }
 
-          })
-          .finally(() => this.loadingTask = false)
+
     },
-    findNode(task, nodeId) {
-      if(nodeId){
-        let node = this.nodes.find(n => n.id === nodeId)
-        if (node) {
-          this.$set(task, 'node', node)
+    async expandTasks(input){
+      try {
+        await this.fetchTask(input.item)
+      } catch (error) {
+        console.log(`An error happened at the expandTasks method: '${error.message}'`)
+        throw error
+      }
+    },
+    async fetchTask(service) {
+      try {
+        this.loadingTask = true
+        
+        const serviceTasks = (await DockerProvider.fetchTask(service.name)).data.fetchTask
+        this.$set(service, 'tasks', serviceTasks)
+
+        for (let task of serviceTasks) {
+          await this.findNode(task, task.nodeId)
         }
+      } catch (error) {
+        console.log(`An error happened at the fetchTask method: '${error.message}'`)
+        throw error
+      }finally{
+        this.loadingTask = false
+      }
+    },
+    async findNode(task, nodeId) {
+      try {
+        let node = this.nodes.find(n => n.id === nodeId)
+        if (node) this.$set(task, 'node', node)
 
-        DockerProvider.findNode(nodeId).then(r => {
-          let node = r.data.findNode
-          this.nodes.push(node)
-          this.$set(task, 'node', node)
-        })
+        node = (await DockerProvider.findNode(nodeId)).data.findNode
+
+        this.nodes.push(node)
+        this.$set(task, 'node', node)
+      } catch (error) {
+        console.log(`An error happened at the findNode method: '${error.message}'`)
+        throw error
       }
 
     },
@@ -303,7 +317,8 @@ export default {
         this.logs.show = true
         this.logs.task = task
       } catch (error) {
-        console.error(error)
+        console.log(`An error happened at the showTaskLogs method: '${error.message}'`)
+        throw error
       }
     },
 
@@ -312,13 +327,19 @@ export default {
         this.inspect.show = true
         this.inspect.task = task
       } catch (error) {
-        console.error(error)
+        console.log(`An error happened at the showTaskInspect method: '${error.message}'`)
+        throw error
       }
     },
 
     async setCurrentLogsServiceName(currentTask){
-      const currentTaskService = await DockerProvider.fetchServiceById(currentTask.serviceId)
-      this.currentLogsServiceName = currentTaskService.data.findServiceById.name
+      try {
+        this.currentLogsServiceName = (await DockerProvider.fetchServiceById(currentTask.serviceId)).data.findServiceById.name
+        
+      } catch (error) {
+        console.log(`An error happened at the setCurrentLogsServiceName method: '${error.message}'`)
+        throw error
+      }
     },
 
     closeTaskLogs() {
@@ -347,33 +368,28 @@ export default {
       this.confirm.action = this.removeMany
       this.confirm.show = true
     },
-    restart(service) {
-      DockerProvider.dockerRestart(service.id)
-          .then(() => {
-            this.fetchTask(service)
-          })
+    async restart(service) {
+      await DockerProvider.dockerRestart(service.id)
+      this.fetchTask(service)
     },
-    restartMany() {
+    async restartMany() {
       const serviceIds = this.selected.map(s => s.id)
-      DockerProvider.dockerRestartMany(serviceIds)
-          .then(() => {
-            for(let service of this.selected){
-              this.fetchTask(service)
-            }
-          })
+      await DockerProvider.dockerRestartMany(serviceIds)
+
+      for(let service of this.selected){
+        await this.fetchTask(service)
+      }
     },
-    remove(service) {
-      DockerProvider.dockerRemove(service.id)
-          .then(() => {
-            this.fetchService()
-          })
+    async remove(service) {
+      await DockerProvider.dockerRemove(service.id)
+
+      await this.fetchService()
     },
-    removeMany() {
+    async removeMany() {
       let serviceIds = this.selected.map(s => s.id)
-      DockerProvider.dockerRemoveMany(serviceIds)
-          .then(() => {
-            this.fetchService()
-          });
+      await DockerProvider.dockerRemoveMany(serviceIds)
+
+      await this.fetchService()
     },
   }
 }
