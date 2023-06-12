@@ -43,7 +43,7 @@ import {
 } from "@dracul/user-backend/lib/permissions/"
 
 module.exports = {
-    name: "Sudo",
+    name: "sudo",
     permissions: [
         AUDIT_SHOW,
         BASE_SHOW,
