@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   incatainer-agent:
-    image: dockerway_incatainer-agent
+    image: incatainer-agent
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /localdata:/localdata

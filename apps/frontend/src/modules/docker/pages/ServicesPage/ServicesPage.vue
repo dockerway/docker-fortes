@@ -56,7 +56,7 @@
 
 
           <template v-slot:item.name="{ item }">
-            <span class="font-weight-medium">{{ item.name.replace(item.stack + "_", "") }}</span>
+            <span class="font-weight-medium">{{ item.name }}</span>
           </template>
 
 
