@@ -1,9 +1,9 @@
 import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
 import { getOrCreateNetwork } from "./DockerNetworksService"
-import {createAudit} from "@dracul/audit-backend"
+import { createAudit } from "@dracul/audit-backend"
 import Docker from "dockerode"
 
-const docker = new Docker({socketPath: '/var/run/docker.sock'})
+const docker = new Docker({ socketPath: '/var/run/docker.sock' })
 
 
 export const findServiceTag = async function (name) {
@@ -16,24 +16,24 @@ export const findServiceTag = async function (name) {
 
 export const findServiceByName = async function (name) {
     try {
-      const opts = name ? { filters: JSON.stringify({ name: [name] }) } : {};
+        const opts = name ? { filters: { name: [name] } } : {}
 
-      const services = await docker.listServices(opts);
-      if (!services || services.length === 0) throw new Error("Service not found")
-      if (services.length === 1) return mapInspectToServiceModel(services[0])
+        const services = await docker.listServices(opts)
+        if (!services || services.length === 0) throw new Error("Service not found")
+        if (services.length === 1) return mapInspectToServiceModel(services[0])
 
-      const matchingServices = services.filter(item => item?.Spec?.Name === name);
+        const matchingServices = services.filter(item => item?.Spec?.Name === name)
 
-      switch (matchingServices.length) {
-        case 0:
-            throw new Error("Service not found")
-        case 1:
-            return mapInspectToServiceModel(matchingServices[0])
-        default:
-            throw new Error("Multiple match. Refine filter name")
+        switch (matchingServices.length) {
+            case 0:
+                throw new Error("Service not found")
+            case 1:
+                return mapInspectToServiceModel(matchingServices[0])
+            default:
+                throw new Error("Multiple match. Refine filter name")
         }
     } catch (error) {
-      throw error
+        throw error
     }
 }
 
@@ -58,7 +58,7 @@ Finds a service by either id or name.
 
 @throws {Error} - If a service identifier is NOT specified.
 */
-export const findServiceByIdOrName = async function(serviceIdentifier){
+export const findServiceByIdOrName = async function (serviceIdentifier) {
     if (!serviceIdentifier) throw new Error("You need to specify an service identifier (id or name)!")
     const serviceIdentifierIsAnId = serviceIdentifier.match(/[a-z0-9]{25}/)
 
@@ -86,7 +86,7 @@ const prepareConstraintsArray = (constraints) => constraints.map(constraint => (
 const preparePreferencesArray = (preferences) => preferences.map(preference => ({ [preference.name]: { "SpreadDescriptor": preference.value } }))
 
 
-const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command= null }) => {
+const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) => {
     const constraintsArray = await prepareConstraintsArray(constraints)
     const preferencesArray = await preparePreferencesArray(preferences)
 
@@ -106,7 +106,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
                         Type: "bind"
                     })),
                 Env: envs.map(e => e.name + "=" + e.value),
-                ...(command ? {Command: command.split(" ")} : {})
+                ...(command ? { Command: command.split(" ") } : {})
             },
             Placement: {
                 Constraints: constraintsArray,
@@ -147,7 +147,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
             Monitor: 15000000000,
             MaxFailureRatio: 0.15
         },
-        Networks : (networks.length > 0) ? networks.forEach((network) => { return {network}}) : [{
+        Networks: (networks.length > 0) ? networks.forEach((network) => { return { network } }) : [{
             Target: `${stack}_default`,
             Aliases: []
         }],
@@ -201,12 +201,12 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
         const result = await docker.createService(dockerServiceConfig)
         const inspect = await docker.getService(result.id).inspect()
 
-        if (user) await createAudit(user, {user: user.id, action: 'CREATE', resource: name})
-        return(mapInspectToServiceModel(inspect))
+        if (user) await createAudit(user, { user: user.id, action: 'CREATE', resource: name })
+        return (mapInspectToServiceModel(inspect))
 
     } catch (error) {
         const serviceAlreadyExists = error.message.includes("name conflicts with an existing object")
-        if(serviceAlreadyExists) throw new Error(`Service already exists with ID '${(await findServiceByName(name)).id}'`)
+        if (serviceAlreadyExists) throw new Error(`Service already exists with ID '${(await findServiceByName(name)).id}'`)
 
         console.error(`error.message: '${error.message}'`)
         throw error
@@ -215,7 +215,7 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
 
 export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command }) {
     try {
-        if (user) await createAudit(user, {user: user.id, action: 'UPDATE', resource: name})
+        if (user) await createAudit(user, { user: user.id, action: 'UPDATE', resource: name })
 
         let service = await docker.getService(serviceId)
 
@@ -241,7 +241,7 @@ export const dockerServiceUpdate = async function (user, serviceId, { name, stac
         await docker.getService(serviceId).update(dockerServiceConfig)
         const inspect = await docker.getService(serviceId).inspect()
 
-        return(mapInspectToServiceModel(inspect))
+        return (mapInspectToServiceModel(inspect))
 
     } catch (error) {
         throw error
