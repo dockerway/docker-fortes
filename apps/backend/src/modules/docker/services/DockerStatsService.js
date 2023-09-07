@@ -6,51 +6,46 @@ const Docker = require('dockerode');
 var docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
 
-export const serviceStatsByName = function (serviceName) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let service = await findServiceByName(serviceName);
-            let stats = await serviceStats(service.id);
-
-            resolve(stats);
-        } catch (error) {
-            reject(error);
-        }
-    })
+export const serviceStatsByName = async function (serviceName) {
+    try {
+        const service = await findServiceByName(serviceName)
+        return (await serviceStats(service.id))
+    } catch (error) {
+        console.error(`An error happened at the serviceStatsByName function: '${error.message ? error.message : error}'`)
+        return []
+    }
 }
 
-export const serviceStats = function (serviceId) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let tasks = await fetchTask(serviceId);
-            let stats = [];
+export const serviceStats = async function (serviceId) {
+    try {
+        let tasks = await fetchTask(serviceId)
+        let stats = []
 
-            for (let task of tasks) {
-                if (task.state === "running") {
-                    let s = await remoteContainerStats(task.nodeId, task.containerId);
-                    stats.push({ task, stats: s });
-                }
+        for (let task of tasks) {
+            if (task.state === "running") {
+                const containerStats = await remoteContainerStats(task.nodeId, task.containerId)
+                stats.push({ task, stats: containerStats })
             }
-
-            resolve(stats);
-        } catch (error) {
-            reject(error);
         }
 
-    })
+        return stats
+    } catch (error) {
+        console.error(`An error happened at the serviceStats function: '${error.message ? error.message : error}'`)
+        throw error
+    }
+
 }
 
-export const taskStats = function (taskId) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let task = await findTask(taskId);
-            let stats = await remoteContainerStats(task.nodeId, task.containerId);
+export const taskStats = async function (taskId) {
+    try {
+        const task = await findTask(taskId)
+        const stats = await remoteContainerStats(task.nodeId, task.containerId)
 
-            resolve({ task, stats });
-        } catch (error) {
-            reject(error);
-        }
-    })
+        return ({ task, stats })
+    } catch (error) {
+        console.error(`An error happened at serviceStats function: '${error.message ? error.message : error}'`)
+        return error
+    }
 }
 
 
