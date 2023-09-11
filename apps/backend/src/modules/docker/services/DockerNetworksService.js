@@ -5,6 +5,7 @@ const docker = new Docker({ socketPath: "/var/run/docker.sock" })
 
 export const createNetwork = async function (user, networkData) {
     try {
+        console.log(`networkData: '${networkData}'`)
         const network = await docker.createNetwork(networkData)
         const networkInspect = JSON.stringify(await network.inspect())
 
@@ -29,10 +30,21 @@ export const getNetwork = async function (networkIdentifier) {
     }
 }
 
-export const getOrCreateNetwork = async function (user, networkIdentifier) {
+export const getOrCreateNetwork = async function (user, networkIdentifier, label) {
+    if(!user || !networkIdentifier || !label) throw new Error(`A needed parameter is missing`)
+
+    console.log(`networkIdentifier: '${networkIdentifier}'`)
+    console.log(`label: '${label}'`)
+
     try {
         const networkAlreadyExists = await getNetwork(networkIdentifier)
-        if (!networkAlreadyExists) return (await createNetwork(user, { Name: networkIdentifier, Driver: 'overlay' }))
+        const networkLabel = {"com.docker.stack.namespace": label}
+
+        if (!networkAlreadyExists) return (await createNetwork(user, { Name: networkIdentifier, Driver: 'overlay', Labels: networkLabel }))
+        if (networkAlreadyExists && networkAlreadyExists.Labels && networkAlreadyExists.Labels["com.docker.stack.namespace"] != label){
+            await updateNetwork(user, networkIdentifier, {Labels : networkLabel})
+        }
+
     } catch (error) {
         throw new Error(`An error happened while trying to getOrCreateNetwork '${networkIdentifier}': ${error.message}`)
     }
@@ -61,7 +73,7 @@ export const updateNetwork = async function (user, networkId, networkData) {
         await removeNetwork(user, networkId)
         const result = await createNetwork(user, network)
 
-        await createAudit(user, { user: user.id, action: "Update", resource: network.name, description: JSON.stringify(result) })
+        await createAudit(user, { user: user.id, action: "Update", resource: networkId, description: JSON.stringify(result) })
         return result
     } catch (error) {
         throw new Error(`Error updating Docker network '${networkId}': ${error.message}`)

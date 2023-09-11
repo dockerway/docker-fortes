@@ -1,5 +1,5 @@
 import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
-import { getOrCreateNetwork } from "./DockerNetworksService"
+import { getOrCreateNetwork, updateNetwork } from "./DockerNetworksService"
 import { createAudit } from "@dracul/audit-backend"
 import Docker from "dockerode"
 
@@ -161,11 +161,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
         Labels: labels.reduce((obj, item) => {
             return { ...obj, [item.name]: item.value, }
         }, {})
-
     }
-
-
-    console.log(`dockerService: '${JSON.stringify(dockerService.Networks)}'`)
 
     return dockerService
 }
@@ -193,9 +189,11 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
 
         for (let networksIndex = 0; networksIndex < dockerServiceConfig.Networks.length; networksIndex++) {
             const networkIdentifier = dockerServiceConfig.Networks[networksIndex].Target
-            console.log(`Curent networkIdentifier: '${networkIdentifier}'`)
+            const networkLabel = dockerServiceConfig.Labels["com.docker.stack.namespace"]
+            console.log(`Current networkIdentifier: '${networkIdentifier}'`)
+            console.log(`Current networkLabel: '${networkLabel}'`)
 
-            await getOrCreateNetwork(user, networkIdentifier)
+            await getOrCreateNetwork(user, networkIdentifier, networkLabel)
         }
 
         const result = await docker.createService(dockerServiceConfig)
@@ -238,7 +236,7 @@ export const dockerServiceUpdate = async function (user, serviceId, { name, stac
             command
         })
 
-        await docker.getService(serviceId).update(dockerServiceConfig)
+        await service.update(dockerServiceConfig)
         const inspect = await docker.getService(serviceId).inspect()
 
         return (mapInspectToServiceModel(inspect))
