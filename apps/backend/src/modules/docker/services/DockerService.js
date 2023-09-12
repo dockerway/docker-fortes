@@ -99,6 +99,9 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
         TaskTemplate: {
             ContainerSpec: {
                 Image: image,
+                Labels: labels.reduce((obj, item) => {
+                    return { ...obj, [item.name]: item.value, }
+                }, {}),
                 Mounts: volumes.map(v => (
                     {
                         Source: v.hostVolume,
