@@ -129,7 +129,11 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
                 Condition: "on-failure",
                 Delay: 10000000000,
                 MaxAttempts: 10
-            }
+            },
+            Networks: (networks.length > 0) ? networks.forEach((network) => { return { network } }) : [{
+                Target: `${stack}_default`,
+                Aliases: [`${name}`]
+            }],
         },
         Mode: {
             Replicated: {
