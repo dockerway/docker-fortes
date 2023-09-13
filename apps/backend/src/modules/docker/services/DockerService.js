@@ -89,9 +89,14 @@ const preparePreferencesArray = (preferences) => preferences.map(preference => (
 const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) => {
     const constraintsArray = await prepareConstraintsArray(constraints)
     const preferencesArray = await preparePreferencesArray(preferences)
+    let serviceName = name
 
     envs.push({ name: "CONTROL_VERSION", value: version })
     labels.push({ name: "com.docker.stack.namespace", value: stack })
+
+
+    if (stack) serviceName = serviceName.replace((stack+"_"), "")
+
 
     const dockerService = {
         Name: name,
@@ -132,7 +137,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
             },
             Networks: (networks.length > 0) ? networks.forEach((network) => { return { network } }) : [{
                 Target: `${stack}_default`,
-                Aliases: [`${name}`]
+                Aliases: [`${serviceName}`]
             }],
         },
         Mode: {
