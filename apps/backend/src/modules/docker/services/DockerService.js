@@ -159,10 +159,6 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
             Monitor: 15000000000,
             MaxFailureRatio: 0.15
         },
-        Networks: (networks.length > 0) ? networks.forEach((network) => { return { network } }) : [{
-            Target: `${stack}_default`,
-            Aliases: []
-        }],
         EndpointSpec: {
             Ports: ports.map(p => ({
                 Protocol: "tcp",
