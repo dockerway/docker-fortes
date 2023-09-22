@@ -193,10 +193,10 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
             command
         })
 
-        console.log(`networks: '${dockerServiceConfig.Networks}'`)
+        console.log(`networks: '${JSON.stringify(dockerServiceConfig.TaskTemplate.Networks, null, 2)}'`)
 
-        for (let networksIndex = 0; networksIndex < dockerServiceConfig.Networks.length; networksIndex++) {
-            const networkIdentifier = dockerServiceConfig.Networks[networksIndex].Target
+        for (let networksIndex = 0; networksIndex < dockerServiceConfig.TaskTemplate.Networks.length; networksIndex++) {
+            const networkIdentifier = dockerServiceConfig.TaskTemplate.Networks[networksIndex].Target
             const networkLabel = dockerServiceConfig.Labels["com.docker.stack.namespace"]
             console.log(`Current networkIdentifier: '${networkIdentifier}'`)
             console.log(`Current networkLabel: '${networkLabel}'`)
@@ -214,7 +214,7 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
         const serviceAlreadyExists = error.message.includes("name conflicts with an existing object")
         if (serviceAlreadyExists) throw new Error(`Service already exists with ID '${(await findServiceByName(name)).id}'`)
 
-        console.error(`error.message: '${error.message}'`)
+        console.error(`An error happened at the 'dockerServiceCreate' function: '${error.message}'`)
         throw error
     }
 }
