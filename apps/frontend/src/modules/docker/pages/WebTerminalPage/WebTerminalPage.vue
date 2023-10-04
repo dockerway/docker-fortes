@@ -11,10 +11,11 @@
 
 <script>
 import WebTerminal from "@/modules/docker/components/WebTerminal/WebTerminal";
+import WebSocketClientCreator from "../../../websockets/WebSocketClientCreator";
 
 export default {
   name: "WebTerminalPage",
-  components: {WebTerminal},
+  components: { WebTerminal },
   computed: {
     task() {
       return JSON.parse(window.atob(this.$route.params.task));
@@ -32,19 +33,18 @@ export default {
     }
   },
   mounted() {
-    this.wsSocketConnect();
+    this.wsSocketConnect()
   },
   beforeDestroy() {
-    this.webSocket.close();
+    this.webSocket.close()
   },
   methods: {
     async wsSocketConnect() {
-      const BackWSSURL = process.env.VUE_APP_APIHOST ? process.env.VUE_APP_APIHOST.replace(/http/, "ws") :  window.location.origin.replace(/http/, "ws")
-      const connectionToBackWSS = new WebSocket(BackWSSURL) // Front -> Back
-      connectionToBackWSS.onopen = () => {
-        this.webSocket = connectionToBackWSS
-      }
+      const connectionToBackWSS = (new WebSocketClientCreator()).ConnectionToWebSocketServer
 
+      connectionToBackWSS.addEventListener('open', () => {
+        this.webSocket = connectionToBackWSS
+      })
     }
   }
 }

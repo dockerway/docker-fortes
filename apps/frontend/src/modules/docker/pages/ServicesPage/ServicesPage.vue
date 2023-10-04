@@ -136,10 +136,10 @@
           fullscreen
           v-model="logs.show"
           @close="closeTaskLogs"
-          :title="currentLogsServiceName + ' logs'"
-          style="background-color: white; width: 800px;"
+          :title="`${currentLogsServiceName}.${logs.task? logs.task.id : null}`"
+          style="background-color: white; width: 800px; max-height: 100vh;"
       >
-      <service-task-logs v-if="logs.task" :task="logs.task"></service-task-logs>
+      <log-visualizer v-if="logs.task && logs.tail" :task="logs.task" :tail="parseInt(logs.tail)"></log-visualizer>
     </simple-dialog>
 
     <simple-dialog
@@ -160,12 +160,14 @@ import DockerProvider from "@/modules/docker/providers/DockerProvider"
 import StackCombobox from "@/modules/docker/components/StackCombobox/StackCombobox"
 import {Dayjs} from "@dracul/dayjs-frontend"
 import {SimpleDialog, Loading, ConfirmDialog} from "@dracul/common-frontend"
-import {ServiceTasks, ServiceTaskLogs, ServiceTaskInspect} from "@/modules/docker/components/ServiceTasks/"
+import {ServiceTasks, ServiceTaskInspect} from "@/modules/docker/components/ServiceTasks/"
+import LogVisualizer from "../../components/LogVisualizer/LogVisualizer.vue"
+import { mapActions } from 'vuex';
 
 export default {
   name: "ServicesPage",
 
-  components: { ServiceTasks, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskLogs, ServiceTaskInspect},
+  components: { ServiceTasks, StackCombobox, SimpleDialog, Loading, ConfirmDialog, ServiceTaskInspect, LogVisualizer },
   data() {
     return {
       portSearch: '',
@@ -179,6 +181,7 @@ export default {
       logs: {
         show: false,
         task: null,
+        tail: null
       },
 
       inspect: {
@@ -253,8 +256,11 @@ export default {
   async created() {
     this.stack = this.paramStack
     await this.fetchService()
+    await this.loadSettingsAndSetLimitLogLines()
   },
   methods: {
+    ...mapActions(['loadSettings']),
+
     async fetchService() {
       try {
         this.loading = true
@@ -391,6 +397,16 @@ export default {
 
       await this.fetchService()
     },
+    async loadSettingsAndSetLimitLogLines() {
+      try {
+        const settings = await this.loadSettings()
+        const { value: limitLogLines } = settings.find(setting => setting.key === 'maxLogsLines') || {}
+
+        this.logs.tail = limitLogLines
+      } catch (error) {
+        console.error(`An error happened at the loadSettingsAndSetLimitLogLines method: ${error.message ? error.message : error}`)
+      }
+    },
   }
 }
 </script>
@@ -407,5 +423,9 @@ pre {
   white-space: -pre-wrap; /* Opera 4-6 */
   white-space: -o-pre-wrap; /* Opera 7 */
   word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+.v-dialog--active{
+  overflow: hidden !important; 
 }
 </style>
