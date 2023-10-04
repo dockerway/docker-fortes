@@ -108,7 +108,6 @@ export default {
     async connectToWebSocketsServer() {
       const connectionToWebSocketServer = (new WebSocketClientCreator('/logs')).ConnectionToWebSocketServer
       connectionToWebSocketServer.addEventListener('open', () => {
-        console.log('open')
         this.webSocket = connectionToWebSocketServer
 
         this.listenToMessagesAndWriteThemToTheTerminal()
@@ -126,8 +125,6 @@ export default {
         taskId: this.task.id,
         filters: this.filters
       }
-
-      console.log(`JSON.stringify(getLogsMessage): '${JSON.stringify(getLogsMessage)}'`)
 
       this.webSocket.send(JSON.stringify(getLogsMessage))
     },
@@ -151,7 +148,6 @@ export default {
     searchInTerminal(event) {
       try {
         const term = this.filters.search;
-        console.log(`event: '${event}'`)
         if (event.type === 'keyup' && event.key === 'Enter') {
           if (event.shiftKey) {
             this.searchAddon.findPrevious(term)
