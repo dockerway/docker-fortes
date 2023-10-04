@@ -1,7 +1,6 @@
 import { dnsTaskRunningByServiceAndNode } from "../services/DockerTaskService";
 import { WebSocket } from "ws";
-import wsServer from "../../../websocket-server";
-
+import winston from "winston";
 
 class AgentWsManager {
 
@@ -50,7 +49,7 @@ class AgentWsManager {
     async getAgentWsUrl(nodeId) {
         const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
         const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
-        const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:4000' : `${await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)}:${process.env.AGENT_PORT}`;
+        const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:9997' : `${await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)}:${process.env.AGENT_PORT}`;
         return `ws://${DNS}`;
     }
 
@@ -65,10 +64,8 @@ class AgentWsManager {
     createAgentWsClient(wsId, wsClient, nodeId, containerId) {
         try {
             return new Promise(async (resolve, reject) => {
-                console.log('Trying connection of AgentWSClient. Nodeid:' + nodeId);
+                winston.info('Trying connection of AgentWSClient. Nodeid: ', nodeId);
                 const WSURL = await this.getAgentWsUrl(nodeId)
-
-                console.log(`agent ws url: '${WSURL}'`)
 
                 const wsAgent = new WebSocket(WSURL);
                 wsAgent.wsId = wsId
@@ -77,16 +74,16 @@ class AgentWsManager {
                 this.wsAgents.push(wsAgent)
 
                 wsAgent.on('open', () => {
-                    console.log('AgentWSClient connected. wsId:' + wsId);
+                    winston.info('AgentWSClient connected. wsId: ', wsId);
                     wsAgent.onmessage = ({ data }) => {
-                        console.log('AgentWSClient onmessage:', data);
+                        winston.info('AgentWSClient onmessage: ', data);
                         wsClient.send(data)
                     }
                     resolve(wsAgent)
                 })
 
                 wsAgent.on('close', () => {
-                    console.log('WS client closed to agent Server');
+                    winston.warn('WS client closed to agent Server');
                     reject()
                 })
 
