@@ -106,7 +106,8 @@ export default {
   },
   methods: {
     async connectToWebSocketsServer() {
-      const connectionToWebSocketServer = (new WebSocketClientCreator('/logs')).ConnectionToWebSocketServer
+      const serverUrl = window.location.origin.replace(/http/, "ws")
+      const connectionToWebSocketServer = (new WebSocketClientCreator(serverUrl, '/logs')).ConnectionToWebSocketServer
       connectionToWebSocketServer.addEventListener('open', () => {
         this.webSocket = connectionToWebSocketServer
 

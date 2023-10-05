@@ -40,7 +40,8 @@ export default {
   },
   methods: {
     async wsSocketConnect() {
-      const connectionToBackWSS = (new WebSocketClientCreator()).ConnectionToWebSocketServer
+      const serverUrl = window.location.origin.replace(/http/, "ws")
+      const connectionToBackWSS = (new WebSocketClientCreator(serverUrl, '/terminal')).ConnectionToWebSocketServer
 
       connectionToBackWSS.addEventListener('open', () => {
         this.webSocket = connectionToBackWSS
