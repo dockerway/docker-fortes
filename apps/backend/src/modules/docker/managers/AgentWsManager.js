@@ -76,7 +76,6 @@ class AgentWsManager {
                 wsAgent.on('open', () => {
                     winston.info('AgentWSClient connected. wsId: ', wsId);
                     wsAgent.onmessage = ({ data }) => {
-                        winston.info('AgentWSClient onmessage: ', data);
                         wsClient.send(data)
                     }
                     resolve(wsAgent)

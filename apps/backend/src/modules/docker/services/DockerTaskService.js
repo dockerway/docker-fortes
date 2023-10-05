@@ -63,7 +63,6 @@ export const findTask = function (taskId) {
 export const findTaskLogs = async function ({ taskId, filters, webSocketClient }) {
     try {
         const maxTail = await getSettingsValueByKey('maxLogsLines')
-        console.log(`filters json: '${JSON.stringify(filters, null, 2)}'`)
         const apiFilters = {
             details: false,
             follow: true, // if true logs is a stream
@@ -81,7 +80,6 @@ export const findTaskLogs = async function ({ taskId, filters, webSocketClient }
         webSocketClient.on('disconnect', handleDisconnect);
 
         function handleDisconnect() {
-            console.log("handling disconnection")
             logStream.destroy()
         }
 
@@ -118,7 +116,6 @@ export const findTaskLogs = async function ({ taskId, filters, webSocketClient }
         while (allDockerHeadersFromChunkWereDetected == false) {
             if (dockerHeadersIndex === -1) {
                 allDockerHeadersFromChunkWereDetected = true
-                console.log("allDockerHeadersFromChunkWereDetected")
             } else {
                 dockerHeaderIndexes.push({ start: dockerHeadersIndex, end: (dockerHeadersIndex + 7) })
 
