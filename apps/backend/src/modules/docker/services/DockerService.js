@@ -2,6 +2,7 @@ import mapInspectToServiceModel from "./helpers/mapInspectToServiceModel"
 import { getOrCreateNetwork, updateNetwork } from "./DockerNetworksService"
 import { createAudit } from "@dracul/audit-backend"
 import Docker from "dockerode"
+import winston from 'winston'
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' })
 
@@ -19,10 +20,12 @@ export const findServiceByName = async function (name) {
         const opts = name ? { filters: { name: [name] } } : {}
 
         const services = await docker.listServices(opts)
-        if (!services || services.length === 0) throw new Error("Service not found")
-        if (services.length === 1) return mapInspectToServiceModel(services[0])
+        const matchingServices = services.filter(service => service.Spec.Name === name)
+        winston.info(`matchingServices length at findServiceByName: ${matchingServices.length}`)
+        winston.info(`matchingServices found at findServiceByName: ${JSON.stringify(matchingServices)}`)
 
-        const matchingServices = services.filter(item => item?.Spec?.Name === name)
+        if (!services || services.length === 0 || matchingServices.length === 0) throw new Error("Service not found")
+        if (matchingServices.length === 1) return mapInspectToServiceModel(matchingServices[0])
 
         switch (matchingServices.length) {
             case 0:
