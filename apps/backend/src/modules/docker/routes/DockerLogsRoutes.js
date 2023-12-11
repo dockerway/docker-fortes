@@ -1,13 +1,14 @@
-import express from 'express'
-import http from "http";
-import { DOCKER_VIEW } from '../permissions/dockerPermissions';
+import { STATUS_CODES } from "http";
+import express from 'express';
+
 import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
-import { fetchTask, findTaskLogs } from '../services/DockerTaskService';
+import { fetchTask, getTaskLogString } from '../services/DockerTaskService';
+import { DOCKER_VIEW } from '../permissions/dockerPermissions';
+
 import { getSettingsValueByKey } from '@dracul/settings-backend';
 
-const validateStatusCode = (statusCode) => http.STATUS_CODES.hasOwnProperty(statusCode)
-
-let router = express.Router();
+const validateStatusCode = (statusCode) => STATUS_CODES.hasOwnProperty(statusCode)
+const router = express.Router()
 
 router.get('/docker/logs/:stackName/:serviceName', async function (req, res) {
     try {
@@ -16,10 +17,10 @@ router.get('/docker/logs/:stackName/:serviceName', async function (req, res) {
 
         const {stackName, serviceName} = req.params
         const {lines = 30, search = ''} = req.query
-
         const maxLogsLines = Number(await getSettingsValueByKey('maxLogsLines'))
-        if(Number(lines) > Number(maxLogsLines) || lines === 'all') throw new Error('Lines limit is exceeded')
 
+        if (Number(lines) > Number(maxLogsLines) || lines === 'all') throw new Error('Lines limit is exceeded')
+        if (!stackName || !serviceName) throw new Error("The needed parameters were not provided")
 
         const tasks = await fetchTask(`${stackName}_${serviceName}`)
         let firstTaskRunning = null
@@ -30,7 +31,7 @@ router.get('/docker/logs/:stackName/:serviceName', async function (req, res) {
 
         if (!firstTaskRunning) return res.send('task not found')
 
-        const taskLogs = (await findTaskLogs(firstTaskRunning.id, {
+        const taskLogs = (await getTaskLogStrings(firstTaskRunning.id, {
             fetch: search,
             tail: lines
         })).map(({text}) => text)
