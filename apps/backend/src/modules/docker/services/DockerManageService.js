@@ -85,18 +85,17 @@ export const dockerRemoveMany = function (user, serviceIds) {
     })
 }
 
-export const dockerRemove = function (user, serviceId) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const service = await docker.getService(serviceId)
-            const serviceInspected = await service.inspect()
-            await createAudit(user, { user: user.id, action: 'REMOVE', resource: serviceInspected.Spec.Name })
+export const dockerRemove = async function (user, serviceId) {
+    try {
+        const service = await docker.getService(serviceId)
+        const serviceInspected = await service.inspect()
 
-            const result = await service.remove()
-            resolve(result)
-        } catch (error) {
-            reject(error)
-        }
-
-    })
+        const result = await service.remove()
+        await createAudit(user, { user: user.id, action: 'REMOVE', resource: serviceInspected.Spec.Name })
+        
+        return result
+    } catch (error) {
+        winston.error(`An error happpened at the dockerRemove function: '${error}'`)
+        throw error
+    }
 }
