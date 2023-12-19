@@ -2,7 +2,7 @@ import { STATUS_CODES } from "http";
 import express from 'express';
 
 import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
-import { fetchTask, getTaskLogString } from '../services/DockerTaskService';
+import { fetchTask, getTaskLogStrings } from '../services/DockerTaskService';
 import { DOCKER_VIEW } from '../permissions/dockerPermissions';
 
 import { getSettingsValueByKey } from '@dracul/settings-backend';
