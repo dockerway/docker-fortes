@@ -89,9 +89,14 @@ const preparePreferencesArray = (preferences) => preferences.map(preference => (
 const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) => {
     const constraintsArray = await prepareConstraintsArray(constraints)
     const preferencesArray = await preparePreferencesArray(preferences)
+    let serviceName = name
 
     envs.push({ name: "CONTROL_VERSION", value: version })
     labels.push({ name: "com.docker.stack.namespace", value: stack })
+
+
+    if (stack) serviceName = serviceName.replace((stack+"_"), "")
+
 
     const dockerService = {
         Name: name,
@@ -99,6 +104,9 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
         TaskTemplate: {
             ContainerSpec: {
                 Image: image,
+                Labels: labels.reduce((obj, item) => {
+                    return { ...obj, [item.name]: item.value, }
+                }, {}),
                 Mounts: volumes.map(v => (
                     {
                         Source: v.hostVolume,
@@ -126,7 +134,11 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
                 Condition: "on-failure",
                 Delay: 10000000000,
                 MaxAttempts: 10
-            }
+            },
+            Networks: (networks.length > 0) ? networks.forEach((network) => { return { network } }) : [{
+                Target: `${stack}_default`,
+                Aliases: [`${serviceName}`]
+            }],
         },
         Mode: {
             Replicated: {
@@ -147,10 +159,6 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
             Monitor: 15000000000,
             MaxFailureRatio: 0.15
         },
-        Networks: (networks.length > 0) ? networks.forEach((network) => { return { network } }) : [{
-            Target: `${stack}_default`,
-            Aliases: []
-        }],
         EndpointSpec: {
             Ports: ports.map(p => ({
                 Protocol: "tcp",
