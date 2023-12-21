@@ -1,14 +1,18 @@
 import { getSettingsValueByKey } from "@dracul/settings-backend";
 import getImageObject from "./helpers/getImageObject";
 import Docker from "dockerode";
+import winston from "winston";
 
-const docker = new Docker({socketPath: '/var/run/docker.sock'})
+const { Transform } = require('stream');
+const { Readable } = require('stream');
+
+const docker = new Docker({ socketPath: '/var/run/docker.sock' })
 
 export const fetchTask = async function (serviceIdentifier) {
     try {
         if (!serviceIdentifier) throw new Error("You need to specify an service identifier (id or name)!")
 
-        const task = await docker.listTasks({ filters: JSON.stringify({"service": [serviceIdentifier]}) })
+        const task = await docker.listTasks({ filters: JSON.stringify({ "service": [serviceIdentifier] }) })
         return task.map(
             item => ({
                 id: item?.ID,
@@ -56,37 +60,87 @@ export const findTask = function (taskId) {
     })
 }
 
-export const findTaskLogs = async function (taskId, filters) {
+export const findTaskLogs = async function ({ taskId, filters, webSocketClient }) {
     try {
         const maxTail = await getSettingsValueByKey('maxLogsLines')
         const apiFilters = {
-            details: false, //default false
-            follow: false, //default false
-            stdout: true, //default false
-            stderr: true, //default false
-            since: filters?.since, //default 0 (int)
-            timestamps: filters?.timestamps, //default false
+            details: false,
+            follow: true, // if true logs is a stream
+            stdout: true,
+            stderr: true,
+            since: filters.since ? filters.since : 0, //default 0 (int)
+            timestamps: filters.timestamps ? filters.timestamps : false, //default false
             tail: Number(filters?.tail) < Number(maxTail) ? Number(filters?.tail) : Number(maxTail)  //int or default "all"
         }
 
-        let logs = await docker.getTask(taskId).logs(apiFilters)
+        const logs = (await docker.getTask(taskId).logs(apiFilters))
+        const logStream = Readable.from(logs)
 
-        logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "")
-        .split('\n')
-        .map(log => ({text: log}))
-        .filter(log => filters.fetch != "" ? log.text.toLowerCase().includes(filters.fetch.toLowerCase()) : log.text)
+        webSocketClient.on('close', handleDisconnect);
+        webSocketClient.on('disconnect', handleDisconnect);
 
-        return logs
+        function handleDisconnect() {
+            logStream.destroy()
+        }
+
+        logStream.on('data', (log) => {
+            log = deleteDockerHeaders(log).toString().replace(/�/g, "")
+            webSocketClient.send(log)
+        })
     } catch (error) {
         throw (error)
+    }
+
+
+    function deleteDockerHeaders(chunk) {
+
+        function chunkIndexIsInsideDockerHeadersRange(chunkIndex) {
+            let result
+
+            for (let dockerHeaderIndex = 0; dockerHeaderIndex < dockerHeaderIndexes.length; dockerHeaderIndex++) {
+                result = (chunkIndex >= dockerHeaderIndexes[dockerHeaderIndex].start && chunkIndex <= dockerHeaderIndexes[dockerHeaderIndex].end)
+                if (result === true) break
+            }
+
+            return result
+        }
+
+        const dockerHeaderIndexes = []
+        const trimmeredChunkArray = []
+
+        let chunkDockerHeaderSearchIndex = 0
+        let dockerHeadersIndex = chunk.indexOf('01000000', chunkDockerHeaderSearchIndex, 'hex')
+
+        let allDockerHeadersFromChunkWereDetected = false
+
+        while (allDockerHeadersFromChunkWereDetected == false) {
+            if (dockerHeadersIndex === -1) {
+                allDockerHeadersFromChunkWereDetected = true
+            } else {
+                dockerHeaderIndexes.push({ start: dockerHeadersIndex, end: (dockerHeadersIndex + 7) })
+
+                dockerHeadersIndex = chunk.indexOf('01000000', chunkDockerHeaderSearchIndex, 'hex')
+                chunkDockerHeaderSearchIndex = (dockerHeadersIndex + 7)
+            }
+        }
+
+        for (let index = 0; index < chunk.length; index++) {
+            if (chunkIndexIsInsideDockerHeadersRange(index)) {
+                continue
+            } else {
+                trimmeredChunkArray.push(chunk[index])
+            }
+        }
+
+        return Buffer.from(trimmeredChunkArray)
     }
 }
 
 export const fetchTaskInspect = async function (taskId) {
     try {
         return await docker.getTask(taskId).inspect()
-        }
-     catch (error) {
+    }
+    catch (error) {
         throw (error)
     }
 }
@@ -96,12 +150,12 @@ export const findTaskRunningByServiceAndNode = async function (serviceName, node
     try {
         const opts = {
             filters: JSON.stringify({
-                    service: [serviceName],
-                    node: [nodeId],
-                    "desired-state": ["running"]
-                })
+                service: [serviceName],
+                node: [nodeId],
+                "desired-state": ["running"]
+            })
         }
-        
+
         const tasks = await docker.listTasks(opts)
         if (!tasks || tasks.length === 0) throw new Error("Task not found")
 
@@ -116,7 +170,7 @@ export const findTaskRunningByServiceAndNode = async function (serviceName, node
             serviceId: tasks[0]?.ServiceID,
             containerId: tasks[0]?.Status?.ContainerStatus?.ContainerID,
         }
-        
+
     } catch (error) {
         console.warn(error)
     }
@@ -125,71 +179,11 @@ export const findTaskRunningByServiceAndNode = async function (serviceName, node
 export const dnsTaskRunningByServiceAndNode = async function (serviceName, nodeId) {
     try {
         const task = await findTaskRunningByServiceAndNode(serviceName, nodeId)
-        if(!task) throw new Error("Task not found") 
-        
+        if (!task) throw new Error("Task not found")
+
         return `${serviceName}.${nodeId}.${task.id}`
 
     } catch (error) {
         throw (error)
     }
-}
-
-export const runTerminalOnRemoteTaskContainer = function (nodeId, containerId, terminal = 'bash') {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const path = `/api/docker/container/${containerId}/runterminal/${terminal}`;
-            
-            const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
-            const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
-            
-            const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:4000' : `${await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)}:${process.env.AGENT_PORT}`;
-            const URL = `http://${DNS}${path}`;
-
-            const axios = require('axios');
-            const response = await axios.get(URL);
-
-            if(response.status == 200){
-                const { WebSocket } = require('ws');
-                const { backWSS } = require('../../../index.js');
-
-                const WSURL = `ws://${DNS}`;
-                const agentWSClient = new WebSocket(WSURL);
-
-                backWSS.on('connection', (ws) => {
-                    ws.onmessage = ({data}) => {
-                        console.log(`Data from FRONT: '${data.toString()}'`);
-                        const message = {
-                            containerId:containerId,
-                            payload:data.toString()
-                        };
-
-                        console.log(`message created: '${JSON.stringify(message)}'`);
-
-                        agentWSClient.send(JSON.stringify(message));
-                    };
-
-                    agentWSClient.onmessage = (message) => {
-                        const terminalMessage = JSON.parse(message.data);
-
-                        console.log(`message received FROM AGENT: '${terminalMessage.payload}'`);
-                        console.log(`message containerID received FROM AGENT: '${terminalMessage.containerId}'`);
-
-                        if( terminalMessage.containerId == containerId){
-                            ws.send(JSON.stringify(terminalMessage));
-                        }
-                    };
-                });
-
-                agentWSClient.on('open', () => {
-                    console.log('WS client connected to agent Server');
-                });
-                
-                resolve('Linked');
-            }else{
-                reject(new Error(` ERROR at BACK ${response.data}`));
-            }
-        } catch (error) {
-            reject(error);
-        }
-    })
 }

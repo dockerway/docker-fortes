@@ -3,7 +3,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 const mongoose = require('mongoose')
 
-const mongoConnect = async function(){
+export const mongoConnect = async function(){
 
     if(!process.env.MONGO_URI){
         DefaultLogger.error("MongoDB connection error: process.env.MONGO_URI not found")
@@ -63,5 +63,3 @@ const connectToMongo = function (mongoUri){
     })
 
 }
-
-module.exports = mongoConnect

@@ -29,7 +29,7 @@ import { initSettings } from './custom/initSettings'
 import modulesPermissions from './custom/modulesPermissions'
 
 
-const initService = async () => {
+export const initService = async () => {
 
     //Default user Permissions
     await InitService.initPermissions()
@@ -62,7 +62,3 @@ const initService = async () => {
 
     await customizationInit()
 }
-
-export { initService }
-
-export default initService
