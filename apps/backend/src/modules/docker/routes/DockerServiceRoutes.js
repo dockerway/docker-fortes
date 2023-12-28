@@ -1,9 +1,12 @@
-import express from 'express'
-import http from "http";
 import { requireAuthentication, requireAuthorization } from '@dracul/access-backend';
-import { DOCKER_CREATE, DOCKER_REMOVE, DOCKER_UPDATE, DOCKER_VIEW } from '../permissions/dockerPermissions';
+import { DefaultLogger as winston } from "@dracul/logger-backend";
+
+import express from 'express';
+import http from "http";
+
+import { DOCKER_CREATE, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW } from '../permissions/dockerPermissions';
 import { serviceStats, serviceStatsByName } from "../services/DockerStatsService";
-import { dockerRemove } from '../services/DockerManageService';
+import { dockerRemove, dockerRestart } from '../services/DockerManageService';
 import {
     dockerServiceCreate,
     dockerServiceUpdate,
@@ -13,14 +16,14 @@ import {
 } from "../services/DockerService";
 
 
-let router = express.Router()
+const router = express.Router()
 router.use(express.json())
 
 function validateStatusCode(statusCode) {
     return http.STATUS_CODES.hasOwnProperty(statusCode)
 }
 
-router.get('/docker/service',[requireAuthentication, requireAuthorization([DOCKER_VIEW])],async function (req, res) {
+router.get('/docker/service',[requireAuthentication, requireAuthorization([DOCKER_VIEW])], async function (req, res) {
     try {
         res.json(await fetchService())
     } catch (error) {
@@ -29,7 +32,7 @@ router.get('/docker/service',[requireAuthentication, requireAuthorization([DOCKE
     }
 })
 
-router.post('/docker/service',[requireAuthentication, requireAuthorization([DOCKER_CREATE])],async function (req, res) {
+router.post('/docker/service',[requireAuthentication, requireAuthorization([DOCKER_CREATE])], async function (req, res) {
     try {
         res.json(await dockerServiceCreate(req.user, req.body))
     } catch (error) {
@@ -48,7 +51,7 @@ router.post('/docker/service',[requireAuthentication, requireAuthorization([DOCK
     }
 })
 
-router.put('/docker/service/:service',[requireAuthentication, requireAuthorization([DOCKER_UPDATE])],async function (req, res) {
+router.put('/docker/service/:service',[requireAuthentication, requireAuthorization([DOCKER_UPDATE])], async function (req, res) {
     try {
         res.json(await dockerServiceUpdate(req.user, req.params.service, req.body))
     } catch (error) {
@@ -57,10 +60,21 @@ router.put('/docker/service/:service',[requireAuthentication, requireAuthorizati
     }
 })
 
+router.post('/docker/service/restart/:service', [requireAuthentication, requireAuthorization([DOCKER_RESTART])], async function (req, res) {
+    try {
+        await dockerRestart(req.user, req.params.service)
+        res.send(`Service ${req.params.service} was restarted`).status(200)
+    } catch (error) {
+        winston.error(`An error happened at the service restart endpoint: '${error}'`)
+        res.status(500).send(error.message)
+    }
+})
+
+
 router.delete('/docker/service/:service', [requireAuthentication, requireAuthorization([DOCKER_REMOVE])], async function (req, res) {
     try {
-        const serviceRemovalResult = await dockerRemove(req.user, req.params.service)
-        res.send(serviceRemovalResult).status(200)
+        await dockerRemove(req.user, req.params.service)
+        res.send(`Service ${req.params.service} was deleted`).status(200)
     } catch (error) {
         winston.error(`An error happened at the service delete endpoint: '${error}'`)
         res.status(500).send(error.message)
