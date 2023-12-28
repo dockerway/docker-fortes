@@ -73,11 +73,20 @@ router.post('/docker/service/restart/:service', [requireAuthentication, requireA
 
 router.delete('/docker/service/:service', [requireAuthentication, requireAuthorization([DOCKER_REMOVE])], async function (req, res) {
     try {
+        if (!req.params.service) throw new Error("No service id was provided")
+
         await dockerRemove(req.user, req.params.service)
         res.send(`Service ${req.params.service} was deleted`).status(200)
     } catch (error) {
         winston.error(`An error happened at the service delete endpoint: '${error}'`)
-        res.status(500).send(error.message)
+        winston.error(`error: ${error.code}'`)
+        let responseStatusCode = 500
+        
+        if (error && error.message){
+            if (error.message.includes("code 404")) responseStatusCode = 404
+            if (error.message === "Request path contains unescaped characters") responseStatusCode = 400
+        }
+        res.status(responseStatusCode).send(error.message)
     }
 })
 
