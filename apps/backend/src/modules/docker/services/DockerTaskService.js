@@ -3,7 +3,6 @@ import getImageObject from "./helpers/getImageObject";
 import Docker from "dockerode";
 import winston from "winston";
 
-const { Transform } = require('stream');
 const { Readable } = require('stream');
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' })
@@ -76,18 +75,31 @@ export const findTaskLogs = async function ({ taskId, filters, webSocketClient }
         const logs = (await docker.getTask(taskId).logs(apiFilters))
         const logStream = Readable.from(logs)
 
-        webSocketClient.on('close', handleDisconnect);
-        webSocketClient.on('disconnect', handleDisconnect);
+        webSocketClient.on('close', handleDisconnect)
+        webSocketClient.on('disconnect', handleDisconnect)
 
         function handleDisconnect() {
             logStream.destroy()
         }
 
-        logStream.on('data', (log) => {
-            log = deleteDockerHeaders(log).toString().replace(/�/g, "")
-            webSocketClient.send(log)
+        logStream.on('data', (chunk) => {
+            if (filters.search) {
+                const logs = deleteDockerHeaders(chunk).toString().replace(/�/g, "").split('\n')
+                const searchTerm = filters.search.toLowerCase()
+
+                logs.forEach(log => {
+                    const cleanedLog = log.replace(/\u001b\[[0-9;]*m/g, '').toLowerCase()
+                    const regex = new RegExp(`${searchTerm}`, 'i')
+
+                    if (regex.test(cleanedLog)) webSocketClient.send(log + '\n')
+                })
+            } else {
+                let log = deleteDockerHeaders(chunk).toString().replace(/�/g, "")
+                webSocketClient.send(log)
+            }
         })
     } catch (error) {
+        winston.error(`An error happened at the findTaskLogs function: '${error}'`)
         throw (error)
     }
 
