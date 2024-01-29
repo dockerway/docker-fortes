@@ -92,13 +92,17 @@ const preparePreferencesArray = (preferences) => preferences.map(preference => (
 const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) => {
     const constraintsArray = await prepareConstraintsArray(constraints)
     const preferencesArray = await preparePreferencesArray(preferences)
+
     let serviceName = name
+    if (stack) serviceName = serviceName.replace((stack+"_"), "")
+
+    networks.push({
+        Target: `${stack}_default`,
+        Aliases: [`${serviceName}`]
+    })
 
     envs.push({ name: "CONTROL_VERSION", value: version })
     labels.push({ name: "com.docker.stack.namespace", value: stack })
-
-
-    if (stack) serviceName = serviceName.replace((stack+"_"), "")
 
 
     const dockerService = {
@@ -138,10 +142,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
                 Delay: 10000000000,
                 MaxAttempts: 10
             },
-            Networks: (networks.length > 0) ? networks.forEach((network) => { return { network } }) : [{
-                Target: `${stack}_default`,
-                Aliases: [`${serviceName}`]
-            }],
+            Networks: networks,
         },
         Mode: {
             Replicated: {
@@ -224,8 +225,6 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
 
 export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command }) {
     try {
-        if (user) await createAudit(user, { user: user.id, action: 'UPDATE', resource: name })
-
         let service = await docker.getService(serviceId)
 
         const serviceInspected = await service.inspect()
@@ -247,12 +246,21 @@ export const dockerServiceUpdate = async function (user, serviceId, { name, stac
             command
         })
 
+
+        for (let networksIndex = 0; networksIndex < dockerServiceConfig.TaskTemplate.Networks.length; networksIndex++) {
+            const networkIdentifier = dockerServiceConfig.TaskTemplate.Networks[networksIndex].Target
+            const networkLabel = dockerServiceConfig.Labels["com.docker.stack.namespace"]
+
+            await getOrCreateNetwork(user, networkIdentifier, networkLabel)
+        }
+
         await service.update(dockerServiceConfig)
+        await createAudit(user, { user: user.id, action: 'UPDATE', resource: name })
+
         const inspect = await docker.getService(serviceId).inspect()
-
         return (mapInspectToServiceModel(inspect))
-
     } catch (error) {
+        winston.error(`An error happened at the 'dockerServiceUpdate' function: '${error.message}'`)
         throw error
     }
 }
