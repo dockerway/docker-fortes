@@ -6,7 +6,7 @@
       <v-card-text class="py-0">
         <v-row align="center">
           <v-col cols="12" sm="3" md="2">
-            <h4 class="text-h4 mb-4">Services</h4>
+            <h4 class="text-h4 mb-4">{{$t('docker.servicesPage.title')}}</h4>
           </v-col>
           <v-col cols="12" sm="3" md="3" class="text-right">
             <v-btn  class="purple mr-2" dark @click="fetchService"><v-icon>refresh</v-icon></v-btn>

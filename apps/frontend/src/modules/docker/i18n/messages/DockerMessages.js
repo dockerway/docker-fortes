@@ -2,6 +2,12 @@
 const messages = {
    en: {
       docker: {
+         servicesPage: {
+            title: "Services",
+            refresh: 'refresh',
+            restart: 'restart',
+            remove: 'remove',
+         },
          stack: {
             name: "StackName",
             services: "Services"
@@ -41,6 +47,12 @@ const messages = {
    },
    es: {
       docker: {
+         servicesPage: {
+            title: 'Servicios',
+            refresh: 'Recargar',
+            restart: 'Reiniciar',
+            remove: 'Eliminar',
+         },
          stack: {
             name: "StackName",
             services: "Services"
@@ -81,6 +93,12 @@ const messages = {
    },
    pt: {
       docker: {
+         servicesPage: {
+            title: 'Services',
+            refresh: 'refresh',
+            restart: 'restart',
+            remove: 'Remove',
+         },
          stack: {
             name: "StackName",
             services: "Services"
