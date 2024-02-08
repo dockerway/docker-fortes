@@ -67,8 +67,8 @@ export const findTaskLogs = async function ({ taskId, filters, webSocketClient }
             follow: true, // if true logs is a stream
             stdout: true,
             stderr: true,
-            since: filters.since ? filters.since : 0, //default 0 (int)
-            timestamps: filters.timestamps ? filters.timestamps : false, //default false
+            since: filters?.since ? filters.since : 0, //default 0 (int)
+            timestamps: filters?.timestamps ? filters.timestamps : false, //default false
             tail: Number(filters?.tail) < Number(maxTail) ? Number(filters?.tail) : Number(maxTail)  //int or default "all"
         }
 
@@ -147,6 +147,33 @@ export const findTaskLogs = async function ({ taskId, filters, webSocketClient }
         return Buffer.from(trimmeredChunkArray)
     }
 }
+
+export const getTaskLogStrings = async function (taskId, filters) {
+    try {
+        const maxTail = await getSettingsValueByKey('maxLogsLines')
+        const apiFilters = {
+            details: false, //default false
+            follow: false, //default false
+            stdout: true, //default false
+            stderr: true, //default false
+            since: filters?.since, //default 0 (int)
+            timestamps: filters?.timestamps, //default false
+            tail: Number(filters?.tail) < Number(maxTail) ? Number(filters?.tail) : Number(maxTail)  //int or default "all"
+        }
+
+        let logs = await docker.getTask(taskId).logs(apiFilters)
+
+        logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "")
+        .split('\n')
+        .map(log => ({text: log}))
+        .filter(log => filters.fetch != "" ? log.text.toLowerCase().includes(filters.fetch.toLowerCase()) : log.text)
+
+        return logs
+    } catch (error) {
+        throw (error)
+    }
+}
+
 
 export const fetchTaskInspect = async function (taskId) {
     try {

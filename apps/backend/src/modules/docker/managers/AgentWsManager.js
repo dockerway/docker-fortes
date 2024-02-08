@@ -1,6 +1,6 @@
 import { dnsTaskRunningByServiceAndNode } from "../services/DockerTaskService";
+import { DefaultLogger as winston } from "@dracul/logger-backend";
 import { WebSocket } from "ws";
-import winston from "winston";
 
 class AgentWsManager {
 
@@ -14,7 +14,11 @@ class AgentWsManager {
      * @returns <WebSocket>
      */
     findAgentWsClient(wsId) {
-        return this.wsAgents.find(wsAgent => wsAgent.wsId === wsId)
+        try {
+            return this.wsAgents.find(wsAgent => wsAgent.wsId === wsId)
+        } catch (error) {
+            winston.error(`An error happened at the findAgentWsClient: '${error}'`)
+        }
     }
 
     /**
@@ -29,6 +33,7 @@ class AgentWsManager {
     async syncAgentWsClient(wsId, wsClient, nodeId, containerId, data) {
         try {
             let wsAgent = this.findAgentWsClient(wsId)
+
             if (!wsAgent) {
                 console.error("syncAgentWsClient wsClient not found. Ask to create.", nodeId)
                 wsAgent = await this.createAgentWsClient(wsId, wsClient, nodeId, containerId)
@@ -36,8 +41,8 @@ class AgentWsManager {
 
             wsAgent.send(data)
 
-        } catch (e) {
-            console.error("Error getting Agent Ws Client", e)
+        } catch (error) {
+            winston.error(`Error getting Agent Ws Client'${error}'`)
         }
     }
 
@@ -47,10 +52,20 @@ class AgentWsManager {
      * @returns {Promise<string>}
      */
     async getAgentWsUrl(nodeId) {
-        const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent";
-        const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME;
-        const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:9997' : `${await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)}:${process.env.AGENT_PORT}`;
-        return `ws://${DNS}`;
+        try {
+            if (!nodeId) throw new Error("nodeId parameter was not provided")
+
+            const DEFAULT_AGENT_SERVICE_NAME = "dockerway_incatainer-agent"
+            const agentServiceName = process.env.AGENT_SERVICE_NAME ? process.env.AGENT_SERVICE_NAME : DEFAULT_AGENT_SERVICE_NAME
+            
+            const DNS = process.env.NODE_MODE === 'localhost' ? 'localhost:9997' : `${await dnsTaskRunningByServiceAndNode(agentServiceName, nodeId)}:${process.env.AGENT_PORT}`
+            const agentWsUrl = `ws://${DNS}`
+
+            return agentWsUrl
+        } catch (error) {
+            winston.error(`An error happened at the getAgentWsUrl function: ${error}`)
+            throw error
+        }
     }
 
     /**
@@ -64,39 +79,38 @@ class AgentWsManager {
     createAgentWsClient(wsId, wsClient, nodeId, containerId) {
         try {
             return new Promise(async (resolve, reject) => {
-                winston.info('Trying connection of AgentWSClient. Nodeid: ', nodeId);
-                const WSURL = await this.getAgentWsUrl(nodeId)
+                winston.info(`Trying connection of AgentWSClient. Nodeid: ${nodeId}`)
 
-                const wsAgent = new WebSocket(WSURL);
+                const WSURL = await this.getAgentWsUrl(nodeId)
+                const wsAgent = new WebSocket(WSURL)
+
                 wsAgent.wsId = wsId
                 wsAgent.nodeId = nodeId
                 wsAgent.containerId = containerId
+
                 this.wsAgents.push(wsAgent)
 
                 wsAgent.on('open', () => {
-                    winston.info('AgentWSClient connected. wsId: ', wsId);
+                    winston.info(`AgentWSClient connected. wsId: '${wsId}'`)
+
                     wsAgent.onmessage = ({ data }) => {
                         wsClient.send(data)
                     }
+
                     resolve(wsAgent)
                 })
 
                 wsAgent.on('close', () => {
-                    winston.warn('WS client closed to agent Server');
+                    winston.warn('WS client closed to agent Server')
                     reject()
                 })
 
             })
         } catch (error) {
-            console.error(`An error happened at the createAgentWsClient function: '${error.message}'`)
+            winston.error(`An error happened at the createAgentWsClient function: '${error.message}'`)
         }
     }
-
-
-
-
 }
 
 const agentWsManager = new AgentWsManager()
-
 export default agentWsManager
