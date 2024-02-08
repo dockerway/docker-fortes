@@ -1,10 +1,10 @@
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { ApolloClient } from 'apollo-client'
-import { ApolloLink } from 'apollo-link'
-import { createUploadLink } from 'apollo-upload-client'
+import {ApolloClient} from 'apollo-client'
+import {InMemoryCache} from 'apollo-cache-inmemory'
+import { setContext } from "apollo-link-context";
 import store from '../store'
-
-import { onError } from "apollo-link-error"
+import {createUploadLink} from 'apollo-upload-client'
+import {onError} from "apollo-link-error";
+import {ApolloLink} from 'apollo-link'
 
 const errorLink = onError(({graphQLErrors, networkError}) => {
     if (graphQLErrors)
@@ -30,25 +30,25 @@ const errorLink = onError(({graphQLErrors, networkError}) => {
     if (networkError) {
         console.error(`[Network error]: ${networkError}, message: ${networkError.message}`);
         //Add error for errorSnackbar
-        setTimeout(() => store.commit('addGraphqlError',networkError),10 )
+        setTimeout(() => store.commit('addGraphqlError', networkError),10 )
 
     }
-});
+})
 
 const uploadLink = createUploadLink({
     uri: '/graphql',
 })
 
 //Middleware for Authorization
-const authLink = new ApolloLink((operation, forward) => {
-    if (store.getters.getToken) {
-        operation.setContext({
-            headers: {
-                Authorization: 'bearer ' + store.getters.getToken
-            }
-        });
+const authLink = setContext(async (req, { headers }) => {
+    let context = {headers: {...headers}}
+    if(req.operationName != "refreshToken"){
+        let sessionIsValid = await store.dispatch('validateSession')
+        if (sessionIsValid) {
+            context.headers.Authorization = 'bearer ' + store.getters.getToken
+        }
     }
-    return forward(operation);
+    return context
 })
 
 
@@ -56,7 +56,7 @@ const link = ApolloLink.from([
     errorLink,
     authLink,
     uploadLink
-]);
+])
 
 // Cache implementation
 const cache = new InMemoryCache()
