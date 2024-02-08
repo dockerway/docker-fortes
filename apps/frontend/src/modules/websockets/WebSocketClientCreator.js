@@ -17,14 +17,18 @@ export default class WebSocketClientCreator {
         this.ConnectionToWebSocketServer = (new WebSocket(this.WebSocketsServerUrl))
     }
 
-    set initialMessage(message){
+    set initialMessage(message) {
         this.initialMessage = message
     }
 
-    sendInitialMessage(){
-        if (!this.initialMessage) throw new Error("You must set the initial message first")
-
-        this.ConnectionToWebSocketServer.send(this.initialMessage)
+    sendInitialMessage() {
+        try {
+            if (!this.initialMessage) throw new Error("You must set the initial message first")
+            this.ConnectionToWebSocketServer.send(this.initialMessage)
+        } catch (error) {
+            console.error(`An error happened at the sendInitialMessage function: '${error.message}'`)
+            throw error
+        }
     }
 
 }

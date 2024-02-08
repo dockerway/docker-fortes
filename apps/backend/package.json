@@ -34,6 +34,7 @@
     "@dracul/settings-backend": "^1.23.1",
     "@dracul/user-backend": "^1.23.1",
     "apollo-server-express": "^2.12.0",
+    "@graphql-tools/load-files": "^7.0.0",
     "axios": "^0.26.0",
     "bcryptjs": "^2.4.3",
     "buildcheck": "0.0.4",

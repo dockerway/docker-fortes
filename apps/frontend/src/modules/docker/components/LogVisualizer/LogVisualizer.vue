@@ -8,8 +8,7 @@
           ]" />
       </v-col>
       <v-col cols="12" md="3" sm="4">
-        <v-text-field label="Buscar" v-model="filters.search" outlined @input="searchInTerminal($event)"
-          @keyup.enter="searchInTerminal($event)" clearable />
+        <v-text-field label="Buscar" v-model="filters.search" outlined @input="searchInTerminal()" clearable />
       </v-col>
       <v-col cols="12" md="2" sm="4">
         <v-text-field label="Cantidad de lineas" v-model="filters.tail" type="number" outlined @keydown="validateLimit"
@@ -26,7 +25,7 @@
     <v-spacer></v-spacer>
 
     <div id="terminalAndProgressLine">
-      <v-progress-linear v-if="loading" indeterminate/>
+      <v-progress-linear v-if="loading" indeterminate />
       <div ref="mainDiv" id="mainDiv"></div>
     </div>
 
@@ -39,7 +38,7 @@ import WebSocketClientCreator from "../../../websockets/WebSocketClientCreator";
 import { SearchAddon } from 'xterm-addon-search';
 import { FitAddon } from 'xterm-addon-fit';
 import { Terminal } from 'xterm';
-import { config } from 'dotenv'
+import { config } from 'dotenv';
 config()
 
 export default {
@@ -62,7 +61,7 @@ export default {
         timestamps: false
       },
       since: '',
-      refresh: true,
+      refresh: false,
       refreshRate: 5,
       loading: true,
 
@@ -77,6 +76,16 @@ export default {
   },
   mounted() {
     this.terminal = new Terminal({ convertEol: true, disableStdin: true, enableWebGLRenderer: false })
+
+    this.terminal.attachCustomKeyEventHandler((e) => {
+      if (this.terminal.hasSelection() && e.ctrlKey && e.key.toLowerCase() === 'c') {
+        navigator.clipboard.writeText(this.terminal.getSelection())
+        this.terminal.clearSelection()
+        return false
+      }
+      return true
+    })
+
     this.fitAddon = new FitAddon()
     this.searchAddon = new SearchAddon()
 
@@ -106,14 +115,25 @@ export default {
   },
   methods: {
     async connectToWebSocketsServer() {
-      const serverUrl = window.location.origin.replace(/http/, "ws")
-      const connectionToWebSocketServer = (new WebSocketClientCreator(serverUrl, '/logs')).ConnectionToWebSocketServer
-      connectionToWebSocketServer.addEventListener('open', () => {
-        this.webSocket = connectionToWebSocketServer
+      try {
+        let serverUrl = window.location.origin.replace(/http/, "ws")
 
-        this.listenToMessagesAndWriteThemToTheTerminal()
-        this.sendGetLogsMessage()
-      })
+        if (process.env.VUE_APP_MODE && process.env.VUE_APP_MODE === 'localhost') {
+          const localhostPort = process.env.VUE_APP_APIHOST.slice(-4)
+          serverUrl = `ws://localhost:${localhostPort}`
+        }
+
+        const connectionToWebSocketServer = (new WebSocketClientCreator(serverUrl, '/logs')).ConnectionToWebSocketServer
+        connectionToWebSocketServer.addEventListener('open', () => {
+          this.webSocket = connectionToWebSocketServer
+
+          this.listenToMessagesAndWriteThemToTheTerminal()
+          this.sendGetLogsMessage()
+        })
+      } catch (error) {
+        console.error(`An error happened at the connectToWebSocketsServer method: ${error.message ? error.message : error}`)
+        throw error
+      }
     },
 
     sendGetLogsMessage() {
@@ -146,18 +166,9 @@ export default {
       await this.connectToWebSocketsServer()
     },
 
-    searchInTerminal(event) {
+    searchInTerminal() {
       try {
-        const term = this.filters.search;
-        if (event.type === 'keyup' && event.key === 'Enter') {
-          if (event.shiftKey) {
-            this.searchAddon.findPrevious(term)
-          } else {
-            this.searchAddon.findNext(term)
-          }
-        } else {
-          this.searchAddon.findNext(term);
-        }
+        this.reconnectToWebSocketsServer()
       } catch (error) {
         console.error(`An error happened at the search terminal function: '${error}'`)
       }
@@ -192,12 +203,12 @@ export default {
       currentDate.setMinutes(currentDate.getMinutes() - minutesToSubtract)
       const unixTimestamp = Math.floor(currentDate.getTime() / 1000)
 
-      return unixTimestamp;
+      return unixTimestamp
     },
 
     refreshLogs() {
       try {
-        if (!this.refresh) {
+        if (this.refresh) {
           this.webSocket.close()
         } else {
           this.reconnectToWebSocketsServer()
@@ -207,7 +218,7 @@ export default {
       }
     },
   }
-};
+}
 
 </script>
 
