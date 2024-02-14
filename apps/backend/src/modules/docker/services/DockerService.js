@@ -94,7 +94,7 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
     const preferencesArray = await preparePreferencesArray(preferences)
 
     let serviceName = name
-    if (stack) serviceName = serviceName.replace((stack+"_"), "")
+    if (stack) serviceName = serviceName.replace((stack + "_"), "")
 
     networks.push({
         Target: `${stack}_default`,

@@ -1,0 +1,6 @@
+query findServiceById($id: String!){
+    findServiceById(id: $id){
+        name
+        stack
+    }
+}

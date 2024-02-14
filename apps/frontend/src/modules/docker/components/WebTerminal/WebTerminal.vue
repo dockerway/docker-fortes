@@ -1,130 +1,65 @@
 <template>
-  <main>
-    <div class="webTerminalInfo">
-      <h1>{{service.stack}}_{{serviceName}}</h1>
-      <ul>
-        <li id="taskID">Task: {{task.id}}</li>
-      </ul>
-    </div>
+  <v-card outlined>
+    <v-card-title>{{ serviceNameAndStack ? serviceNameAndStack.name : null }}</v-card-title>
+    <v-card-subtitle id="taskID">Task: {{ taskId }}</v-card-subtitle>
 
-    <div ref="mainDiv" id="mainDiv"></div>
-  </main>
+    <v-card-text>
+      <div ref="mainDiv"></div>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
-import { v4 as uuidv4 } from 'uuid';
-
-  let term = new Terminal();
-  const fitAddon = new FitAddon();
-
-  term.loadAddon(fitAddon);
-  fitAddon.activate(term);
-  fitAddon.fit();
-  const resizeObserver = new ResizeObserver(() => fitAddon.fit());
+import dockerProvider from '../../providers/DockerProvider';
+import { WebTerminal } from './WebTerminalCreator.js';
 
 
-  export default {
-    name: "WebTerminal",
-    props:{
-      webSocket: WebSocket,
-      task: Object,
-      service: Object,
-      terminalSelected: String,
+export default {
+  name: "WebTerminal",
+  props: {
+    taskId: {
+      type: String,
+      required: true
     },
-    data(){
-      return {
-        wsId: uuidv4()
+  },
+  data() {
+    return {
+      serviceNameAndStack: null,
+      taskIds: {}
+    }
+  },
+  async mounted() {
+    await this.getServiceNameAndStack()
+    const webterminal = new WebTerminal(this.$refs.mainDiv, this.taskIds)
+    await webterminal.renderTerminal()
+  },
+  afterMount() {
+    const xtermScreen = document.querySelector('.xterm-screen')
+    xtermScreen.style += 'height: 70vh !important;'
+  },
+  methods: {
+    async getTaskIds() {
+      try {
+        const taskIds = (await dockerProvider.findTaskIDs(this.taskId)).data.findTaskIDs
+        return taskIds
+      } catch (error) {
+        console.error(`An error happened at the getTaskIds method: '${error}'`)
       }
     },
-    mounted() {
-      resizeObserver.observe(this.$refs.mainDiv);
 
-      term.clear();
-      term.reset();
+    async getServiceNameAndStack() {
+      try {
+        this.taskIds = await this.getTaskIds()
 
-      term.open(this.$refs.mainDiv);
+        const serviceId = this.taskIds.serviceId
+        this.serviceNameAndStack = (await dockerProvider.fetchServiceNameAndStackById(serviceId)).data.findServiceById
 
-      term.loadAddon(fitAddon);
-      fitAddon.fit();
-
-      term.onData((payload) => {
-        let json = {
-          wsId: this.wsId,
-          nodeId: this.task.nodeId,
-          containerId: this.task.containerId,
-          payload: payload
-        }
-
-        this.webSocket.send(JSON.stringify(json));
-      });
-
-      this.webSocket.addEventListener('message', (message) => {
-        const backMessage = JSON.parse(message.data)
-
-        if (backMessage.containerId == this.task.containerId) {
-          term.write(backMessage.payload)
-        }
-      })
-
-      this.sendFirstMessage()
-    },
-    afterMount(){
-      const xtermScreen = document.querySelector('.xterm-screen')
-      xtermScreen.style += 'height: 70vh !important;'
-    },
-    methods: {
-      sendFirstMessage(){
-        let json = {
-          wsId: this.wsId,
-          nodeId: this.task.nodeId,
-          containerId: this.task.containerId,
-          payload: '',
-          terminalSelected: this.terminalSelected
-        }
-        this.webSocket.send(JSON.stringify(json));
+        return this.serviceNameAndStack
+      } catch (error) {
+        console.error(`An error happened at the getServiceNameAndStack method: '${error}'`)
       }
     },
-    computed:{
-      serviceName(){
-        return this.service.name.substring(this.service.name.indexOf("_") + 1);
-      }
-    },
-    beforeDestroy(){
-      resizeObserver.unobserve(this.$refs.mainDiv);
-    },
-  };
+  }
+}
 
 </script>
-
-<style scoped>
-
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
-  .webTerminalInfo {
-    flex-direction: column;
-    font-family: 'Roboto', sans-serif;
-  }
-
-  ul{
-    color:rgb(88, 88, 88);
-    font-size: 15px;
-    gap: 20px;
-    list-style: none;
-    margin-top: 1vh;
-  }
-
-  .webTerminalInfo, ul{
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    justify-items: center;
-    width: 100%;
-  }
-
-  #mainDiv{
-    margin-top: 3vh;
-  }
-
-</style>

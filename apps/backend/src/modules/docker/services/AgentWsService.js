@@ -4,7 +4,6 @@ import agentWsManager from "../managers/AgentWsManager";
 export const startWebSocketServerWithAgent = () => {
     terminalWebSocketServer.on('connection', (wsClient) => {
         wsClient.on('message', async (data) => {
-                console.log("Fortes WS clients size:", terminalWebSocketServer.clients.size)
 
                 let json = JSON.parse(data.toString()) // {wsId: uu, nodeId: zz, containerId: xx, payload: yy }
 

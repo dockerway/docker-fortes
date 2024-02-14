@@ -31,32 +31,44 @@ export const fetchTask = async function (serviceIdentifier) {
 }
 
 
-export const findTask = function (taskId) {
-    return new Promise(async (resolve, reject) => {
-        try {
+export const findTask = async function (taskId) {
+    try {
+        const dockerTask = await docker.getTask(taskId)
+        const item = await dockerTask.inspect()
 
-            let dockerTask = await docker.getTask(taskId)
-            let item = await dockerTask.inspect()
-
-            let task = {
-                id: item?.ID,
-                nodeId: item.NodeID,
-                createdAt: item?.CreatedAt,
-                updatedAt: item?.UpdatedAt,
-                state: item?.Status?.State,
-                message: item?.Status?.Message,
-                image: getImageObject(item?.Spec?.ContainerSpec?.Image),
-                serviceId: item?.ServiceID,
-                containerId: item?.Status?.ContainerStatus?.ContainerID,
-                //labels: Object.entries(item.Labels).map(i => ({key: i[0], value: i[1]}))
-            }
-
-            resolve(task)
-        } catch (e) {
-            reject(e)
+        const task = {
+            id: item?.ID,
+            nodeId: item.NodeID,
+            createdAt: item?.CreatedAt,
+            updatedAt: item?.UpdatedAt,
+            state: item?.Status?.State,
+            message: item?.Status?.Message,
+            image: getImageObject(item?.Spec?.ContainerSpec?.Image),
+            serviceId: item?.ServiceID,
+            containerId: item?.Status?.ContainerStatus?.ContainerID,
         }
 
-    })
+        return task
+    } catch (error) {
+        winston.error(`An error happened at findTask: '${error}'`)
+    }
+}
+
+export const findTaskIDs = async function (taskId) {
+    try {
+        const dockerTask = await docker.getTask(taskId)
+        const item = await dockerTask.inspect()
+
+        const taskIDs = {
+            nodeId: item.NodeID,
+            serviceId: item?.ServiceID,
+            containerId: item?.Status?.ContainerStatus?.ContainerID,
+        }
+
+        return taskIDs
+    } catch (error) {
+        winston.error(`An error happened at findTaskIDs: '${error}'`)
+    }
 }
 
 export const findTaskLogs = async function ({ taskId, filters, webSocketClient }) {
@@ -164,9 +176,9 @@ export const getTaskLogStrings = async function (taskId, filters) {
         let logs = await docker.getTask(taskId).logs(apiFilters)
 
         logs = logs.toString('utf8').replace(/\u0000|\u0002|/g, "").replace(/�/g, "")
-        .split('\n')
-        .map(log => ({text: log}))
-        .filter(log => filters.fetch != "" ? log.text.toLowerCase().includes(filters.fetch.toLowerCase()) : log.text)
+            .split('\n')
+            .map(log => ({ text: log }))
+            .filter(log => filters.fetch != "" ? log.text.toLowerCase().includes(filters.fetch.toLowerCase()) : log.text)
 
         return logs
     } catch (error) {

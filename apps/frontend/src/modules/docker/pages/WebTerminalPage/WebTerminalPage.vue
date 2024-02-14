@@ -1,9 +1,7 @@
 <template>
   <v-container>
-    <WebTerminal v-if="webSocket !== null"
-      :webSocket="webSocket"
-      :task="task"
-      :service="service"
+    <WebTerminal
+      :taskId="taskId"
       :terminalSelected="terminal"
     />
   </v-container>
@@ -11,42 +9,17 @@
 
 <script>
 import WebTerminal from "@/modules/docker/components/WebTerminal/WebTerminal";
-import WebSocketClientCreator from "../../../websockets/WebSocketClientCreator";
 
 export default {
   name: "WebTerminalPage",
   components: { WebTerminal },
   computed: {
-    task() {
-      return JSON.parse(window.atob(this.$route.params.task));
-    },
-    service() {
-      return JSON.parse(window.atob(this.$route.params.service));
+    taskId() {
+      return this.$route.params.taskId
     },
     terminal() {
-      return window.atob(this.$route.params.terminal);
+      return this.$route.params.terminal
     }
   },
-  data() {
-    return {
-      webSocket: null
-    }
-  },
-  mounted() {
-    this.wsSocketConnect()
-  },
-  beforeDestroy() {
-    this.webSocket.close()
-  },
-  methods: {
-    async wsSocketConnect() {
-      const serverUrl = window.location.origin.replace(/http/, "ws")
-      const connectionToBackWSS = (new WebSocketClientCreator(serverUrl, '/terminal')).ConnectionToWebSocketServer
-
-      connectionToBackWSS.addEventListener('open', () => {
-        this.webSocket = connectionToBackWSS
-      })
-    }
-  }
 }
 </script>

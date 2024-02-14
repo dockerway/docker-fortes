@@ -76,10 +76,10 @@ export default {
       this.$emit('closeLogs')
     },
     getTerminalURL(terminalSelected, task){
-      const stringTask = JSON.stringify(task)
-      const stringService = JSON.stringify(this.service)
+      const stringTask = JSON.stringify(task, null, 2)
+      console.log(`stringTask: ${stringTask}`)
 
-      return `/docker/terminal/${window.btoa(stringTask)}/${window.btoa(stringService)}/${window.btoa(terminalSelected)}`
+      return `/docker/terminal/${task.id}/${terminalSelected}`
     },
     openTerminal(terminalSelected, task){
       window.open(this.getTerminalURL(terminalSelected, task), '_blank')

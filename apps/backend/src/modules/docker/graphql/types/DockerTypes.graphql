@@ -149,6 +149,7 @@ type Query {
     fetchService(stack:String): [DockerService]
     fetchContainer(service:String): [DockerContainer]
     fetchTask(service:String): [DockerTask]
+    findTaskIDs(taskId:String): taskIDs
     fetchTaskInspect(taskId:String): JSON
     findTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): DockerTask
     dnsTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): String
@@ -199,6 +200,12 @@ type DockerRestart{
 
 type DockerRemove{
     message: String
+}
+
+type taskIDs {
+    nodeId: String
+    serviceId: String
+    containerId: String
 }
 
 input NetworksInput {

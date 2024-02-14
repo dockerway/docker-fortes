@@ -39,6 +39,15 @@ class DockerProvider {
         })
     }
 
+    fetchServiceNameAndStackById(id) {
+        return this.gqlc.query({
+            query: require('./gql/fetchServiceNameAndStackById.graphql'),
+            variables: {id},
+            fetchPolicy: "network-only"
+        })
+    }
+    
+
     fetchContainer(service = null) {
         return this.gqlc.query({
             query: require('./gql/fetchContainer.graphql'),
@@ -55,6 +64,14 @@ class DockerProvider {
         })
     }
 
+    findTaskIDs(taskId){
+        return this.gqlc.query({
+            query: require('./gql/findTaskIDs.graphql'),
+            variables: {taskId},
+            fetchPolicy: "network-only"
+        })
+    }
+    
     fetchTaskInspect(taskId = null) {
         return this.gqlc.query({
             query: require('./gql/fetchTaskInspect.graphql'),

@@ -1,0 +1,7 @@
+query findTaskIDs($taskId: String){
+    findTaskIDs(taskId: $taskId){
+        nodeId
+        serviceId
+        containerId
+    }
+}
