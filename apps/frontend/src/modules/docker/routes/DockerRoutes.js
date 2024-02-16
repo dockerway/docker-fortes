@@ -6,40 +6,66 @@ import NetworksPage from '../pages/NetworksPage'
 import WebTerminalPage from '../pages/WebTerminalPage'
 
 const routes = [
+
     {
         name: "DockerVersionPage",
         path: '/docker/version',
-        component: DockerVersionPage
+        component: DockerVersionPage,
+        meta: {
+            requiresAuth: true,
+            permission: 'DOCKER_VIEW'
+        }
     },
 
     {
         name: "StacksPage",
         path: '/docker/stacks',
-        component: StacksPage
+        component: StacksPage,
+        meta: {
+            requiresAuth: true,
+            permission: 'DOCKER_VIEW'
+        }
     },
 
-    {
+    { 
         name: "ServicesPage",
         path: '/docker/services/:stack?',
-        component: ServicesPage
+        component: ServicesPage,
+        meta: {
+            requiresAuth: true,
+            permission: 'DOCKER_VIEW'
+        }
     },
 
-    {
+    { 
         name: "NodesPage",
         path: '/docker/nodes',
-        component: NodesPage
+        component: NodesPage,
+        meta: {
+            requiresAuth: true,
+            permission: 'DOCKER_VIEW'
+        }
     },
 
     {
         name: "NetworksPage",
         path: '/docker/networks',
-        component: NetworksPage
+        component: NetworksPage,
+        meta: {
+            requiresAuth: true,
+            permission: 'DOCKER_VIEW'
+        }
     },
 
     {
         name: "WebTerminalPage",
         path: '/docker/terminal/:taskId/:terminal',
         component: WebTerminalPage,
+        meta: { 
+            layout: 'TerminalLayout',
+            requiresAuth: true,
+            permission: 'DOCKER_VIEW' 
+        }
     },
 ]
 
