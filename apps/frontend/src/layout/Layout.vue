@@ -5,10 +5,10 @@
     </v-navigation-drawer>
 
     <v-app-bar app color="appBar" :clipped-left="clipped">
-      <v-app-bar-nav-icon color="onAppBar" @click="drawer=!drawer"/>
+      <v-app-bar-nav-icon color="onAppBar" @click="drawer=!drawer" v-if="me"/>
       <slot name="toolbar-left"></slot>
       <v-spacer></v-spacer>
-      <slot name="toolbar-right"></slot>
+      <slot name="toolbar-right" v-if="me"></slot>
     </v-app-bar>
 
     <v-main>
@@ -23,6 +23,8 @@
 import SidebarMenu from './SidebarMenu'
 import Footer from './Footer'
 
+import { mapGetters } from 'vuex'
+
 export default {
   components: {SidebarMenu, Footer},
   props: {
@@ -34,6 +36,7 @@ export default {
       }
   ),
   computed: {
+    ...mapGetters(['me']),
     theme() {
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
     }
