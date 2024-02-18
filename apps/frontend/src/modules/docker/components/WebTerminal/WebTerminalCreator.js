@@ -99,17 +99,12 @@ export class WebTerminal {
 
     getBackendWebsocketsServerUrl() {
         try {
-            let websocketsServerUrl = ''
+            let websocketsServerUrl = window.location.origin.replace(/http/, "ws")
             loadDotEnv()
 
             if (process.env.VUE_APP_MODE && process.env.VUE_APP_MODE === 'localhost') {
                 const localhostPort = process.env.VUE_APP_APIHOST.slice(-4)
                 websocketsServerUrl = `ws://localhost:${localhostPort}`
-            } else if (process.env.APP_API_URL) {
-                const baseAppUrl = process.env.APP_API_URL
-                websocketsServerUrl = baseAppUrl.replace(/http/, "ws")
-            } else {
-                throw new Error('We could not get the backend websockets server URL')
             }
 
             // Validate the URL using Zod
