@@ -8,8 +8,9 @@ import DockerTaskRoutes from './modules/docker/routes/DockerTaskRoutes'
 import DockerLogsRoutes from './modules/docker/routes/DockerLogsRoutes'
 import GitlabRoutes from './modules/gitlab/routes/GitlabRoutes'
 import RegistryRoutes from './modules/registry/routes/RegistryRoutes'
-let router = express.Router()
+import { NodesRouter } from './modules/docker/routes/DockerNodesRoutes'
 
+const router = express.Router()
 const swaggerDocument = require('./swagger.json')
 
 router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument) )
@@ -21,6 +22,7 @@ router.use('/', GitlabRoutes)
 router.use('/', RegistryRoutes)
 router.use('/', DockerLogsRoutes)
 router.use('/', DockerNetworkRoutes)
+router.use('/', NodesRouter)
 
 
 export default router

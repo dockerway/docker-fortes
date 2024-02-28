@@ -17,6 +17,7 @@ import {
     DOCKER_NETWORK_RESTART,
     DOCKER_NETWORK_UPDATE,
     DOCKER_NETWORK_VIEW,
+    DOCKER_NODES_FETCH,
 } from "../../modules/docker/permissions/dockerPermissions";
 
 export default [
@@ -27,4 +28,5 @@ export default [
     DOCKER_NETWORK_RESTART,
     DOCKER_NETWORK_UPDATE,
     DOCKER_NETWORK_VIEW,
+    DOCKER_NODES_FETCH
 ]
