@@ -21,8 +21,6 @@ export const findServiceByName = async function (name) {
 
         const services = await docker.listServices(opts)
         const matchingServices = services.filter(service => service.Spec.Name === name)
-        winston.info(`matchingServices length at findServiceByName: ${matchingServices.length}`)
-        winston.info(`matchingServices found at findServiceByName: ${JSON.stringify(matchingServices)}`)
 
         if (!services || services.length === 0 || matchingServices.length === 0) throw new Error("Service not found")
         if (matchingServices.length === 1) return mapInspectToServiceModel(matchingServices[0])
@@ -64,9 +62,6 @@ Finds a service by either id or name.
 export const findServiceByIdOrName = async function (serviceIdentifier) {
     if (!serviceIdentifier) throw new Error("You need to specify an service identifier (id or name)!")
     const serviceIdentifierIsAnId = serviceIdentifier.match(/[a-z0-9]{25}/)
-
-    console.log(`serviceIdentifierIsAnId: '${serviceIdentifierIsAnId}'`)
-    console.log(`serviceIdentifier: '${serviceIdentifier}'`)
 
     return (serviceIdentifierIsAnId) ? (await findServiceById(serviceIdentifier)) : (await findServiceByName(serviceIdentifier))
 }
