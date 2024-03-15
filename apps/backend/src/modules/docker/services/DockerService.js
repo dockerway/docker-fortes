@@ -89,7 +89,7 @@ const prepareConstraintsArray = (constraints) => constraints.map(constraint => (
 const preparePreferencesArray = (preferences) => preferences.map(preference => ({ [preference.name]: { "SpreadDescriptor": preference.value } }))
 
 
-const prepareServiceConfig = async (version = "1", { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) => {
+const prepareServiceConfig = async (version = "1", { name, stack, image, deployMode = 'replic', replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) => {
     const constraintsArray = await prepareConstraintsArray(constraints)
     const preferencesArray = await preparePreferencesArray(preferences)
 
@@ -144,11 +144,12 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
             },
             Networks: networks,
         },
-        Mode: {
-            Replicated: {
-                Replicas: replicas
-            }
-        },
+        // Mode: {
+        //     Replicated: {
+        //         Replicas: replicas
+        //     }
+        // },
+        Mode: {},
         UpdateConfig: {
             Parallelism: 2,
             Delay: 1000000000,
@@ -175,16 +176,26 @@ const prepareServiceConfig = async (version = "1", { name, stack, image, replica
         }, {})
     }
 
+    if(deployMode === 'global') dockerService.Mode = {
+        Global: {}
+    }
+    else if(deployMode === 'replic') dockerService.Mode = {
+        Replicated: {
+            Replicas: replicas
+        }
+    }
+
     return dockerService
 }
 
-export const dockerServiceCreate = async function (user, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) {
+export const dockerServiceCreate = async function (user, { name, stack, image, deployMode = 'replic', replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command = null }) {
     try {
 
         const dockerServiceConfig = await prepareServiceConfig(1, {
             name,
             stack,
             image,
+            deployMode,
             replicas,
             volumes,
             ports,
@@ -223,7 +234,7 @@ export const dockerServiceCreate = async function (user, { name, stack, image, r
     }
 }
 
-export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command }) {
+export const dockerServiceUpdate = async function (user, serviceId, { name, stack, image, deployMode = 'replic', replicas = 1, volumes = [], ports = [], envs = [], labels = [], constraints = [], limits = {}, preferences = [], networks = [], command }) {
     try {
         let service = await docker.getService(serviceId)
 
@@ -234,6 +245,7 @@ export const dockerServiceUpdate = async function (user, serviceId, { name, stac
             name,
             stack,
             image,
+            deployMode,
             replicas,
             volumes,
             ports,
