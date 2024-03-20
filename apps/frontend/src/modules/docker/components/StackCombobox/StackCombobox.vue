@@ -46,7 +46,7 @@ export default {
       this.loading = true
       DockerProvider.fetchStack()
           .then(r => {
-            this.stacks = r.data.fetchStack
+            this.stacks = r.data.fetchStack.sort((a, b) => a.name.localeCompare(b.name))
           })
           .finally(() => this.loading = false)
     }

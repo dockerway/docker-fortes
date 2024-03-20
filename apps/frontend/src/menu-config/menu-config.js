@@ -36,6 +36,12 @@ export default [
                 link: {name: "NetworksPage"},
                 permission: 'DOCKER_VIEW'
             },
+            {
+                icon: 'mdi-information-box',
+                text: 'menu.clusterInformation',
+                link: {name: "ClusterInformationPage"},
+                permission: 'DOCKER_VIEW'
+            }
         ]
     },
 

@@ -1,3 +1,5 @@
+import { fetchTasksByNodeId } from './DockerTaskService'
+
 const Docker = require('dockerode');
 var docker = new Docker({socketPath: '/var/run/docker.sock'});
 
@@ -31,6 +33,41 @@ export const findNode = function (id = '') {
     })
 }
 
+export const fetchNodeAndTasks = async function () {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let opts = {}
+
+            let data = await docker.listNodes(opts)
+
+            const nodes = []
+
+            for(let doc of data){
+                const fetchTasksByNodeIdData = await fetchTasksByNodeId(doc.ID)
+                nodes.push({
+                    id: doc.ID,
+                    hostname: doc?.Description?.Hostname,
+                    ip: doc?.Status?.Addr,
+                    role: doc?.Spec?.Role,
+                    availability: doc?.Spec?.Availability,
+                    state: doc?.Status?.State,
+                    engine: doc?.Description?.Engine?.EngineVersion,
+                    leader: doc?.ManagerStatus?.Leader,
+                    reachability: doc?.ManagerStatus?.Reachability,
+                    resources: doc?.Description?.Resources,
+                    labels: doc?.Spec?.Labels,
+                    tasks: fetchTasksByNodeIdData
+                })
+            }
+            resolve(nodes)
+        } catch (e) {
+            reject(e)
+        }
+
+    })
+}
+
 export const fetchNode = function (role = '') {
     return new Promise(async (resolve, reject) => {
         try {
@@ -43,9 +80,6 @@ export const fetchNode = function (role = '') {
             }
             //console.log("opts",opts)
             let data = await docker.listNodes(opts)
-
-            //console.log("Nodes Data", JSON.stringify(data, null, 4))
-
             let nodes = data.map(
                 item => ({
                     id: item.ID,
@@ -56,8 +90,8 @@ export const fetchNode = function (role = '') {
                     state: item?.Status?.State,
                     engine: item?.Description?.Engine?.EngineVersion,
                     leader: item?.ManagerStatus?.Leader,
-                    reachability: item?.ManagerStatus?.Reachability
-
+                    reachability: item?.ManagerStatus?.Reachability,
+                    resources: item?.Description?.Resources
                 })
             )
             // console.log("nodes", nodes)

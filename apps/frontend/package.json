@@ -14,12 +14,12 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@dracul/audit-frontend": "^1.23.2",
-    "@dracul/common-frontend": "^1.23.2",
-    "@dracul/customize-frontend": "^1.23.2",
-    "@dracul/dayjs-frontend": "^1.23.1",
-    "@dracul/settings-frontend": "^1.23.2",
-    "@dracul/user-frontend": "^1.23.2",
+    "@dracul/audit-frontend": "^1.25.13",
+    "@dracul/common-frontend": "^1.25.13",
+    "@dracul/customize-frontend": "^1.25.13",
+    "@dracul/dayjs-frontend": "^1.25.0",
+    "@dracul/settings-frontend": "^1.25.13",
+    "@dracul/user-frontend": "^1.25.13",
     "apollo-cache-inmemory": "^1.6.6",
     "apollo-client": "^2.6.10",
     "apollo-link": "^1.2.14",
@@ -47,7 +47,8 @@
     "xterm": "^5.3.0",
     "xterm-addon-attach": "^0.9.0",
     "xterm-addon-fit": "^0.8.0",
-    "xterm-addon-search": "^0.13.0"
+    "xterm-addon-search": "^0.13.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
