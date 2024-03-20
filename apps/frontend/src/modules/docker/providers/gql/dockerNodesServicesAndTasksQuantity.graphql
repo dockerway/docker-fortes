@@ -1,0 +1,7 @@
+query dockerNodesServicesAndTasksQuantity{
+    dockerNodesServicesAndTasksQuantity{
+        nodesQuantity
+        servicesQuantity
+        tasksQuantity
+    }
+}

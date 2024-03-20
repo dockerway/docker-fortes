@@ -5,6 +5,17 @@ import dayjs from 'dayjs';
 const Docker = require('dockerode')
 const docker = new Docker({ socketPath: '/var/run/docker.sock' })
 
+export const dockerNodesServicesAndTasksQuantity = async () => {
+    try {
+        const services = await docker.listServices()
+        const tasks = await docker.listTasks()
+        const nodes = await docker.listNodes()
+        return { servicesQuantity: services.length, tasksQuantity: tasks.length, nodesQuantity: nodes.length }
+    } catch (error) {
+        throw new Error(error)
+    }
+}
+
 export const dockerVersion = function (id) {
     return new Promise(async (resolve, reject) => {
         try {

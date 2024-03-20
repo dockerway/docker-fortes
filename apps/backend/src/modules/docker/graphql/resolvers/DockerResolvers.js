@@ -5,10 +5,10 @@
 import { AuthenticationError, ForbiddenError } from "apollo-server-express";
 import { DOCKER_CREATE, DOCKER_REMOVE, DOCKER_RESTART, DOCKER_UPDATE, DOCKER_VIEW } from "../../permissions/dockerPermissions";
 
-import { fetchNode, findNode } from "../../services/DockerNodeService";
-import { fetchContainer } from "../../services/DockerContainerService";
-import { fetchStack } from "../../services/DockerStackService";
-import { findTaskLogs, fetchTaskInspect } from "../../services/DockerTaskService"
+import {fetchNode, fetchNodeAndTasks, findNode} from "../../services/DockerNodeService";
+import {fetchContainer} from "../../services/DockerContainerService";
+import {fetchStack} from "../../services/DockerStackService";
+import {findTaskLogs, fetchTaskInspect} from "../../services/DockerTaskService"
 
 import {
     dockerServiceCreate,
@@ -26,6 +26,7 @@ import {
     findTaskRunningByServiceAndNode
 } from "../../services/DockerTaskService";
 import {
+    dockerNodesServicesAndTasksQuantity,
     dockerRemove,
     dockerRemoveMany,
     dockerRestart,
@@ -37,9 +38,14 @@ import { getNetworks } from "../../services/DockerNetworksService";
 
 export default {
     Query: {
-        dockerVersion: (_, { }, { user, rbac }) => {
-            if (!user) throw new AuthenticationError("Usted no esta autenticado")
-            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+        dockerNodesServicesAndTasksQuantity: (_,{},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            return dockerNodesServicesAndTasksQuantity()  
+        },
+        dockerVersion: (_,{},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return dockerVersion()
         },
         fetchStack: (_, { }, { user, rbac }) => {
@@ -107,9 +113,14 @@ export default {
             if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return fetchNode(role)
         },
-        findNode: (_, { id }, { user, rbac }) => {
-            if (!user) throw new AuthenticationError("Usted no esta autenticado")
-            if (!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+        fetchNodeAndTasks: (_,__,{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
+            return fetchNodeAndTasks()
+        },
+        findNode: (_,{id},{user,rbac}) => {
+            if(!user)  throw new AuthenticationError("Usted no esta autenticado")
+            if(!rbac.isAllowed(user.id, DOCKER_VIEW)) throw new ForbiddenError("Not Authorized")
             return findNode(id)
         },
         serviceTaskLogs: (_, { task, filters }, { user, rbac }) => {

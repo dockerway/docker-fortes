@@ -10,6 +10,12 @@ class DockerProvider {
         this.gqlc = gqlc
     }
 
+    dockerNodesServicesAndTasksQuantity(){
+        return this.gqlc.query({
+            query: require('./gql/dockerNodesServicesAndTasksQuantity.graphql')
+        })
+    }
+
     dockerVersion() {
         return this.gqlc.query({
             query: require('./gql/dockerVersion.graphql')
@@ -84,6 +90,13 @@ class DockerProvider {
         return this.gqlc.query({
             query: require('./gql/fetchNode.graphql'),
             variables: {service},
+            fetchPolicy: "network-only"
+        })
+    }
+
+    fetchNodeAndTasks(){
+        return this.gqlc.query({
+            query: require('./gql/fetchNodeAndTasks.graphql'),
             fetchPolicy: "network-only"
         })
     }

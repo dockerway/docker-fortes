@@ -227,6 +227,33 @@ export const findTaskRunningByServiceAndNode = async function (serviceName, node
     }
 }
 
+export const fetchTasksByNodeId = async function (nodeId) {
+    try {
+        const opts = {
+            filters: JSON.stringify({
+                node: [nodeId]
+            })
+        }
+
+        const tasks = await docker.listTasks(opts)
+        if (!tasks || tasks.length === 0) throw new Error("Task not found")
+
+        return tasks.map(task => ({
+            id: task?.ID,
+            nodeId: task.NodeID,
+            createdAt: task?.CreatedAt,
+            updatedAt: task?.UpdatedAt,
+            state: task?.Status?.State,
+            message: task?.Status?.Message,
+            image: getImageObject(task?.Spec?.ContainerSpec?.Image),
+            serviceId: task?.ServiceID,
+            containerId: task?.Status?.ContainerStatus?.ContainerID,
+        }))
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
 export const dnsTaskRunningByServiceAndNode = async function (serviceName, nodeId) {
     try {
         const task = await findTaskRunningByServiceAndNode(serviceName, nodeId)

@@ -4,6 +4,7 @@ import ServicesPage from '../pages/ServicesPage'
 import NodesPage from '../pages/NodesPage'
 import NetworksPage from '../pages/NetworksPage'
 import WebTerminalPage from '../pages/WebTerminalPage'
+import ClusterInformationPage from '../pages/ClusterInformationPage'
 
 const routes = [
 
@@ -67,6 +68,17 @@ const routes = [
             permission: 'DOCKER_VIEW' 
         }
     },
+
+    {
+        name: 'ClusterInformationPage',
+        path: '/docker/cluster-information',
+        component: ClusterInformationPage,
+        meta: {
+            requiresAuth: true,
+            permission: 'DOCKER_VIEW'
+        }
+    }
+
 ]
 
 export default routes
