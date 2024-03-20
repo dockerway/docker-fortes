@@ -121,6 +121,11 @@ type DockerTaskLog{
     text: String
 }
 
+type DockerNodeResources{
+    NanoCPUs: Float
+    MemoryBytes: Float
+}
+
 type DockerNode{
     id: String
     hostname: String
@@ -131,6 +136,9 @@ type DockerNode{
     state: String
     engine: String
     availability: String
+    labels: JSON
+    resources: DockerNodeResources
+    tasks: [DockerTask]
 }
 
 input ServiceTaskLogs{
@@ -140,7 +148,14 @@ input ServiceTaskLogs{
     fetch: String
 }
 
+type dockerNodesServicesAndTasksQuantity{
+    nodesQuantity: Int!
+    servicesQuantity: Int!
+    tasksQuantity: Int!
+}
+
 type Query {
+    dockerNodesServicesAndTasksQuantity: dockerNodesServicesAndTasksQuantity
     dockerVersion: DockerVersion
     fetchStack: [DockerStack]
     findServiceById(id:String!):DockerService
@@ -153,6 +168,7 @@ type Query {
     findTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): DockerTask
     dnsTaskRunningByServiceAndNode(serviceName:String!, nodeId: String!): String
     fetchNode(role: String): [DockerNode]
+    fetchNodeAndTasks: [DockerNode]
     findNode(id: String): DockerNode
     serviceTaskLogs(task: String!,filters: ServiceTaskLogs): [DockerTaskLog]
     serviceStats(serviceId: ID!): [DockerTaskStats]
