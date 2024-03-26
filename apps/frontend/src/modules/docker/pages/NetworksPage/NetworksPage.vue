@@ -85,8 +85,8 @@ export default {
           ...network,
           IPAM: {
             ...network.IPAM,
-            Subnet: (network.IPAM.Config[0]) ? network.IPAM.Config[0].Subnet : null,
-            Gateway: (network.IPAM.Config[0]) ? network.IPAM.Config[0].Gateway : null,
+            Subnet: (network.IPAM) && (network.IPAM.Config) && (network.IPAM.Config.length > 0) && (network.IPAM.Config[0]) ? network.IPAM.Config[0].Subnet : null,
+            Gateway: (network.IPAM) && (network.IPAM.Config) && (network.IPAM.Config.length > 0) && (network.IPAM.Config[0]) ? network.IPAM.Config[0].Gateway : null,
           },
           Created: Dayjs(network.Created).format('YYYY-MM-DD HH:mm')
         }
@@ -94,13 +94,11 @@ export default {
     },
 
     async fetchNetworks() {
-      this.networks = this.getNormalizedNetworks((await DockerProvider.fetchNetworks()).data.fetchNetworks)
-      console.log(this.networks)
+      const rawNetworks = (await DockerProvider.fetchNetworks()).data.fetchNetworks
+      this.networks = this.getNormalizedNetworks(rawNetworks)
     },
 
     async fetchNetworksByFilters(filters){
-      console.log(`filters: ${JSON.stringify(filters, null, 2)}`)
-
       await this.fetchNetworks()
       const filteredNetworks = this.networks.filter((network) => {
 
