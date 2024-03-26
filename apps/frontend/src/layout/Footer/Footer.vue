@@ -10,7 +10,7 @@
       <v-card-actions>
         <v-spacer v-if="$vuetify.breakpoint.smAndUp"></v-spacer>
         <div class="pt-4">
-          {{ new Date().getFullYear() }} <strong>@PerfilIT</strong>
+          {{ new Date().getFullYear() }} <strong>@Sondeos</strong>
         </div>
 
         <v-spacer></v-spacer>

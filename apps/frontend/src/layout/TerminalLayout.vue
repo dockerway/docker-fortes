@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-card :dark="this.$vuetify.theme.dark">
     <v-app id="inspire" :style="{ background: $vuetify.theme.themes[theme].background, height: '64px' }">
       <v-navigation-drawer app v-model="drawer" disable-route-watcher temporary clipped fixed>
         <sidebar-menu :nav="menu" v-on:closeDrawer="drawer = false"></sidebar-menu>
@@ -13,15 +13,18 @@
       </v-app-bar>
     </v-app>
     <slot></slot>
-  </div>
+
+    <Footer></Footer>
+  </v-card>
 </template>
 
 <script>
 import SidebarMenu from './SidebarMenu'
+import Footer from './Footer'
 
 
 export default {
-  components: { SidebarMenu },
+  components: { SidebarMenu, Footer },
   name: "TerminalLayout",
   props: {
     menu: { type: Array, default: null },

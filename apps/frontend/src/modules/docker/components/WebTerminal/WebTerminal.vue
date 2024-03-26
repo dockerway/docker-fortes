@@ -1,5 +1,5 @@
 <template>
-  <v-card outlined>
+  <v-card outlined :dark="this.$vuetify.theme.dark">
     <v-card-title>{{ serviceNameAndStack ? serviceNameAndStack.name : null }}</v-card-title>
     <v-card-subtitle id="taskID">Task: {{ taskId }}</v-card-subtitle>
 
