@@ -64,7 +64,6 @@ const routes = [
         path: '/docker/terminal/:taskId/:terminal',
         component: WebTerminalPage,
         meta: { 
-            layout: 'TerminalLayout',
             requiresAuth: true,
             permission: 'DOCKER_VIEW' 
         }

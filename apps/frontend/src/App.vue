@@ -21,7 +21,6 @@
 
 <script>
 import Layout from "./layout/Layout";
-import TerminalLayout from "./layout/TerminalLayout";
 import menuConfig from './menu-config'
 import {DashboardButton, AppBarUserMenu} from '@dracul/user-frontend'
 import {LogoToolbar, TitleToolbar} from '@dracul/customize-frontend'
@@ -30,7 +29,7 @@ import ErrorSnackbar from "@/modules/base/components/ErrorSnackbar";
 
 export default {
   name: 'App',
-  components: {ErrorSnackbar, Layout,TerminalLayout, DashboardButton, AppBarUserMenu, LogoToolbar, TitleToolbar},
+  components: {ErrorSnackbar, Layout, DashboardButton, AppBarUserMenu, LogoToolbar, TitleToolbar},
   data() {
     return {
       menu: menuConfig
