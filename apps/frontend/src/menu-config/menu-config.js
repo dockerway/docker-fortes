@@ -41,6 +41,12 @@ export default [
                 text: 'menu.clusterInformation',
                 link: {name: "ClusterInformationPage"},
                 permission: 'DOCKER_VIEW'
+            },
+            {
+                icon: 'monitor_heart',
+                text: 'menu.containerMonitorization',
+                link: {name: "ContainerMonitorizationPage"},
+                permission: 'DOCKER_VIEW'
             }
         ]
     },

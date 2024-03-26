@@ -11,7 +11,8 @@ const messages = {
             nodes: "Nodes",
             audit: "Audit",
             networks: "Networks",
-            clusterInformation: "Cluster Information"
+            clusterInformation: "Cluster Information",
+            containerMonitorization: "Container containerMonitorization",
         }
     },
     es: {
@@ -25,7 +26,8 @@ const messages = {
             nodes: "Nodos",
             audit: "Auditoria",
             networks: "Redes",
-            clusterInformation: "Información de cluster"
+            clusterInformation: "Información de cluster",
+            containerMonitorization: "Monitorizacion de contenedores",
         }
     },
     pt: {
@@ -39,7 +41,8 @@ const messages = {
             nodes: "Nodes",
             audit: "Audit",
             networks: "Networks",
-            clusterInformation: "Informação de cluster"
+            clusterInformation: "Informação de cluster",
+            containerMonitorization: "Monitorizacion de contenedores",
         }
     }
 }
